@@ -1,0 +1,18 @@
+{
+  "name": "com.ggemco.2d.affect",
+  "version": "0.1.0",
+  "displayName": "GGemCo 2D Affect",
+  "description": "Data-driven Affect (buff/debuff) system with character-level central scheduler. Supports Stat/DamageType/State split, stack/dispel/tick, and skill-system integration.",
+  "unity": "2022.3",
+  "samples": [
+    {
+      "displayName": "Core Integration",
+      "description": "Adapter example for integrating with com.ggemco.2d.core characters via IAffectTarget.",
+      "path": "Samples~/CoreIntegration"
+    }
+  ],
+  "keywords": ["affect", "buff", "debuff", "status", "dot", "hot"],
+  "author": {
+    "name": "GGemCo"
+  }
+}
