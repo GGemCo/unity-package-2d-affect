@@ -2,7 +2,11 @@
 유니티에서 2D 게임을 만들때, 버프/디버프를 사용하기 위한 라이브러리 입니다.
 
 ## 기능
-- 버프/디버프
+- **Definition / Instance 분리**
+- **AffectModifier 서브 테이블 기반(1 Affect = N Modifier)**
+- **캐릭터 단위 중앙 스케줄러(Update 기반)**
+- **Status 3분리: Stat / DamageType / State**
+- **스택/그룹/디스펠/틱(DoT/HoT) 지원**
 
 ## 제작 환경
 - Unity : 2022.3.16f1 이상
