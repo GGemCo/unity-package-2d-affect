@@ -24,6 +24,27 @@ namespace GGemCo2DAffect
 
         private int _nextRuntimeId = 1;
 
+        /// <summary>
+        /// 어펙트 구성(추가/삭제/스택/리프레시)이 변경되었을 때 호출된다.
+        /// UI 등 외부 시스템은 이 이벤트를 통해 '구조 변경'을 즉시 반영할 수 있다.
+        /// (RemainingTime은 Update에서 계속 변하므로, 별도 동기화 주기가 필요하다.)
+        /// </summary>
+        public event Action Changed;
+
+        private bool _changedDirty;
+
+        private void MarkChanged()
+        {
+            _changedDirty = true;
+        }
+
+        private void FlushChangedIfNeeded()
+        {
+            if (!_changedDirty) return;
+            _changedDirty = false;
+            Changed?.Invoke();
+        }
+
         private readonly StatModifierExecutor _statExecutor = new();
         private readonly DamageExecutor _damageExecutor = new();
         private readonly StateExecutor _stateExecutor = new();
@@ -32,10 +53,19 @@ namespace GGemCo2DAffect
 
         private void Awake()
         {
-            _target = targetBehaviour as IAffectTarget;
+            // 1) 인스펙터로 지정된 경우 우선
+            if (targetBehaviour != null)
+                _target = targetBehaviour as IAffectTarget;
+
+            // 2) 미지정이면 같은 GO에서 자동 탐색 (Unity는 인터페이스 GetComponent 지원)
+            if (_target == null)
+                _target = GetComponent<IAffectTarget>();
+
             if (_target == null)
             {
-                Debug.LogError($"[AffectComponent] targetBehaviour must implement IAffectTarget. go={name}");
+                Debug.LogError($"[AffectComponent] IAffectTarget not found. go={name}");
+                enabled = false;
+                return;
             }
 
             _affectRepo = AffectRuntime.AffectRepository;
@@ -57,7 +87,7 @@ namespace GGemCo2DAffect
             if (dt <= 0f) return;
 
             // 삭제 큐(순회 중 컬렉션 변경 방지)
-            s_pendingRemoveIds.Clear();
+            SPendingRemoveIds.Clear();
 
             foreach (var kv in _byRuntimeId)
             {
@@ -78,17 +108,19 @@ namespace GGemCo2DAffect
                 }
 
                 if (instance.IsExpired)
-                    s_pendingRemoveIds.Add(runtimeId);
+                    SPendingRemoveIds.Add(runtimeId);
             }
 
             // 만료 정리
-            for (int i = 0; i < s_pendingRemoveIds.Count; i++)
-                RemoveByRuntimeId(s_pendingRemoveIds[i]);
+            for (int i = 0; i < SPendingRemoveIds.Count; i++)
+                RemoveByRuntimeId(SPendingRemoveIds[i]);
+
+            FlushChangedIfNeeded();
 
             enabled = HasAny;
         }
 
-        private static readonly List<int> s_pendingRemoveIds = new(32);
+        private static readonly List<int> SPendingRemoveIds = new(32);
 
         // ----------------------
         // Public API
@@ -97,6 +129,18 @@ namespace GGemCo2DAffect
         public bool HasAffect(int affectUid)
         {
             return _runtimeIdsByAffectUid.TryGetValue(affectUid, out var ids) && ids.Count > 0;
+        }
+
+        /// <summary>
+        /// 현재 활성화된 어펙트 인스턴스를 buffer에 채운다.
+        /// UI 등 외부 시스템이 현재 상태를 스냅샷으로 가져오기 위함이다.
+        /// </summary>
+        public void CollectActiveInstances(List<AffectInstance> buffer)
+        {
+            if (buffer == null) return;
+            buffer.Clear();
+            foreach (var kv in _byRuntimeId)
+                buffer.Add(kv.Value);
         }
 
         public void ApplyAffect(int affectUid, AffectApplyContext context = null)
@@ -136,6 +180,9 @@ namespace GGemCo2DAffect
             // 4) OnApply 실행
             ExecutePhase(AffectPhase.OnApply, instance);
 
+            MarkChanged();
+            FlushChangedIfNeeded();
+
             enabled = true;
         }
 
@@ -146,6 +193,7 @@ namespace GGemCo2DAffect
 
             RemoveByRuntimeId(runtimeId);
             enabled = HasAny;
+            FlushChangedIfNeeded();
         }
 
         public int Dispel(DispelQuery query)
@@ -153,7 +201,7 @@ namespace GGemCo2DAffect
             if (query == null) return 0;
 
             int removed = 0;
-            s_pendingRemoveIds.Clear();
+            SPendingRemoveIds.Clear();
 
             foreach (var kv in _byRuntimeId)
             {
@@ -161,27 +209,29 @@ namespace GGemCo2DAffect
                 var def = kv.Value.Definition;
                 if (!query.Match(def)) continue;
 
-                s_pendingRemoveIds.Add(kv.Key);
+                SPendingRemoveIds.Add(kv.Key);
                 removed++;
             }
 
-            for (int i = 0; i < s_pendingRemoveIds.Count; i++)
-                RemoveByRuntimeId(s_pendingRemoveIds[i]);
+            for (int i = 0; i < SPendingRemoveIds.Count; i++)
+                RemoveByRuntimeId(SPendingRemoveIds[i]);
 
             enabled = HasAny;
+            FlushChangedIfNeeded();
             return removed;
         }
 
         public void RemoveAll()
         {
-            s_pendingRemoveIds.Clear();
+            SPendingRemoveIds.Clear();
             foreach (var kv in _byRuntimeId)
-                s_pendingRemoveIds.Add(kv.Key);
+                SPendingRemoveIds.Add(kv.Key);
 
-            for (int i = 0; i < s_pendingRemoveIds.Count; i++)
-                RemoveByRuntimeId(s_pendingRemoveIds[i]);
+            for (int i = 0; i < SPendingRemoveIds.Count; i++)
+                RemoveByRuntimeId(SPendingRemoveIds[i]);
 
             enabled = false;
+            FlushChangedIfNeeded();
         }
 
         // ----------------------
@@ -196,7 +246,7 @@ namespace GGemCo2DAffect
 
             switch (def.StackPolicy)
             {
-                case StackPolicy.Ignore:
+                case StackPolicy.None:
                     return;
 
                 case StackPolicy.Refresh:
@@ -208,16 +258,22 @@ namespace GGemCo2DAffect
                         instance.AccumulateTick(-instance.TickElapsed); // tick reset
                         ExecutePhase(AffectPhase.OnApply, instance);
                     }
+                    MarkChanged();
+                    FlushChangedIfNeeded();
                     return;
 
                 case StackPolicy.Add:
                     instance.AddStack(def.MaxStacks);
                     if (def.RefreshPolicy != RefreshPolicy.None)
                         instance.Refresh(duration);
+                    MarkChanged();
+                    FlushChangedIfNeeded();
                     return;
 
                 default:
                     instance.Refresh(duration);
+                    MarkChanged();
+                    FlushChangedIfNeeded();
                     return;
             }
         }
@@ -228,9 +284,9 @@ namespace GGemCo2DAffect
             for (int i = 0; i < mods.Count; i++)
             {
                 var mod = mods[i];
-                if (mod == null || mod.Phase != phase) continue;
+                if (mod == null || mod.phase != phase) continue;
 
-                switch (mod.Kind)
+                switch (mod.kind)
                 {
                     case ModifierKind.Stat:
                         if (phase == AffectPhase.OnApply)
@@ -284,6 +340,8 @@ namespace GGemCo2DAffect
             {
                 _groupIndex.Remove(instance.Definition.GroupId ?? string.Empty);
             }
+
+            MarkChanged();
         }
 
         private void CleanupTokens(AffectInstance instance)

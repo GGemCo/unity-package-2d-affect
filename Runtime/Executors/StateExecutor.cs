@@ -23,15 +23,15 @@ namespace GGemCo2DAffect
         private static void TryApplyState(IAffectTarget target, AffectInstance instance, AffectModifierDefinition mod)
         {
             if (target == null || target.States == null || instance == null || mod == null) return;
-            if (string.IsNullOrWhiteSpace(mod.StateId)) return;
+            if (string.IsNullOrWhiteSpace(mod.stateId)) return;
 
-            if (target.States.IsImmune(mod.StateId)) return;
+            if (target.States.IsImmune(mod.stateId)) return;
 
-            float chance = Mathf.Clamp01(mod.StateChance <= 0f ? 1f : mod.StateChance);
+            float chance = Mathf.Clamp01(mod.stateChance <= 0f ? 1f : mod.stateChance);
             if (chance < 1f && Random.value > chance) return;
 
-            float duration = mod.StateDurationOverride > 0f ? mod.StateDurationOverride : instance.Definition.BaseDuration;
-            var token = target.States.ApplyState(mod.StateId, duration);
+            float duration = mod.stateDurationOverride > 0f ? mod.stateDurationOverride : instance.Definition.BaseDuration;
+            var token = target.States.ApplyState(mod.stateId, duration);
             instance.AddStateToken(token);
         }
     }

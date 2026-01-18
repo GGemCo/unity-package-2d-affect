@@ -5,37 +5,37 @@ namespace GGemCo2DAffect
     [Serializable]
     public sealed class AffectModifierDefinition
     {
-        public int AffectUid;
-        public int ModifierId;
+        public int affectUid;
+        public int modifierId;
 
-        public AffectPhase Phase;
-        public ModifierKind Kind;
+        public AffectPhase phase;
+        public ModifierKind kind;
 
         // --- Kind=Stat ---
-        public string StatId;
-        public float StatValue;
-        public ValueType StatValueType;
-        public StatOperation StatOperation;
+        public string statId;
+        public float statValue;
+        public StatValueType statValueType;
+        public StatOperation statOperation;
 
         // --- Kind=Damage ---
-        public string DamageTypeId;
-        public float DamageBaseValue;
-        public string ScalingStatId;
-        public float ScalingCoefficient;
-        public bool CanCrit;
-        public bool IsDot;
+        public string damageTypeId;
+        public float damageBaseValue;
+        public string scalingStatId;
+        public float scalingCoefficient;
+        public bool canCrit;
+        public bool isDot;
 
         // --- Kind=State ---
-        public string StateId;
-        public float StateChance;
-        public float StateDurationOverride;
+        public string stateId;
+        public float stateChance;
+        public float stateDurationOverride;
 
         // --- Common ---
-        public string ConditionId; // 확장용(예: TargetHasState:STUN 등)
+        public string conditionId; // 확장용(예: TargetHasState:STUN 등)
 
         public override string ToString()
         {
-            return $"AffectUid={AffectUid}, ModifierId={ModifierId}, Phase={Phase}, Kind={Kind}";
+            return $"AffectUid={affectUid}, ModifierId={modifierId}, Phase={phase}, Kind={kind}";
         }
     }
 }
