@@ -2,7 +2,7 @@
 using GGemCo2DCore;
 using GGemCo2DCoreEditor;
 
-namespace GGemCo2DTcgEditor
+namespace GGemCo2DAffectEditor
 {
     public class DefaultEditorWindowAffect : DefaultEditorWindow
     {

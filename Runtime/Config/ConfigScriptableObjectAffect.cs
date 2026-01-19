@@ -10,14 +10,9 @@ namespace GGemCo2DAffect
 
         private const string BasePath = ConfigDefine.NameSDK + "/" + ConfigPackageInfo.NamePackageAffect + "/";
 
-        private const string BasePathSettings = BasePath + "Settings/";
-
         private enum MenuOrdering
         {
             None,
-
-            TcgSettings,
-
         }
 
         public static readonly Dictionary<string, Type> SettingsTypes = new()
