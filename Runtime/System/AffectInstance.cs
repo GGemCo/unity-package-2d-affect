@@ -9,6 +9,7 @@ namespace GGemCo2DAffect
 
         public int Stacks { get; private set; } = 1;
         public float RemainingTime { get; private set; }
+        public float TotalDuration { get; }
         public float TickElapsed { get; private set; }
 
         private readonly List<object> _statTokens = new();
@@ -19,6 +20,7 @@ namespace GGemCo2DAffect
             Definition = definition;
             Context = context;
             RemainingTime = duration;
+            TotalDuration = duration;
             TickElapsed = 0f;
         }
 
