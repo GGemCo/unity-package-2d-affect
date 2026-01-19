@@ -1,0 +1,6 @@
+Uid	ID	Name
+1	STATE_STUN	Stun
+2	STATE_SLOW	Slow
+3	STATE_BURN	Burning
+4	STATE_FREEZE	Freeze
+5	STATE_POISON	Poison

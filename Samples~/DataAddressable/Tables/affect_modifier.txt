@@ -1,0 +1,13 @@
+AffectUid	ModifierId	Phase	Kind	StatId	StatValue	StatValueType	StatOperation	DamageTypeId	DamageBaseValue	ScalingStatId	ScalingCoefficient	CanCrit	IsDot	StateId	StateChance	StateDurationOverride
+1001	1	OnTick	Damage		0	None	None	DT_FIRE	5	STAT_ATK	0.2	0	1		0	0
+1001	2	OnApply	State		0	None	None		0		0	0	0	STATE_BURN	0.25	0
+1002	1	OnApply	State		0	None	None		0		0	0	0	STATE_FREEZE	1	3
+1003	1	OnApply	Stat	STAT_MOVE_SPEED	0.3	Percent	Multiply		0		0	0	0		0	0
+1003	2	OnApply	Stat	STAT_ATTACK_SPEED	0.2	Percent	Multiply		0		0	0	0		0	0
+1004	1	OnTick	Damage		0	None	None	DT_PHYSICAL	3	STAT_ATK	0.1	0	1		0	0
+1004	2	OnApply	State		0	None	None		0		0	0	0	STATE_POISON	1	0
+1005	1	OnApply	Stat	STAT_DEF	5	Flat	Add		0		0	0	0		0	0
+1005	2	OnApply	Stat	STAT_RESISTANCE_FIRE	0.1	Percent	Multiply		0		0	0	0		0	0
+1006	1	OnApply	Stat	STAT_ATK	10	Flat	Add		0		0	0	0		0	0
+1007	1	OnApply	Stat	STAT_DEF	10	Flat	Add		0		0	0	0		0	0
+1008	1	OnApply	Stat	STAT_MOVE_SPEED	20	Percent	Multiply		0		0	0	0		0	0

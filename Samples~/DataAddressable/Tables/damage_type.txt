@@ -1,0 +1,5 @@
+Uid	ID	Name
+1	DT_PHYSICAL	Physical
+2	DT_FIRE	Fire
+3	DT_COLD	Cold
+4	DT_LIGHTNING	Lightning

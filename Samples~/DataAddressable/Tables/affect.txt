@@ -1,0 +1,9 @@
+Uid	Memo	IconKey	DispelType	GroupId	BaseDuration	TickInterval	StackPolicy	MaxStacks	RefreshPolicy	Tags	VfxUid	VfxScale	VfxOffsetY	ApplyChance
+1001	화상	Icon/Affect/Burn		DOT_FIRE	6	1	Independent	5		debuff,fire,dot	0	1	0	1
+1002	빙결	Icon/Affect/Freeze		CC_COLD	3	0		1		debuff,cold,cc	0	1	0	1
+1003	가속	Icon/Affect/Haste		BUFF_SPEED	8	0		1		buff,speed	0	1	0	1
+1004	중독	Icon/Affect/Poison		DOT_POISON	10	2	Independent	10		debuff,poison,dot	0	1	0	0.6
+1005	가시	Icon/Affect/Thorns		BUFF_DEF	12	0		1		buff,defense	0	1	0	1
+1006	공격력 증가	Icon/Affect/AtkUp		BUFF_ATK	8	0		1		buff,attack	0	1	0	1
+1007	방어력 증가	Icon/Affect/DefUp		BUFF_DEF_UP	12	0		1		buff,defense	0	1	0	1
+1008	이동 속도 증가	Icon/Affect/MoveSpeedUp		BUFF_MOVE_SPEED	8	0		1		buff,speed	0	1	0	1

@@ -1,0 +1,8 @@
+Key,Shared Comments,English(en),English(en) Comments,Korean(ko),Korean(ko) Comments
+"Affect_Prefix_Chance","","{ChancePercentText}% chance","","{ChancePercentText}% 확률",""
+"Affect_Line_Stat","","{StatName} {Operation:choose(Add|Multiply|Override):+{ValueText}|x{ValueText}|={ValueText}}{ValueType:choose(Flat|Percent):|%}","","{StatName} {Operation:choose(Add|Multiply|Override):+{ValueText}|x{ValueText}|={ValueText}}{ValueType:choose(Flat|Percent):|%}",""
+"Affect_Line_Damage","","{DamageTypeName} {BaseValueText}{HasScaling:choose(True|False): + ({ScalingStatName} x {ScalingCoefText})|}{IsDot:choose(True|False): (DoT)|}{CanCrit:choose(True|False): (Can Crit)|}","","{DamageTypeName} {BaseValueText}{HasScaling:choose(True|False): + ({ScalingStatName} x {ScalingCoefText})|}{IsDot:choose(True|False): (지속 피해)|}{CanCrit:choose(True|False): (치명타 가능)|}",""
+"Affect_Line_State","","Apply {StateName} ({ChancePercentText}%){HasDuration:choose(True|False): for {DurationSecondsText}s|}","","{StateName} 적용 ({ChancePercentText}%){HasDuration:choose(True|False): ({DurationSecondsText}초)|}",""
+"Affect_Info_Duration","","Duration: {SecondsText}s","","지속시간: {SecondsText}초",""
+"Affect_Info_Tick","","Tick: every {SecondsText}s","","틱: {SecondsText}초마다",""
+"Affect_Info_Stack","","Stacks: {StackPolicy}{HasMaxStacks:choose(True|False): (Max {MaxStacksText})|}","","중첩: {StackPolicy}{HasMaxStacks:choose(True|False): (최대 {MaxStacksText})|}",""
