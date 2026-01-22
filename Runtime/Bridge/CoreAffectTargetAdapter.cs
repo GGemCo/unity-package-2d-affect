@@ -322,23 +322,23 @@ namespace GGemCo2DAffect
             }
 
             /// <summary>
-            /// 문자열 기반 피해 타입 ID를 Core의 <see cref="SkillConstants.DamageType"/>로 매핑한다.
+            /// 문자열 기반 피해 타입 ID를 Core의 <see cref="ConfigCommon.DamageType"/>로 매핑한다.
             /// </summary>
             /// <param name="damageTypeId">피해 타입 ID.</param>
-            /// <returns>매핑 결과. 알 수 없으면 <see cref="SkillConstants.DamageType.None"/>.</returns>
-            private static SkillConstants.DamageType MapDamageType(string damageTypeId)
+            /// <returns>매핑 결과. 알 수 없으면 <see cref="ConfigCommon.DamageType.None"/>.</returns>
+            private static ConfigCommon.DamageType MapDamageType(string damageTypeId)
             {
-                if (string.IsNullOrWhiteSpace(damageTypeId)) return SkillConstants.DamageType.None;
+                if (string.IsNullOrWhiteSpace(damageTypeId)) return ConfigCommon.DamageType.None;
 
                 // 프로젝트 테이블/정책에 따라 확장 가능.
                 if (string.Equals(damageTypeId, "Fire", StringComparison.OrdinalIgnoreCase))
-                    return SkillConstants.DamageType.Fire;
+                    return ConfigCommon.DamageType.Fire;
                 if (string.Equals(damageTypeId, "Cold", StringComparison.OrdinalIgnoreCase))
-                    return SkillConstants.DamageType.Cold;
+                    return ConfigCommon.DamageType.Cold;
                 if (string.Equals(damageTypeId, "Lightning", StringComparison.OrdinalIgnoreCase))
-                    return SkillConstants.DamageType.Lightning;
+                    return ConfigCommon.DamageType.Lightning;
 
-                return SkillConstants.DamageType.None;
+                return ConfigCommon.DamageType.None;
             }
         }
     }
