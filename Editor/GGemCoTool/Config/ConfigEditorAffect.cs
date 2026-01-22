@@ -42,9 +42,8 @@ namespace GGemCo2DAffectEditor
 
             /// <summary>테스트 도구 메뉴 섹션의 시작 위치입니다.</summary>
             Test = 200,
-
-            /// <summary>셔플(Shuffle) 미리보기 메뉴의 위치입니다.</summary>
-            PreviewShuffle,
+            Debug = 300,
+            DebugAffectDescription,
 
             /// <summary>기타 도구 메뉴 섹션의 시작 위치입니다.</summary>
             Etc = 900,
@@ -53,14 +52,14 @@ namespace GGemCo2DAffectEditor
         /// <summary>
         /// Affect 툴 메뉴의 최상위 경로 접두사입니다.
         /// </summary>
-        private const string NameToolGGemCo = ConfigDefine.NameSDK + "ToolAffect/";
+        private const string NameToolGGemCoAffect = ConfigDefine.NameSDK+"ToolAffect/";
 
         // 기본 셋팅하기
 
         /// <summary>
         /// 기본 셋팅 메뉴(설정하기)의 경로 접두사입니다.
         /// </summary>
-        private const string NameToolSettings = NameToolGGemCo + "설정하기/";
+        private const string NameToolSettings = NameToolGGemCoAffect + "설정하기/";
 
         /// <summary>
         /// "자동 셋팅하기" 메뉴 경로입니다.
@@ -92,29 +91,27 @@ namespace GGemCo2DAffectEditor
         /// </summary>
         public const string NameToolSettingSceneGame = NameToolSettings + "게임 씬 셋팅하기";
 
-        // 개발툴
-
         /// <summary>
         /// 개발툴 메뉴의 경로 접두사입니다.
         /// </summary>
-        private const string NameToolDevelopment = NameToolGGemCo + "개발툴/";
-
-        // 테스트
+        private const string NameToolDevelopment = NameToolGGemCoAffect + "개발툴/";
 
         /// <summary>
         /// 테스트툴 메뉴의 경로 접두사입니다.
         /// </summary>
         /// <remarks>
-        /// NOTE: 현재 문자열이 "태스트툴"로 되어 있는데, 의도한 표기가 "테스트툴"이라면 수정이 필요합니다.
+        /// NOTE: 현재 문자열이 "테스트툴"로 되어 있는데, 의도한 표기가 "테스트툴"이라면 수정이 필요합니다.
         /// </remarks>
-        private const string NameToolTest = NameToolGGemCo + "태스트툴/";
-
-        // etc
+        private const string NameToolTest = NameToolGGemCoAffect + "테스트툴/";
+        
+        // 디버그
+        private const string NameToolDebug = NameToolGGemCoAffect + "디버그툴/";
+        public const string NameToolDebugAffectDescription = NameToolDebug + "Affect 설명 체크기";
 
         /// <summary>
         /// 기타 메뉴의 경로 접두사입니다.
         /// </summary>
-        private const string NameToolEtc = NameToolGGemCo + "기타/";
+        private const string NameToolEtc = NameToolGGemCoAffect + "기타/";
 
         /// <summary>
         /// 패키지 내 Affect 에디터에서 참조하는 기본 경로(패키지 루트)입니다.

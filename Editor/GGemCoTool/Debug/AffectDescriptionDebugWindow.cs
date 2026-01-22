@@ -51,7 +51,7 @@ namespace GGemCo2DAffectEditor
         /// <summary>
         /// Unity 메뉴에서 호출되어 디버그 윈도우를 엽니다.
         /// </summary>
-        [MenuItem(ConfigEditor.NameToolDebugAffectDescription, false, (int)ConfigEditor.ToolOrdering.DebugAffectDescription)]
+        [MenuItem(ConfigEditorAffect.NameToolDebugAffectDescription, false, (int)ConfigEditorAffect.ToolOrdering.DebugAffectDescription)]
         private static void Open()
         {
             GetWindow<AffectDescriptionDebugWindow>(Title);
