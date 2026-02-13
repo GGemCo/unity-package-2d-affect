@@ -42,6 +42,7 @@ namespace GGemCo2DAffectEditor
 
             /// <summary>테스트 도구 메뉴 섹션의 시작 위치입니다.</summary>
             Test = 200,
+            UseAffect,
             Debug = 300,
             DebugAffectDescription,
 
@@ -103,6 +104,8 @@ namespace GGemCo2DAffectEditor
         /// NOTE: 현재 문자열이 "테스트툴"로 되어 있는데, 의도한 표기가 "테스트툴"이라면 수정이 필요합니다.
         /// </remarks>
         private const string NameToolTest = NameToolGGemCoAffect + "테스트툴/";
+
+        public const string NameToolUseAffect = NameToolTest + "Affect 사용하기";
         
         // 디버그
         private const string NameToolDebug = NameToolGGemCoAffect + "디버그툴/";
