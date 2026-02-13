@@ -24,6 +24,9 @@ namespace GGemCo2DAffect
         {
             // 플레이/빌드 모두에서 안전하게 등록
             AffectBridge.SetProvider(new AffectDescriptionProvider());
+
+            // Affect 이펙트를 Core 이펙트 시스템으로 연결
+            AffectRuntime.EffectService = new CoreAffectEffectService();
         }
     }
 }

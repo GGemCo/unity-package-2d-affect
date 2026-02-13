@@ -82,19 +82,34 @@ namespace GGemCo2DAffect
         public string Tags;
 
         /// <summary>
-        /// 재생할 VFX 식별자 UID.
+        /// 재생할 Effect 식별자 UID.
         /// </summary>
-        public int VfxUid;
+        public int EffectUid;
 
         /// <summary>
-        /// VFX 스케일 배율.
+        /// Effect 스케일 배율.
         /// </summary>
-        public float VfxScale;
+        public float EffectScale;
 
         /// <summary>
-        /// VFX Y축 오프셋 값.
+        /// Effect Y축 오프셋 값.
         /// </summary>
-        public float VfxOffsetY;
+        public float EffectOffsetY;
+
+        /// <summary>
+        /// Effect 표시 기준 위치 타입.
+        /// </summary>
+        public AffectEffectPositionType EffectPositionType;
+
+        /// <summary>
+        /// Effect 추적(Follow) 타입.
+        /// </summary>
+        public AffectEffectFollowType EffectFollowType;
+
+        /// <summary>
+        /// Effect 정렬 레이어 키. Core의 <see cref="ConfigSortingLayer.Keys"/> 중 하나.
+        /// </summary>
+        public ConfigSortingLayer.Keys EffectSortingLayerKey;
 
         /// <summary>
         /// 어펙트 적용 확률(0~1 범위 기대).
@@ -169,9 +184,12 @@ namespace GGemCo2DAffect
                 MaxStacks = MathHelper.ParseInt(data.GetValueOrDefault("MaxStacks")),
                 RefreshPolicy = EnumHelper.ConvertEnum<RefreshPolicy>(data.GetValueOrDefault("RefreshPolicy")),
                 Tags = data.GetValueOrDefault("Tags"),
-                VfxUid = MathHelper.ParseInt(data.GetValueOrDefault("VfxUid")),
-                VfxScale = MathHelper.ParseFloat(data.GetValueOrDefault("VfxScale")),
-                VfxOffsetY = MathHelper.ParseFloat(data.GetValueOrDefault("VfxOffsetY")),
+                EffectUid = MathHelper.ParseInt(data.GetValueOrDefault("EffectUid")),
+                EffectScale = MathHelper.ParseFloat(data.GetValueOrDefault("EffectScale")),
+                EffectOffsetY = MathHelper.ParseFloat(data.GetValueOrDefault("EffectOffsetY")),
+                EffectPositionType = EnumHelper.ConvertEnum<AffectEffectPositionType>(data.GetValueOrDefault("EffectPositionType")),
+                EffectFollowType = EnumHelper.ConvertEnum<AffectEffectFollowType>(data.GetValueOrDefault("EffectFollowType")),
+                EffectSortingLayerKey = EnumHelper.ConvertEnum<ConfigSortingLayer.Keys>(data.GetValueOrDefault("EffectSortingLayerKey")),
                 ApplyChance = MathHelper.ParseFloat(data.GetValueOrDefault("ApplyChance"))
             };
         }

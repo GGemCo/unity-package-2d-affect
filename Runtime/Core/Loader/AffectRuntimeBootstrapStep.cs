@@ -87,9 +87,12 @@ namespace GGemCo2DAffect
                     maxStacks = row.MaxStacks,
                     refreshPolicy = row.RefreshPolicy,
                     dispelType = row.DispelType,
-                    vfxUid = row.VfxUid,
-                    vfxScale = row.VfxScale,
-                    vfxOffsetY = row.VfxOffsetY,
+                    effectUid = row.EffectUid,
+                    effectScale = row.EffectScale,
+                    effectOffsetY = row.EffectOffsetY,
+                    effectPositionType = row.EffectPositionType,
+                    effectFollowType = row.EffectFollowType,
+                    effectSortingLayerKey = row.EffectSortingLayerKey,
                     applyChance = row.ApplyChance
                 };
 

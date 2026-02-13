@@ -30,13 +30,13 @@ namespace GGemCo2DAffect
             = new InMemoryStatusRepository();
 
         /// <summary>
-        /// 어펙트에 의해 재생되는 VFX 서비스를 제공한다.
+        /// 어펙트에 의해 재생되는 이펙트 서비스를 제공한다.
         /// </summary>
         /// <remarks>
-        /// 기본값은 NullAffectVfxService로, VFX가 필요 없는 환경에서도
+        /// 기본값은 NullAffectEffectService로, 이펙트가 필요 없는 환경에서도
         /// null 체크 없이 안전하게 호출할 수 있도록 한다(Null Object 패턴).
         /// </remarks>
-        public static IAffectVfxService VfxService { get; set; }
-            = new NullAffectVfxService();
+        public static IAffectEffectService EffectService { get; set; }
+            = new NullAffectEffectService();
     }
 }

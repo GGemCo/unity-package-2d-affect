@@ -43,7 +43,7 @@ namespace GGemCo2DAffect
         public void Register(AffectDefinition definition, List<AffectModifierDefinition> modifiers)
         {
             // NOTE: 중복 UID가 등록되면 기존 정의를 덮어씁니다.
-            Debug.Log($"affect 등록. Uid: {definition.uid}");
+            // Debug.Log($"affect 등록. Uid: {definition.uid} / vfxPositionType: {definition.effectPositionType} / vfxFollowType: {definition.effectFollowType}");
 
             _affects[definition.uid] = definition;
             _modifiers[definition.uid] = modifiers ?? new List<AffectModifierDefinition>(0);
@@ -59,7 +59,7 @@ namespace GGemCo2DAffect
         /// </returns>
         public bool TryGetAffect(int affectUid, out AffectDefinition definition)
         {
-            Debug.Log($"affect 가져오기. count: {_affects.Count}, uid: {affectUid}");
+            // Debug.Log($"affect 가져오기. count: {_affects.Count}, uid: {affectUid}");
             return _affects.TryGetValue(affectUid, out definition);
         }
 

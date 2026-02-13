@@ -62,7 +62,7 @@ namespace GGemCo2DAffect
             }
 
             _stats = new CoreStatMutable(_character);
-            _states = new CoreStateMutable();
+            _states = new CoreStateMutable(_character);
             _damage = new CoreDamageReceiver(_character);
         }
 
@@ -201,7 +201,17 @@ namespace GGemCo2DAffect
         /// </remarks>
         private sealed class CoreStateMutable : IStateMutable
         {
-            private readonly HashSet<string> _states = new(StringComparer.Ordinal);
+            // private const string StateDontControl = "DontControl";
+
+            private readonly CharacterBase _character;
+
+            // 동일 State가 여러 경로(그로기+컷씬+대화 등)로 중첩 적용될 수 있어 카운트로 관리한다.
+            private readonly Dictionary<string, int> _counts = new(StringComparer.Ordinal);
+
+            public CoreStateMutable(CharacterBase character)
+            {
+                _character = character;
+            }
 
             /// <summary>
             /// 특정 상태가 적용되어 있는지 확인한다.
@@ -211,7 +221,7 @@ namespace GGemCo2DAffect
             public bool HasState(string stateId)
             {
                 if (string.IsNullOrWhiteSpace(stateId)) return false;
-                return _states.Contains(stateId);
+                return _counts.TryGetValue(stateId, out var c) && c > 0;
             }
 
             /// <summary>
@@ -227,7 +237,17 @@ namespace GGemCo2DAffect
             {
                 if (string.IsNullOrWhiteSpace(stateId)) return null;
 
-                _states.Add(stateId);
+                int next = 1;
+                if (_counts.TryGetValue(stateId, out var cur))
+                    next = cur + 1;
+                _counts[stateId] = next;
+
+                // DontControl은 Core의 실제 상태로 브릿지한다.
+                if (string.Equals(stateId, ConfigCommonAffect.State.DontControl, StringComparison.Ordinal))
+                {
+                    _character?.SetStatusDontControl();
+                }
+
                 return new StateToken(stateId);
             }
 
@@ -240,7 +260,21 @@ namespace GGemCo2DAffect
                 if (token is not StateToken t) return;
                 if (string.IsNullOrWhiteSpace(t.StateId)) return;
 
-                _states.Remove(t.StateId);
+                if (!_counts.TryGetValue(t.StateId, out var cur) || cur <= 0)
+                    return;
+
+                int next = cur - 1;
+                if (next <= 0)
+                    _counts.Remove(t.StateId);
+                else
+                    _counts[t.StateId] = next;
+
+                // DontControl이 완전히 해제되면 Idle 상태로 복귀한다.
+                // 정책: CharacterBase.Stop()을 호출하여 Idle 처리.
+                if (next <= 0 && string.Equals(t.StateId, ConfigCommonAffect.State.DontControl, StringComparison.Ordinal))
+                {
+                    _character?.Stop();
+                }
             }
 
             /// <summary>
@@ -331,11 +365,11 @@ namespace GGemCo2DAffect
                 if (string.IsNullOrWhiteSpace(damageTypeId)) return ConfigCommon.DamageType.None;
 
                 // 프로젝트 테이블/정책에 따라 확장 가능.
-                if (string.Equals(damageTypeId, "Fire", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(damageTypeId, ConfigCommon.DamageTypeString.Fire, StringComparison.OrdinalIgnoreCase))
                     return ConfigCommon.DamageType.Fire;
-                if (string.Equals(damageTypeId, "Cold", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(damageTypeId, ConfigCommon.DamageTypeString.Cold, StringComparison.OrdinalIgnoreCase))
                     return ConfigCommon.DamageType.Cold;
-                if (string.Equals(damageTypeId, "Lightning", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(damageTypeId, ConfigCommon.DamageTypeString.Lightning, StringComparison.OrdinalIgnoreCase))
                     return ConfigCommon.DamageType.Lightning;
 
                 return ConfigCommon.DamageType.None;

@@ -20,4 +20,14 @@ namespace GGemCo2DAffect
 
     /// <summary>Stat Modifier 연산.</summary>
     public enum StatOperation { None, Add, Multiply, Override }
+
+    /// <summary>
+    /// Affect 이펙트를 표시할 기준 위치 타입.
+    /// </summary>
+    public enum AffectEffectPositionType { Default, Head }
+
+    /// <summary>
+    /// Affect 이펙트가 타겟을 추적할지 여부.
+    /// </summary>
+    public enum AffectEffectFollowType { None, Follow }
 }

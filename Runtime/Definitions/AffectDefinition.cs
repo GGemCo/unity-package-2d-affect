@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GGemCo2DCore;
 
 namespace GGemCo2DAffect
 {
@@ -80,17 +81,32 @@ namespace GGemCo2DAffect
         /// <summary>
         /// 연출에 사용되는 VFX 식별자.
         /// </summary>
-        public int vfxUid;
+        public int effectUid;
 
         /// <summary>
         /// VFX 스케일 배율.
         /// </summary>
-        public float vfxScale;
+        public float effectScale;
 
         /// <summary>
         /// VFX Y축 오프셋 값.
         /// </summary>
-        public float vfxOffsetY;
+        public float effectOffsetY;
+
+        /// <summary>
+        /// VFX 표시 기준 위치 타입.
+        /// </summary>
+        public AffectEffectPositionType effectPositionType;
+
+        /// <summary>
+        /// VFX 추적(Follow) 타입.
+        /// </summary>
+        public AffectEffectFollowType effectFollowType;
+
+        /// <summary>
+        /// VFX 정렬 레이어 키. Core의 <see cref="GGemCo2DCore.ConfigSortingLayer.Keys"/> 중 하나를 문자열로 저장한다.
+        /// </summary>
+        public ConfigSortingLayer.Keys effectSortingLayerKey;
 
         /// <summary>
         /// Affect 적용 확률(0~1 범위 기대).
