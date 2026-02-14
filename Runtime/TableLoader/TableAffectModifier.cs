@@ -128,6 +128,7 @@ namespace GGemCo2DAffect
                 stateId = row.GetValueOrDefault("StateId"),
                 stateChance = MathHelper.ParseFloat(row.GetValueOrDefault("StateChance")),
                 stateDurationOverride = MathHelper.ParseFloat(row.GetValueOrDefault("StateDurationOverride")),
+                crowdControlUid = MathHelper.ParseInt(row.GetValueOrDefault("CrowdControlUid")),
             };
 
             return mod;

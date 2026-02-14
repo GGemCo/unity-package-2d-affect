@@ -13,7 +13,7 @@ namespace GGemCo2DAffect
     public enum AffectPhase { OnApply, OnTick, OnExpire }
 
     /// <summary>Modifier의 종류(Stat/DamageType/State).</summary>
-    public enum ModifierKind { Stat, Damage, State, Custom }
+    public enum ModifierKind { Stat, Damage, State, CrowdControl, Custom }
 
     /// <summary>값 해석 방식.</summary>
     public enum StatValueType { None, Flat, Percent }

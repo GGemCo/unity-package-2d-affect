@@ -60,6 +60,7 @@ namespace GGemCo2DAffect
         private readonly StatModifierExecutor _statExecutor = new();
         private readonly DamageExecutor _damageExecutor = new();
         private readonly StateExecutor _stateExecutor = new();
+        private readonly CrowdControlExecutor _crowdControlExecutor = new();
 
         /// <summary>
         /// 현재 활성 어펙트가 1개 이상 존재하는지 여부.
@@ -390,6 +391,11 @@ namespace GGemCo2DAffect
                             _stateExecutor.ExecuteOnApply(_target, instance, mod, _affectRepo, _statusRepo);
                         else if (phase == AffectPhase.OnTick)
                             _stateExecutor.ExecuteOnTick(_target, instance, mod, _affectRepo, _statusRepo);
+                        break;
+
+                    case ModifierKind.CrowdControl:
+                        if (phase == AffectPhase.OnApply)
+                            _crowdControlExecutor.ExecuteOnApply(_target, instance, mod, _affectRepo, _statusRepo);
                         break;
 
                     default:
