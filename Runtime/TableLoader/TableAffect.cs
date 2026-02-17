@@ -149,7 +149,7 @@ namespace GGemCo2DAffect
             if (data == null) return;
 
             // 기존 방식과의 호환: 로컬라이징 키가 비어있으면 uid 문자열을 사용한다.
-            if (LocalizationManager.Instance != null)
+            if (LocalizationManagerAffect.Instance != null)
             {
                 data.Name = LocalizationManagerAffect.Instance.GetAffectNameByKey($"{data.Uid}");
             }
