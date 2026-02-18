@@ -174,6 +174,7 @@ namespace GGemCo2DAffect
                 if (statId == ConfigCommon.StatusStatResistanceFire) return _character.TotalRegistFire.Value;
                 if (statId == ConfigCommon.StatusStatResistanceCold) return _character.TotalRegistCold.Value;
                 if (statId == ConfigCommon.StatusStatResistanceLightning) return _character.TotalRegistLightning.Value;
+                if (statId == ConfigCommon.StatusStatResistancePoison) return _character.TotalRegistPoison.Value;
 
                 return 0f;
             }
@@ -371,6 +372,8 @@ namespace GGemCo2DAffect
                     return ConfigCommon.DamageType.Cold;
                 if (string.Equals(damageTypeId, ConfigCommon.DamageTypeString.Lightning, StringComparison.OrdinalIgnoreCase))
                     return ConfigCommon.DamageType.Lightning;
+                if (string.Equals(damageTypeId, ConfigCommon.DamageTypeString.Poison, StringComparison.OrdinalIgnoreCase))
+                    return ConfigCommon.DamageType.Poison;
 
                 return ConfigCommon.DamageType.None;
             }
