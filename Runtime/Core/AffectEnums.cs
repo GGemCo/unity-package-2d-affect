@@ -30,4 +30,21 @@ namespace GGemCo2DAffect
     /// Affect 이펙트가 타겟을 추적할지 여부.
     /// </summary>
     public enum AffectEffectFollowType { None, Follow }
+
+    /// <summary>
+    /// Affect 이펙트를 어펙트 지속시간 동안 반복(Loop)할지, 1회만 재생할지 선택합니다.
+    /// </summary>
+    public enum AffectEffectPlayMode
+    {
+        /// <summary>
+        /// 어펙트 지속 시간(duration)에 맞춰 반복 재생합니다.
+        /// (기존 동작과 동일)
+        /// </summary>
+        LoopDuringAffectDuration,
+
+        /// <summary>
+        /// 1회만 재생하고 종료합니다. (어펙트 지속시간과 무관)
+        /// </summary>
+        Once
+    }
 }

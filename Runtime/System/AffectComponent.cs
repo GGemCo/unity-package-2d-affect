@@ -467,6 +467,7 @@ namespace GGemCo2DAffect
                     instance.Definition.effectScale,
                     instance.Definition.effectOffsetY,
                     duration,
+                    instance.Definition.effectPlayMode,
                     instance.Definition.effectPositionType,
                     instance.Definition.effectFollowType,
                     instance.Definition.effectSortingLayerKey);

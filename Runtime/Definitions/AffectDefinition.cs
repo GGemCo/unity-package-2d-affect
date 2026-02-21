@@ -84,6 +84,11 @@ namespace GGemCo2DAffect
         public int effectUid;
 
         /// <summary>
+        /// VFX 재생 방식.
+        /// </summary>
+        public AffectEffectPlayMode effectPlayMode;
+
+        /// <summary>
         /// VFX 스케일 배율.
         /// </summary>
         public float effectScale;

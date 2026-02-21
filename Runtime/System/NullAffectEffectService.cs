@@ -26,6 +26,7 @@ namespace GGemCo2DAffect
             float scale,
             float offsetY,
             float duration,
+            AffectEffectPlayMode playMode,
             AffectEffectPositionType positionType,
             AffectEffectFollowType followType,
             ConfigSortingLayer.Keys sortingLayerKey) => null;

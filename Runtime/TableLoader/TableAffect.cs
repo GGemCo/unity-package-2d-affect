@@ -87,6 +87,13 @@ namespace GGemCo2DAffect
         public int EffectUid;
 
         /// <summary>
+        /// Effect 재생 방식.
+        /// - LoopDuringAffectDuration: 어펙트 적용 시간 동안 반복 재생(기존 동작)
+        /// - Once: 1회만 재생
+        /// </summary>
+        public AffectEffectPlayMode EffectPlayMode;
+
+        /// <summary>
         /// Effect 스케일 배율.
         /// </summary>
         public float EffectScale;
@@ -185,6 +192,7 @@ namespace GGemCo2DAffect
                 RefreshPolicy = EnumHelper.ConvertEnum<RefreshPolicy>(data.GetValueOrDefault("RefreshPolicy")),
                 Tags = data.GetValueOrDefault("Tags"),
                 EffectUid = MathHelper.ParseInt(data.GetValueOrDefault("EffectUid")),
+                EffectPlayMode = EnumHelper.ConvertEnum<AffectEffectPlayMode>(data.GetValueOrDefault("EffectPlayMode")),
                 EffectScale = MathHelper.ParseFloat(data.GetValueOrDefault("EffectScale")),
                 EffectOffsetY = MathHelper.ParseFloat(data.GetValueOrDefault("EffectOffsetY")),
                 EffectPositionType = EnumHelper.ConvertEnum<AffectEffectPositionType>(data.GetValueOrDefault("EffectPositionType")),

@@ -1,4 +1,3 @@
-using System;
 using GGemCo2DCore;
 using UnityEngine;
 
@@ -20,6 +19,7 @@ namespace GGemCo2DAffect
             float scale,
             float offsetY,
             float duration,
+            AffectEffectPlayMode playMode,
             AffectEffectPositionType positionType,
             AffectEffectFollowType followType,
             ConfigSortingLayer.Keys sortingLayerKey)
@@ -33,7 +33,11 @@ namespace GGemCo2DAffect
             if (effect == null) return null;
 
             // 기본 파라미터
-            if (duration > 0f) effect.SetDuration(duration);
+            // NOTE:
+            // - LoopDuringAffectDuration: duration을 그대로 전달(0이면 기본 규칙, 음수는 무제한 loop)
+            // - Once: duration을 0으로 취급하여 1회 재생
+            float resolvedDuration = playMode == AffectEffectPlayMode.Once ? 0f : duration;
+            if (resolvedDuration != 0f) effect.SetDuration(resolvedDuration);
             if (scale > 0f) effect.SetScale(scale);
 
             // SortingLayer

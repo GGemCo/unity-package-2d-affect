@@ -88,6 +88,7 @@ namespace GGemCo2DAffect
                     refreshPolicy = row.RefreshPolicy,
                     dispelType = row.DispelType,
                     effectUid = row.EffectUid,
+                    effectPlayMode = row.EffectPlayMode,
                     effectScale = row.EffectScale,
                     effectOffsetY = row.EffectOffsetY,
                     effectPositionType = row.EffectPositionType,
