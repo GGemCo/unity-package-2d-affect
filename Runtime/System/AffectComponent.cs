@@ -21,6 +21,7 @@ namespace GGemCo2DAffect
         private IAffectDefinitionRepository _affectRepo;
         private IStatusDefinitionRepository _statusRepo;
         private IAffectEffectService _effect;
+        private IAffectOutlineService _outline;
 
         private readonly Dictionary<int, AffectInstance> _byRuntimeId = new();
         private readonly Dictionary<int, List<int>> _runtimeIdsByAffectUid = new();
@@ -96,6 +97,7 @@ namespace GGemCo2DAffect
             _affectRepo = AffectRuntime.AffectRepository;
             _statusRepo = AffectRuntime.StatusRepository;
             _effect = AffectRuntime.EffectService;
+            _outline = AffectRuntime.OutlineService;
 
             // 활성 인스턴스가 있을 때만 Update를 돌린다.
             enabled = HasAny;
@@ -474,6 +476,21 @@ namespace GGemCo2DAffect
 
                 instance.EffectToken = token;
             }
+
+            // Outline: OnApply 시 적용 (적용 중 갱신될 수 있으므로 기존 토큰은 안전하게 제거 후 재적용)
+            if (phase == AffectPhase.OnApply && instance.Definition.useOutline)
+            {
+                if (instance.OutlineToken != null)
+                {
+                    _outline?.Remove(instance.OutlineToken);
+                    instance.OutlineToken = null;
+                }
+
+                int px = instance.Definition.outlinePixelSize;
+                if (px <= 0) px = 1;
+                Color color = instance.Definition.outlineColor;
+                instance.OutlineToken = _outline?.Apply(_target, px, color);
+            }
         }
 
         /// <summary>
@@ -499,6 +516,13 @@ namespace GGemCo2DAffect
             {
                 _effect?.Stop(instance.EffectToken);
                 instance.EffectToken = null;
+            }
+
+            // Outline 해제(만료/해제)
+            if (instance.OutlineToken != null)
+            {
+                _outline?.Remove(instance.OutlineToken);
+                instance.OutlineToken = null;
             }
 
             // 토큰 회수(Stat/State)

@@ -53,6 +53,12 @@ namespace GGemCo2DAffect
         public object EffectToken { get; set; }
 
         /// <summary>
+        /// Outline 서비스가 반환한 토큰(핸들)입니다.
+        /// 만료/해제 시 <see cref="IAffectOutlineService.Remove"/> 호출에 사용됩니다.
+        /// </summary>
+        public object OutlineToken { get; set; }
+
+        /// <summary>
         /// 어펙트 인스턴스를 생성한다.
         /// </summary>
         /// <param name="definition">적용할 어펙트 정의.</param>

@@ -38,5 +38,15 @@ namespace GGemCo2DAffect
         /// </remarks>
         public static IAffectEffectService EffectService { get; set; }
             = new NullAffectEffectService();
+
+        /// <summary>
+        /// 어펙트 적용 시간 동안 타겟 외형(Outline 등)을 제어하는 서비스.
+        /// </summary>
+        /// <remarks>
+        /// 기본값은 <see cref="NullAffectOutlineService"/>로, Outline을 사용하지 않는 환경에서도
+        /// null 체크 없이 안전하게 호출할 수 있도록 한다.
+        /// </remarks>
+        public static IAffectOutlineService OutlineService { get; set; }
+            = new NullAffectOutlineService();
     }
 }

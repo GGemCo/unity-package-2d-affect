@@ -94,7 +94,12 @@ namespace GGemCo2DAffect
                     effectPositionType = row.EffectPositionType,
                     effectFollowType = row.EffectFollowType,
                     effectSortingLayerKey = row.EffectSortingLayerKey,
-                    applyChance = row.ApplyChance
+                    applyChance = row.ApplyChance,
+
+                    // Visual decorators
+                    useOutline = row.UseOutline,
+                    outlinePixelSize = row.OutlinePixelSize,
+                    outlineColor = row.OutlineColor
                 };
 
                 // Tags: "a,b c" 형태를 콤마/공백 기준으로 분리하여 정규화한다.

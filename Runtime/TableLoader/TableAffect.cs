@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using GGemCo2DCore;
+using UnityEngine;
 
 namespace GGemCo2DAffect
 {
@@ -124,6 +125,24 @@ namespace GGemCo2DAffect
         public float ApplyChance;
 
         /// <summary>
+        /// 어펙트 적용 시간 동안 캐릭터 외곽선(Outline)을 표시할지 여부.
+        /// </summary>
+        /// <remarks>
+        /// - 기존 테이블과의 호환을 위해 컬럼이 없으면 false로 처리된다.
+        /// - true 이면서 <see cref="OutlinePixelSize"/>가 0 이하인 경우, 런타임에서는 1로 보정하여 사용한다.
+        /// </remarks>
+        public bool UseOutline;
+
+        /// <summary>
+        /// Outline 두께(픽셀).
+        /// </summary>
+        /// <remarks>
+        /// - 스프라이트의 pixelsPerUnit, Transform scale에 따라 월드 단위로 변환되어 적용된다.
+        /// </remarks>
+        public int OutlinePixelSize;
+        public Color OutlineColor;
+
+        /// <summary>
         /// Tick을 사용하는 어펙트인지 여부.
         /// </summary>
         public bool HasTick => TickInterval > 0f;
@@ -177,6 +196,8 @@ namespace GGemCo2DAffect
         /// </remarks>
         protected override StruckTableAffect BuildRow(Dictionary<string, string> data)
         {
+            
+            
             return new StruckTableAffect
             {
                 Uid = MathHelper.ParseInt(data["Uid"]),
@@ -198,7 +219,10 @@ namespace GGemCo2DAffect
                 EffectPositionType = EnumHelper.ConvertEnum<AffectEffectPositionType>(data.GetValueOrDefault("EffectPositionType")),
                 EffectFollowType = EnumHelper.ConvertEnum<AffectEffectFollowType>(data.GetValueOrDefault("EffectFollowType")),
                 EffectSortingLayerKey = EnumHelper.ConvertEnum<ConfigSortingLayer.Keys>(data.GetValueOrDefault("EffectSortingLayerKey")),
-                ApplyChance = MathHelper.ParseFloat(data.GetValueOrDefault("ApplyChance"))
+                ApplyChance = MathHelper.ParseFloat(data.GetValueOrDefault("ApplyChance")),
+                UseOutline = ConvertBoolean(data.GetValueOrDefault("UseOutline")),
+                OutlinePixelSize = MathHelper.ParseInt(data.GetValueOrDefault("OutlinePixelSize")),
+                OutlineColor = ColorHelper.HexToColor(data.GetValueOrDefault("OutlineColor"), UnityEngine.Color.black)
             };
         }
     }

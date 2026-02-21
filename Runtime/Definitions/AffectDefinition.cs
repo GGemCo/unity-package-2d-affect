@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using GGemCo2DCore;
+using UnityEngine;
 
 namespace GGemCo2DAffect
 {
@@ -117,6 +118,24 @@ namespace GGemCo2DAffect
         /// Affect 적용 확률(0~1 범위 기대).
         /// </summary>
         public float applyChance;
+
+        // ----------------------
+        // Visual Decorators
+        // ----------------------
+
+        /// <summary>
+        /// 어펙트 적용 시간 동안 캐릭터 외곽선(Outline)을 사용할지 여부.
+        /// </summary>
+        public bool useOutline;
+
+        /// <summary>
+        /// Outline 두께(픽셀).
+        /// </summary>
+        /// <remarks>
+        /// - <see cref="useOutline"/>이 true 이면서 0 이하인 경우, 런타임에서 1로 보정하여 사용한다.
+        /// </remarks>
+        public int outlinePixelSize;
+        public Color outlineColor;
 
         /// <summary>
         /// 틱 효과가 존재하는지 여부를 반환한다.
