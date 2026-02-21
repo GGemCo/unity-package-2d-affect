@@ -102,5 +102,17 @@ namespace GGemCo2DAffect
             var token = target.States.ApplyState(mod.stateId, duration);
             instance.AddStateToken(token);
         }
+
+        public void ExecuteOnHit(
+            IAffectTarget attacker,
+            IAffectTarget hitTarget,
+            AffectInstance instance,
+            AffectModifierDefinition mod,
+            IAffectDefinitionRepository affectRepo,
+            IStatusDefinitionRepository statusRepo)
+        {
+            // 기본 실행기들은 OnHit를 사용하지 않는다.
+        }
+
     }
 }

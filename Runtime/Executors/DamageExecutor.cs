@@ -106,5 +106,17 @@ namespace GGemCo2DAffect
         {
             // 만료 시 데미지 처리 없음.
         }
+
+        public void ExecuteOnHit(
+            IAffectTarget attacker,
+            IAffectTarget hitTarget,
+            AffectInstance instance,
+            AffectModifierDefinition mod,
+            IAffectDefinitionRepository affectRepo,
+            IStatusDefinitionRepository statusRepo)
+        {
+            // 기본 실행기들은 OnHit를 사용하지 않는다.
+        }
+
     }
 }

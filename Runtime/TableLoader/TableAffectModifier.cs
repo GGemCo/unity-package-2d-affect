@@ -129,6 +129,11 @@ namespace GGemCo2DAffect
                 stateChance = MathHelper.ParseFloat(row.GetValueOrDefault("StateChance")),
                 stateDurationOverride = MathHelper.ParseFloat(row.GetValueOrDefault("StateDurationOverride")),
                 crowdControlUid = MathHelper.ParseInt(row.GetValueOrDefault("CrowdControlUid")),
+
+                applyAffectUid = MathHelper.ParseInt(row.GetValueOrDefault("ApplyAffectUid")),
+                applyAffectChance = MathHelper.ParseFloat(row.GetValueOrDefault("ApplyAffectChance")),
+                applyAffectDurationOverride = MathHelper.ParseFloat(row.GetValueOrDefault("ApplyAffectDurationOverride")),
+                consumeOnProc = MathHelper.ParseInt(row.GetValueOrDefault("ConsumeOnProc")) != 0,
             };
 
             return mod;

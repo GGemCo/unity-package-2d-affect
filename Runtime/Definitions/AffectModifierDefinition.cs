@@ -118,6 +118,30 @@ namespace GGemCo2DAffect
         /// </summary>
         public int crowdControlUid;
 
+        // --------------------------------------------------------------------
+        // Kind == ApplyAffectToTarget
+        // --------------------------------------------------------------------
+
+        /// <summary>
+        /// 피격자에게 추가로 적용할 Affect UID.
+        /// </summary>
+        public int applyAffectUid;
+
+        /// <summary>
+        /// 적용 확률(0~1). 0 이하이면 0, 1 이상이면 1로 처리된다.
+        /// </summary>
+        public float applyAffectChance;
+
+        /// <summary>
+        /// 적용할 Affect 지속시간 오버라이드(0 이하이면 기본값 사용).
+        /// </summary>
+        public float applyAffectDurationOverride;
+
+        /// <summary>
+        /// 발동 시 코팅 버프를 1회 소모(제거)할지 여부(옵션).
+        /// </summary>
+        public bool consumeOnProc;
+
 
         // --------------------------------------------------------------------
         // Common

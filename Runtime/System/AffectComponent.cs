@@ -61,6 +61,7 @@ namespace GGemCo2DAffect
         private readonly DamageExecutor _damageExecutor = new();
         private readonly StateExecutor _stateExecutor = new();
         private readonly CrowdControlExecutor _crowdControlExecutor = new();
+        private readonly ApplyAffectToTargetExecutor _applyAffectExecutor = new();
 
         /// <summary>
         /// 현재 활성 어펙트가 1개 이상 존재하는지 여부.
@@ -187,7 +188,52 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
-        /// 어펙트를 적용한다. 그룹 단일성/스택 정책에 따라 기존 인스턴스를 대체하거나 갱신할 수 있다.
+        /// 공격자(이 컴포넌트를 보유한 대상)가 타격에 성공했음을 알린다.
+        /// - 공격자에게 활성화된 Affect 중, Modifier Phase가 OnHit인 항목만 실행된다.
+        /// - 예: PoisonCoating(버프) -> OnHit 시 피격자에게 POISON_DOT 부여
+        /// </summary>
+        /// <param name="hitTargetGo">피격자 GameObject.</param>
+        public void NotifyHit(GameObject hitTargetGo)
+        {
+            if (hitTargetGo == null) return;
+            if (!HasAny || _target == null || !_target.IsAlive) return;
+
+            var hitTarget = hitTargetGo.GetComponent<IAffectTarget>();
+            if (hitTarget == null) return;
+
+            foreach (var kv in _byRuntimeId)
+            {
+                ExecuteHitPhase(kv.Value, hitTarget);
+            }
+        }
+
+        /// <summary>
+        /// 특정 인스턴스의 OnHit 페이즈를 실행한다.
+        /// </summary>
+        private void ExecuteHitPhase(AffectInstance instance, IAffectTarget hitTarget)
+        {
+            if (instance == null || hitTarget == null) return;
+
+            var mods = _affectRepo.GetModifiers(instance.Definition.uid);
+            for (int i = 0; i < mods.Count; i++)
+            {
+                var mod = mods[i];
+                if (mod == null || mod.phase != AffectPhase.OnHit) continue;
+
+                switch (mod.kind)
+                {
+                    case ModifierKind.ApplyAffectToTarget:
+                        _applyAffectExecutor.ExecuteOnHit(_target, hitTarget, instance, mod, _affectRepo, _statusRepo);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 어펙트를 적용한다.
+        /// 그룹 단일성/스택 정책에 따라 기존 인스턴스를 대체하거나 갱신할 수 있다.
         /// </summary>
         /// <param name="affectUid">적용할 어펙트 정의 UID.</param>
         /// <param name="context">적용 컨텍스트(지속시간 오버라이드 등). null이면 기본 컨텍스트를 생성한다.</param>

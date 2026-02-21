@@ -41,6 +41,24 @@ namespace GGemCo2DAffect
             IStatusDefinitionRepository statusRepo);
 
         /// <summary>
+        /// 공격자에게 적용된 Affect가 "타격 성공" 이벤트를 받았을 때 호출된다.
+        /// </summary>
+        /// <param name="attacker">타격을 가한 공격자(이 Affect를 보유).</param>
+        /// <param name="hitTarget">타격을 받은 피격자.</param>
+        /// <param name="instance">현재 Affect 인스턴스.</param>
+        /// <param name="mod">실행할 Modifier 정의.</param>
+        /// <param name="affectRepo">Affect 정의 저장소.</param>
+        /// <param name="statusRepo">상태/저항 정의 저장소.</param>
+        void ExecuteOnHit(
+            IAffectTarget attacker,
+            IAffectTarget hitTarget,
+            AffectInstance instance,
+            AffectModifierDefinition mod,
+            IAffectDefinitionRepository affectRepo,
+            IStatusDefinitionRepository statusRepo);
+
+
+        /// <summary>
         /// Affect가 만료되거나 제거될 때 호출된다.
         /// </summary>
         /// <param name="target">효과가 적용되었던 대상.</param>

@@ -10,10 +10,10 @@ namespace GGemCo2DAffect
     public enum RefreshPolicy { None, DurationOnly, ValueAndDuration }
 
     /// <summary>Modifier가 실행되는 시점.</summary>
-    public enum AffectPhase { OnApply, OnTick, OnExpire }
+    public enum AffectPhase { OnApply, OnTick, OnHit, OnExpire }
 
     /// <summary>Modifier의 종류(Stat/DamageType/State).</summary>
-    public enum ModifierKind { Stat, Damage, State, CrowdControl, Custom }
+    public enum ModifierKind { Stat, Damage, State, CrowdControl, ApplyAffectToTarget, Custom }
 
     /// <summary>값 해석 방식.</summary>
     public enum StatValueType { None, Flat, Percent }

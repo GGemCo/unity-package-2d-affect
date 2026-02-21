@@ -81,5 +81,17 @@ namespace GGemCo2DAffect
         {
             // 토큰 회수는 AffectComponent의 CleanupTokens에서 일괄 처리한다.
         }
+
+        public void ExecuteOnHit(
+            IAffectTarget attacker,
+            IAffectTarget hitTarget,
+            AffectInstance instance,
+            AffectModifierDefinition mod,
+            IAffectDefinitionRepository affectRepo,
+            IStatusDefinitionRepository statusRepo)
+        {
+            // 기본 실행기들은 OnHit를 사용하지 않는다.
+        }
+
     }
 }

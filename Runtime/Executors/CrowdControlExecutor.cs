@@ -58,5 +58,17 @@ namespace GGemCo2DAffect
         {
             // CrowdControl은 만료 시 별도 처리가 필요하면 Core 쪽에서 확장합니다.
         }
+
+        public void ExecuteOnHit(
+            IAffectTarget attacker,
+            IAffectTarget hitTarget,
+            AffectInstance instance,
+            AffectModifierDefinition mod,
+            IAffectDefinitionRepository affectRepo,
+            IStatusDefinitionRepository statusRepo)
+        {
+            // 기본 실행기들은 OnHit를 사용하지 않는다.
+        }
+
     }
 }
