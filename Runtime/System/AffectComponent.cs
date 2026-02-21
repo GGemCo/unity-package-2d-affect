@@ -122,13 +122,28 @@ namespace GGemCo2DAffect
             float dt = Time.deltaTime;
             if (dt <= 0f) return;
 
-            // 삭제 큐(순회 중 컬렉션 변경 방지)
+            // NOTE:
+            // Update 중(OnTick/OnExpire 등 실행 중) 외부에서 RemoveAll/RemoveAffect/ApplyAffect 등이 호출될 수 있다.
+            // (예: Tick 데미지 -> 캐릭터 사망 -> Core에서 AffectRuntimeBridge.RemoveAll 호출)
+            // Dictionary는 열거 중 수정되면 InvalidOperationException이 발생하므로,
+            // 런타임Id 스냅샷을 만든 뒤 TryGetValue 기반으로 안전하게 진행한다.
+
+            // 삭제 큐(만료 정리)
             SPendingRemoveIds.Clear();
 
+            // 순회 스냅샷(재사용)
+            SRuntimeIdSnapshot.Clear();
             foreach (var kv in _byRuntimeId)
+                SRuntimeIdSnapshot.Add(kv.Key);
+
+            for (int s = 0; s < SRuntimeIdSnapshot.Count; s++)
             {
-                int runtimeId = kv.Key;
-                var instance = kv.Value;
+                if (_target == null || !_target.IsAlive)
+                    break;
+
+                int runtimeId = SRuntimeIdSnapshot[s];
+                if (!_byRuntimeId.TryGetValue(runtimeId, out var instance) || instance == null)
+                    continue;
 
                 // 시간 감소
                 instance.UpdateTime(dt);
@@ -162,6 +177,12 @@ namespace GGemCo2DAffect
         /// </summary>
         private static readonly List<int> SPendingRemoveIds = new(32);
 
+        /// <summary>
+        /// Update/NotifyHit 등에서 안전한 순회를 위해 사용하는 runtimeId 스냅샷 버퍼.
+        /// (Dictionary 열거 중 수정 예외 방지)
+        /// </summary>
+        private static readonly List<int> SRuntimeIdSnapshot = new(64);
+
         // ----------------------
         // Public API
         // ----------------------
@@ -185,8 +206,17 @@ namespace GGemCo2DAffect
         {
             if (buffer == null) return;
             buffer.Clear();
+
+            // UI가 LateUpdate/Update 타이밍에 호출할 수 있어, 안전하게 스냅샷 기반으로 수집한다.
+            SRuntimeIdSnapshot.Clear();
             foreach (var kv in _byRuntimeId)
-                buffer.Add(kv.Value);
+                SRuntimeIdSnapshot.Add(kv.Key);
+
+            for (int i = 0; i < SRuntimeIdSnapshot.Count; i++)
+            {
+                if (_byRuntimeId.TryGetValue(SRuntimeIdSnapshot[i], out var instance) && instance != null)
+                    buffer.Add(instance);
+            }
         }
 
         /// <summary>
@@ -203,9 +233,16 @@ namespace GGemCo2DAffect
             var hitTarget = hitTargetGo.GetComponent<IAffectTarget>();
             if (hitTarget == null) return;
 
+            // OnHit 실행 도중에도 구조 변경(RemoveAll 등)이 발생할 수 있으므로 스냅샷 기반으로 순회한다.
+            SRuntimeIdSnapshot.Clear();
             foreach (var kv in _byRuntimeId)
+                SRuntimeIdSnapshot.Add(kv.Key);
+
+            for (int i = 0; i < SRuntimeIdSnapshot.Count; i++)
             {
-                ExecuteHitPhase(kv.Value, hitTarget);
+                if (_target == null || !_target.IsAlive) break;
+                if (!_byRuntimeId.TryGetValue(SRuntimeIdSnapshot[i], out var instance) || instance == null) continue;
+                ExecuteHitPhase(instance, hitTarget);
             }
         }
 
