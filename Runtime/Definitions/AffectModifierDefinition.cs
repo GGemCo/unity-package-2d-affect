@@ -92,6 +92,26 @@ namespace GGemCo2DAffect
         public bool isDot;
 
         // --------------------------------------------------------------------
+        // Kind = Heal
+        // --------------------------------------------------------------------
+
+        /// <summary>
+        /// 기본 회복 값(틱당 회복량 또는 즉시 회복량).
+        /// </summary>
+        public float healBaseValue;
+
+        /// <summary>
+        /// 회복 계산에 사용될 스케일링 스탯 ID(옵션).
+        /// </summary>
+        public string healScalingStatId;
+
+        /// <summary>
+        /// 스케일링 계수(스탯 값에 곱해지는 비율).
+        /// </summary>
+        public float healScalingCoefficient;
+
+
+        // --------------------------------------------------------------------
         // Kind = State
         // --------------------------------------------------------------------
 

@@ -331,29 +331,31 @@ namespace GGemCo2DAffect
             /// <param name="source">회복의 원인 객체(현재는 사용하지 않음).</param>
             /// <remarks>
             /// Player 계열은 공개 메서드 <c>AddHp</c>가 있을 수 있어 우선 Reflection으로 호출한다.
-            /// 그 외에는 <c>CurrentHp</c>를 직접 증가시키고 <c>TotalHp</c>를 상한으로 클램프한다.
+            /// 그 외에는 <c>CurrentHp</c>(일반 HP)를 직접 증가시키고 <c>TotalHp</c>(일반 최대 HP)를 상한으로 클램프한다.
+            /// - 표준 정책: Heal은 임시 HP(<c>TotalTempHp</c>/<c>_tempHpCurrent</c>)를 회복하지 않는다.
             /// </remarks>
             public void ApplyHeal(float amount, object source)
             {
                 if (_character == null) return;
                 if (amount <= 0f) return;
 
-                // Player는 AddHp가 존재하므로 우선 사용, 그 외에는 CurrentHp를 직접 갱신한다.
-                var addHp = _character.GetType().GetMethod(
-                    "AddHp",
-                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+                // // Player는 AddHp가 존재하므로 우선 사용, 그 외에는 CurrentHp를 직접 갱신한다.
+                // var addHp = _character.GetType().GetMethod(
+                //     "AddHp",
+                //     System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+                //
+                // if (addHp != null)
+                // {
+                //     addHp.Invoke(_character, new object[] { (int)Mathf.RoundToInt(amount) });
+                //     return;
+                // }
+                _character.AddHp(Mathf.CeilToInt(amount));
 
-                if (addHp != null)
-                {
-                    addHp.Invoke(_character, new object[] { (int)Mathf.RoundToInt(amount) });
-                    return;
-                }
-
-                long newValue = _character.CurrentHp.Value + (long)Mathf.RoundToInt(amount);
-                if (newValue > _character.TotalHp.Value)
-                    newValue = _character.TotalHp.Value;
-
-                _character.CurrentHp.OnNext(newValue);
+                // long newValue = _character.CurrentHp.Value + (long)Mathf.RoundToInt(amount);
+                // if (newValue > _character.TotalHp.Value)
+                //     newValue = _character.TotalHp.Value;
+                //
+                // _character.CurrentHp.OnNext(newValue);
             }
 
             /// <summary>

@@ -60,6 +60,7 @@ namespace GGemCo2DAffect
 
         private readonly StatModifierExecutor _statExecutor = new();
         private readonly DamageExecutor _damageExecutor = new();
+        private readonly HealExecutor _healExecutor = new();
         private readonly StateExecutor _stateExecutor = new();
         private readonly CrowdControlExecutor _crowdControlExecutor = new();
         private readonly ApplyAffectToTargetExecutor _applyAffectExecutor = new();
@@ -469,6 +470,13 @@ namespace GGemCo2DAffect
                     case ModifierKind.Damage:
                         if (phase == AffectPhase.OnTick)
                             _damageExecutor.ExecuteOnTick(_target, instance, mod, _affectRepo, _statusRepo);
+                        break;
+
+                    case ModifierKind.Heal:
+                        if (phase == AffectPhase.OnApply)
+                            _healExecutor.ExecuteOnApply(_target, instance, mod, _affectRepo, _statusRepo);
+                        else if (phase == AffectPhase.OnTick)
+                            _healExecutor.ExecuteOnTick(_target, instance, mod, _affectRepo, _statusRepo);
                         break;
 
                     case ModifierKind.State:

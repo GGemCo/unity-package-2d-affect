@@ -15,6 +15,9 @@
         /// <summary>데미지 라인 템플릿 키.</summary>
         public const string LineDamage = "Affect_Line_Damage";
 
+        /// <summary>회복(Heal) 라인 템플릿 키.</summary>
+        public const string LineHeal = "Affect_Line_Heal";
+
         /// <summary>상태이상(State) 라인 템플릿 키.</summary>
         public const string LineState = "Affect_Line_State";
 

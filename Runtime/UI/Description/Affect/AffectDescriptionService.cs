@@ -229,6 +229,21 @@ namespace GGemCo2DAffect
                     return loc.GetAffectDescriptionSmart(AffectDescriptionKeys.LineDamage, args);
                 }
 
+                case ModifierKind.Heal:
+                {
+                    var scalingStat = _tableLoaderManager.TableStat.GetDataById(mod.healScalingStatId);
+                    string scalingStatName = ResolveStatusName(loc, mod.healScalingStatId, scalingStat?.Name);
+
+                    var args = new AffectHealLineArgs
+                    {
+                        BaseValueText = FormatNumber(mod.healBaseValue),
+                        HasScaling = !string.IsNullOrWhiteSpace(mod.healScalingStatId) && Math.Abs(mod.healScalingCoefficient) > 0f,
+                        ScalingStatName = scalingStatName,
+                        ScalingCoefText = FormatNumber(mod.healScalingCoefficient),
+                    };
+                    return loc.GetAffectDescriptionSmart(AffectDescriptionKeys.LineHeal, args);
+                }
+
                 case ModifierKind.State:
                 {
                     var state = _tableLoaderManager.TableState.GetDataById(mod.stateId);

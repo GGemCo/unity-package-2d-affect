@@ -125,6 +125,10 @@ namespace GGemCo2DAffect
                 canCrit = MathHelper.ParseInt(row.GetValueOrDefault("CanCrit")) != 0,
                 isDot = MathHelper.ParseInt(row.GetValueOrDefault("IsDot")) != 0,
 
+                healBaseValue = MathHelper.ParseFloat(row.GetValueOrDefault("HealBaseValue")),
+                healScalingStatId = row.GetValueOrDefault("HealScalingStatId"),
+                healScalingCoefficient = MathHelper.ParseFloat(row.GetValueOrDefault("HealScalingCoefficient")),
+
                 stateId = row.GetValueOrDefault("StateId"),
                 stateChance = MathHelper.ParseFloat(row.GetValueOrDefault("StateChance")),
                 stateDurationOverride = MathHelper.ParseFloat(row.GetValueOrDefault("StateDurationOverride")),
