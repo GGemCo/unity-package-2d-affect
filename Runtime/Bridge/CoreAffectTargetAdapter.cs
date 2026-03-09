@@ -339,23 +339,7 @@ namespace GGemCo2DAffect
                 if (_character == null) return;
                 if (amount <= 0f) return;
 
-                // // Player는 AddHp가 존재하므로 우선 사용, 그 외에는 CurrentHp를 직접 갱신한다.
-                // var addHp = _character.GetType().GetMethod(
-                //     "AddHp",
-                //     System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-                //
-                // if (addHp != null)
-                // {
-                //     addHp.Invoke(_character, new object[] { (int)Mathf.RoundToInt(amount) });
-                //     return;
-                // }
                 _character.AddHp(Mathf.CeilToInt(amount));
-
-                // long newValue = _character.CurrentHp.Value + (long)Mathf.RoundToInt(amount);
-                // if (newValue > _character.TotalHp.Value)
-                //     newValue = _character.TotalHp.Value;
-                //
-                // _character.CurrentHp.OnNext(newValue);
             }
 
             /// <summary>
