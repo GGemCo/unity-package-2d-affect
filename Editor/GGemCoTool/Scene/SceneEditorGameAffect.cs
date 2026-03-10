@@ -1,10 +1,9 @@
-﻿using GGemCo2DAffectEditor;
-using GGemCo2DCore;
+﻿using GGemCo2DCore;
 using GGemCo2DCoreEditor;
 using UnityEditor;
 using UnityEngine;
 
-namespace GGemCo2DSkillEditor
+namespace GGemCo2DAffectEditor
 {
     /// <summary>
     /// 인트로 씬 설정 툴
