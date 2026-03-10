@@ -26,7 +26,7 @@ namespace GGemCo2DAffectEditor
         // Tables
         private TableAffect _tableAffect;
         private TableAffectModifier _tableAffectModifier;
-        private Dictionary<int, StruckTableAffect> _affectDict;
+        private Dictionary<int, StruckTableAffect> _dictionary;
 
         // Dropdown data
         private readonly List<SearchableDropdownUtility.Option<StruckTableAffect>> _dropDownOptions = new();
@@ -94,6 +94,7 @@ namespace GGemCo2DAffectEditor
             }
         }
 
+        #region GUI
         private void DrawTargetSection()
         {
             DrawCharacterSelectionSection(Title);
@@ -267,24 +268,14 @@ namespace GGemCo2DAffectEditor
 
         private void DrawReloadSection()
         {
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
-            {
-                EditorGUILayout.LabelField("테이블 재로딩", EditorStyles.boldLabel);
-
-                using (new EditorGUI.DisabledScope(!Application.isPlaying))
-                {
-                    if (GUILayout.Button("affect / affect_modifier / stat / state / damage_type 재로딩", GUILayout.Height(24)))
-                    {
-                        ReloadAllTables();
-                        RefreshSceneCharacters();
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(_lastReloadMessage))
-                    EditorGUILayout.HelpBox(_lastReloadMessage, MessageType.Info);
-            }
+            DrawTableReloadSection(
+                _lastReloadMessage,
+                "affect / affect_modifier / stat / state / damage_type 재로딩",
+                ReloadAllTables);
         }
 
+        #endregion
+        
         private void ReloadAllTables()
         {
             try
@@ -292,7 +283,7 @@ namespace GGemCo2DAffectEditor
                 _tableAffect = TableLoaderManagerAffect.LoadAffectTable();
                 _tableAffectModifier = TableLoaderManagerAffect.LoadAffectModifierTable();
 
-                _affectDict = _tableAffect?.GetDatas();
+                _dictionary = _tableAffect?.GetDatas();
                 RebuildDropdown();
 
                 TableLoaderManagerAffect.LoadCoreTable<TableStat>("stat");
@@ -312,27 +303,13 @@ namespace GGemCo2DAffectEditor
 
         private void RebuildDropdown()
         {
-            _dropDownOptions.Clear();
-
-            if (_affectDict == null || _affectDict.Count <= 0)
-            {
-                _selectedData = null;
-                return;
-            }
-
-            foreach (var kvp in _affectDict)
-            {
-                var row = kvp.Value;
-                if (row == null || row.Uid <= 0)
-                    continue;
-
-                _dropDownOptions.Add(new SearchableDropdownUtility.Option<StruckTableAffect>(
-                    key: row.Uid.ToString(),
-                    value: row.Name,
-                    data: row));
-            }
-
-            _selectedData = _dropDownOptions[0].Data;
+            RebuildDropdownOptions(
+                source: _dictionary?.Values,
+                targetOptions: _dropDownOptions,
+                isValidRow: row => row.Uid > 0,
+                keySelector: row => row.Uid.ToString(),
+                valueSelector: row => row.Name,
+                assignSelected: row => _selectedData = row);
         }
 
         private void ApplySelectedAffect()
