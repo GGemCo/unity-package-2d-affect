@@ -19,7 +19,7 @@ namespace GGemCo2DAffectEditor
     /// - 대상에 Affect 관련 컴포넌트가 없으면 자동 부착(옵션) 가능.
     /// - 선택한 Affect의 Modifier 목록을 표시한다.
     /// </remarks>
-    public sealed class UseAffect : DefaultEditorWindow
+    public sealed class UseAffect : DefaultEditorWindowAffect
     {
         private const string Title = "Affect 사용하기";
 
@@ -31,12 +31,6 @@ namespace GGemCo2DAffectEditor
         // Dropdown data
         private readonly List<SearchableDropdownUtility.Option<StruckTableAffect>> _dropDownOptions = new();
         private StruckTableAffect _selectedData;
-
-        // Target
-        private CharacterBase _targetCharacter;
-        private readonly List<CharacterBase> _sceneCharacters = new();
-        private readonly List<string> _sceneCharacterNames = new();
-        private int _selectedCharacterIndex;
 
         // Apply params
         private float _valueMultiplier = 1f;
@@ -61,10 +55,16 @@ namespace GGemCo2DAffectEditor
             base.OnEnable();
 
             _selectedData = null;
-            _selectedCharacterIndex = 0;
+            selectedCharacterIndex = 0;
+            selectedCharacter = null;
 
             ReloadAllTables();
             RefreshSceneCharacters();
+        }
+
+        protected override void OnSelectedCharacterChanged(CharacterBase character)
+        {
+            Repaint();
         }
 
         private void OnGUI()
@@ -94,75 +94,22 @@ namespace GGemCo2DAffectEditor
             }
         }
 
-        private void DrawPlayModeGate()
-        {
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
-            {
-                EditorGUILayout.LabelField("실행 조건", EditorStyles.boldLabel);
-
-                if (!Application.isPlaying)
-                {
-                    EditorGUILayout.HelpBox("Play Mode에서만 동작합니다.", MessageType.Warning);
-                    return;
-                }
-
-                if (!SceneGame.Instance)
-                {
-                    EditorGUILayout.HelpBox("SceneGame.Instance를 찾지 못했습니다. 게임 씬이 로드되어 있는지 확인해주세요.", MessageType.Warning);
-                }
-                else
-                {
-                    EditorGUILayout.HelpBox("Play Mode에서 동작 중입니다.", MessageType.Info);
-                }
-            }
-        }
-
         private void DrawTargetSection()
         {
+            DrawCharacterSelectionSection(Title);
+
+            if (selectedCharacter == null)
+                return;
+
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                EditorGUILayout.LabelField("대상 캐릭터", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Affect 대상 상태", EditorStyles.boldLabel);
 
-                using (new EditorGUI.DisabledScope(!Application.isPlaying))
-                {
-                    using (new EditorGUILayout.HorizontalScope())
-                    {
-                        if (GUILayout.Button("현재 선택 오브젝트로 지정", GUILayout.Height(22)))
-                            TryAssignFromSelection();
+                var affectComp = selectedCharacter.GetComponent<AffectComponent>() ?? selectedCharacter.GetComponentInChildren<AffectComponent>();
+                bool hasTarget = selectedCharacter.GetComponent<IAffectTarget>() != null || selectedCharacter.GetComponentInChildren<IAffectTarget>() != null;
 
-                        if (GUILayout.Button("씬 캐릭터 목록 새로고침", GUILayout.Height(22)))
-                            RefreshSceneCharacters();
-                    }
-
-                    if (_sceneCharacterNames.Count == 0)
-                    {
-                        EditorGUILayout.HelpBox("씬에서 CharacterBase를 찾지 못했습니다. (비활성 오브젝트는 제외됩니다)", MessageType.Info);
-                    }
-                    else
-                    {
-                        _selectedCharacterIndex = Mathf.Clamp(_selectedCharacterIndex, 0, _sceneCharacterNames.Count - 1);
-                        int newIndex = EditorGUILayout.Popup("캐릭터 목록", _selectedCharacterIndex, _sceneCharacterNames.ToArray());
-                        if (newIndex != _selectedCharacterIndex)
-                        {
-                            _selectedCharacterIndex = newIndex;
-                            _targetCharacter = _sceneCharacters[_selectedCharacterIndex];
-                        }
-                    }
-
-                    _targetCharacter = (CharacterBase)EditorGUILayout.ObjectField("대상(직접 지정)", _targetCharacter, typeof(CharacterBase), true);
-
-                    if (_targetCharacter != null)
-                    {
-                        EditorGUILayout.LabelField("대상 이름", _targetCharacter.name);
-
-                        // 상태 표시
-                        var affectComp = _targetCharacter.GetComponent<AffectComponent>() ?? _targetCharacter.GetComponentInChildren<AffectComponent>();
-                        bool hasTarget = _targetCharacter.GetComponent<IAffectTarget>() != null || _targetCharacter.GetComponentInChildren<IAffectTarget>() != null;
-
-                        EditorGUILayout.LabelField("AffectComponent", affectComp != null ? "OK" : "없음");
-                        EditorGUILayout.LabelField("IAffectTarget", hasTarget ? "OK" : "없음");
-                    }
-                }
+                EditorGUILayout.LabelField("AffectComponent", affectComp != null ? "OK" : "없음");
+                EditorGUILayout.LabelField("IAffectTarget", hasTarget ? "OK" : "없음");
             }
         }
 
@@ -173,7 +120,6 @@ namespace GGemCo2DAffectEditor
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     EditorGUILayout.PrefixLabel("Affect");
-                    
 
                     if (_dropDownOptions.Count == 0)
                     {
@@ -183,7 +129,7 @@ namespace GGemCo2DAffectEditor
 
                     string currentText = _selectedData != null ? _selectedData.Name : "선택...";
                     int selectIndex = _selectedData?.Uid ?? 0;
-                    
+
                     SearchableDropdownUtility.DrawButtonAndShow(
                         buttonText: currentText,
                         options: _dropDownOptions,
@@ -195,7 +141,7 @@ namespace GGemCo2DAffectEditor
                         },
                         defaultSearchMode: SearchableDropdownUtility.SearchMode.Both);
                 }
-                
+
                 if (_selectedData != null)
                 {
                     EditorGUILayout.LabelField("UID", _selectedData.Uid.ToString());
@@ -253,7 +199,6 @@ namespace GGemCo2DAffectEditor
                     return;
                 }
 
-                // 간단한 요약
                 EditorGUILayout.LabelField("Count", modifiers.Count.ToString());
 
                 _modifierScroll = EditorGUILayout.BeginScrollView(_modifierScroll, GUILayout.MinHeight(140));
@@ -280,7 +225,6 @@ namespace GGemCo2DAffectEditor
                 EditorGUILayout.LabelField("Phase", m.phase.ToString());
                 EditorGUILayout.LabelField("Kind", m.kind.ToString());
 
-                // kind별 핵심 필드만 출력 (테이블 해석 확인용)
                 switch (m.kind)
                 {
                     case ModifierKind.Stat:
@@ -304,13 +248,8 @@ namespace GGemCo2DAffectEditor
                         EditorGUILayout.LabelField("Chance", m.stateChance.ToString("0.###"));
                         EditorGUILayout.LabelField("DurationOverride", m.stateDurationOverride.ToString("0.###"));
                         break;
-
-                    default:
-                        // 신규 Kind가 늘어날 수 있으므로 기본 정보만 유지
-                        break;
                 }
 
-                // (선택) 현재 런타임 StatusRepo에 등록된 ID인지 빠르게 점검
                 var statusRepo = AffectRuntime.StatusRepository;
                 if (statusRepo != null)
                 {
@@ -346,54 +285,6 @@ namespace GGemCo2DAffectEditor
             }
         }
 
-        private void TryAssignFromSelection()
-        {
-            var go = Selection.activeGameObject;
-            if (go == null)
-            {
-                EditorUtility.DisplayDialog(Title, "Hierarchy에서 대상 오브젝트를 선택해주세요.", "OK");
-                return;
-            }
-
-            if (!go.TryGetComponent<CharacterBase>(out var character))
-                character = go.GetComponentInParent<CharacterBase>();
-
-            if (character == null)
-            {
-                EditorUtility.DisplayDialog(Title, "선택한 오브젝트에서 CharacterBase를 찾지 못했습니다.", "OK");
-                return;
-            }
-
-            _targetCharacter = character;
-            _selectedCharacterIndex = Mathf.Max(0, _sceneCharacters.IndexOf(character));
-            Repaint();
-        }
-
-        private void RefreshSceneCharacters()
-        {
-            _sceneCharacters.Clear();
-            _sceneCharacterNames.Clear();
-
-            if (!Application.isPlaying)
-                return;
-
-#if UNITY_2023_1_OR_NEWER
-            var characters = UnityEngine.Object.FindObjectsByType<CharacterBase>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-#else
-            var characters = UnityEngine.Object.FindObjectsOfType<CharacterBase>();
-#endif
-            foreach (var c in characters)
-            {
-                if (c == null) continue;
-                _sceneCharacters.Add(c);
-                _sceneCharacterNames.Add($"{c.name} (id:{c.GetInstanceID()})");
-            }
-
-            _selectedCharacterIndex = Mathf.Clamp(_selectedCharacterIndex, 0, Mathf.Max(0, _sceneCharacters.Count - 1));
-            if (_sceneCharacters.Count > 0 && _targetCharacter == null)
-                _targetCharacter = _sceneCharacters[_selectedCharacterIndex];
-        }
-
         private void ReloadAllTables()
         {
             try
@@ -402,9 +293,8 @@ namespace GGemCo2DAffectEditor
                 _tableAffectModifier = TableLoaderManagerAffect.LoadAffectModifierTable();
 
                 _affectDict = _tableAffect?.GetDatas();
-                RebuildAffectDropdown();
+                RebuildDropdown();
 
-                // Core 테이블(툴에서 검증/표시 및 런타임 Repo 초기화 지원)
                 TableLoaderManagerAffect.LoadCoreTable<TableStat>("stat");
                 TableLoaderManagerAffect.LoadCoreTable<TableState>("state");
                 TableLoaderManagerAffect.LoadCoreTable<TableDamageType>("damage_type");
@@ -420,7 +310,7 @@ namespace GGemCo2DAffectEditor
             Repaint();
         }
 
-        private void RebuildAffectDropdown()
+        private void RebuildDropdown()
         {
             _dropDownOptions.Clear();
 
@@ -429,13 +319,13 @@ namespace GGemCo2DAffectEditor
                 _selectedData = null;
                 return;
             }
-            
+
             foreach (var kvp in _affectDict)
             {
                 var row = kvp.Value;
-                if (row == null || row.Uid <= 0) continue;
+                if (row == null || row.Uid <= 0)
+                    continue;
 
-                // Key(Uid) + Value(Name) 형태로 표시되며, 검색은 Key/Value 모두 지원
                 _dropDownOptions.Add(new SearchableDropdownUtility.Option<StruckTableAffect>(
                     key: row.Uid.ToString(),
                     value: row.Name,
@@ -453,7 +343,7 @@ namespace GGemCo2DAffectEditor
                 return;
             }
 
-            if (_targetCharacter == null)
+            if (selectedCharacter == null)
             {
                 EditorUtility.DisplayDialog(Title, "대상 캐릭터를 지정해주세요.", "OK");
                 return;
@@ -467,12 +357,11 @@ namespace GGemCo2DAffectEditor
 
             int affectUid = _selectedData.Uid;
 
-            // AffectComponent 확보 (+ 옵션에 따라 자동 부착)
-            var affectComp = _targetCharacter.GetComponent<AffectComponent>() ??
-                             _targetCharacter.GetComponentInChildren<AffectComponent>();
+            var affectComp = selectedCharacter.GetComponent<AffectComponent>() ??
+                             selectedCharacter.GetComponentInChildren<AffectComponent>();
             if (affectComp == null && _autoAttachComponents)
             {
-                affectComp = EnsureAffectComponents(_targetCharacter);
+                affectComp = EnsureAffectComponents(selectedCharacter);
             }
 
             if (affectComp == null)
@@ -502,18 +391,16 @@ namespace GGemCo2DAffectEditor
         /// </summary>
         private static AffectComponent EnsureAffectComponents(CharacterBase target)
         {
-            if (target == null) return null;
+            if (target == null)
+                return null;
 
-            // 1) IAffectTarget 확보 (CoreAffectTargetAdapter)
             var hasTarget = target.GetComponent<IAffectTarget>() != null || target.GetComponentInChildren<IAffectTarget>() != null;
             if (!hasTarget)
             {
-                // CharacterBase가 있는 GO에 어댑터를 붙이는 것이 가장 안전(동일 Transform 기준)
                 if (target.GetComponent<CoreAffectTargetAdapter>() == null)
                     target.gameObject.AddComponent<CoreAffectTargetAdapter>();
             }
 
-            // 2) AffectComponent 확보
             var comp = target.GetComponent<AffectComponent>();
             if (comp == null)
                 comp = target.gameObject.AddComponent<AffectComponent>();
