@@ -29,9 +29,8 @@ namespace GGemCo2DAffectEditor
         private Dictionary<int, StruckTableAffect> _affectDict;
 
         // Dropdown data
-        private readonly List<string> _affectNames = new();
-        private readonly List<int> _affectUids = new();
-        private int _selectedAffectIndex;
+        private readonly List<SearchableDropdownUtility.Option<StruckTableAffect>> _dropDownOptions = new();
+        private StruckTableAffect _selectedData;
 
         // Target
         private CharacterBase _targetCharacter;
@@ -49,6 +48,7 @@ namespace GGemCo2DAffectEditor
         // UI
         private Vector2 _modifierScroll;
         private string _lastReloadMessage = string.Empty;
+        private Vector2 _scroll;
 
         [MenuItem(ConfigEditorAffect.NameToolUseAffect, false, (int)ConfigEditorAffect.ToolOrdering.UseAffect)]
         public static void ShowWindow()
@@ -60,7 +60,7 @@ namespace GGemCo2DAffectEditor
         {
             base.OnEnable();
 
-            _selectedAffectIndex = 0;
+            _selectedData = null;
             _selectedCharacterIndex = 0;
 
             ReloadAllTables();
@@ -69,24 +69,29 @@ namespace GGemCo2DAffectEditor
 
         private void OnGUI()
         {
-            EditorGUILayout.Space(6);
+            using (var scroll = new EditorGUILayout.ScrollViewScope(_scroll))
+            {
+                _scroll = scroll.scrollPosition;
+                EditorGUILayout.Space(6);
 
-            DrawPlayModeGate();
-            EditorGUILayout.Space(6);
+                DrawPlayModeGate();
+                EditorGUILayout.Space(6);
 
-            DrawTargetSection();
-            EditorGUILayout.Space(8);
+                DrawTargetSection();
+                EditorGUILayout.Space(8);
 
-            DrawAffectSection();
-            EditorGUILayout.Space(8);
+                DrawAffectSection();
+                EditorGUILayout.Space(8);
 
-            DrawApplySection();
-            EditorGUILayout.Space(8);
+                DrawApplySection();
+                EditorGUILayout.Space(8);
 
-            DrawModifierSection();
-            EditorGUILayout.Space(8);
+                DrawModifierSection();
+                EditorGUILayout.Space(8);
 
-            DrawReloadSection();
+                DrawReloadSection();
+                EditorGUILayout.Space(20);
+            }
         }
 
         private void DrawPlayModeGate()
@@ -165,25 +170,39 @@ namespace GGemCo2DAffectEditor
         {
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                EditorGUILayout.LabelField("Affect 선택", EditorStyles.boldLabel);
-
-                if (_affectNames.Count == 0)
+                using (new EditorGUILayout.HorizontalScope())
                 {
-                    EditorGUILayout.HelpBox("Affect 테이블이 비어있습니다. 테이블 로딩/Addressables 설정을 확인해주세요.", MessageType.Warning);
-                    return;
+                    EditorGUILayout.PrefixLabel("Affect");
+                    
+
+                    if (_dropDownOptions.Count == 0)
+                    {
+                        EditorGUILayout.HelpBox("Affect 테이블이 비어있습니다. 테이블 로딩/Addressables 설정을 확인해주세요.", MessageType.Warning);
+                        return;
+                    }
+
+                    string currentText = _selectedData != null ? _selectedData.Name : "선택...";
+                    int selectIndex = _selectedData?.Uid ?? 0;
+                    
+                    SearchableDropdownUtility.DrawButtonAndShow(
+                        buttonText: currentText,
+                        options: _dropDownOptions,
+                        selectedIndex: selectIndex,
+                        onSelected: (idx, opt) =>
+                        {
+                            _selectedData = opt.Data;
+                            Repaint();
+                        },
+                        defaultSearchMode: SearchableDropdownUtility.SearchMode.Both);
                 }
-
-                _selectedAffectIndex = Mathf.Clamp(_selectedAffectIndex, 0, _affectNames.Count - 1);
-                _selectedAffectIndex = EditorGUILayout.Popup("Affect", _selectedAffectIndex, _affectNames.ToArray());
-
-                int uid = _affectUids[_selectedAffectIndex];
-                if (_affectDict != null && _affectDict.TryGetValue(uid, out var row))
+                
+                if (_selectedData != null)
                 {
-                    EditorGUILayout.LabelField("UID", uid.ToString());
-                    EditorGUILayout.LabelField("Name", row.Name);
-                    EditorGUILayout.LabelField("GroupId", string.IsNullOrEmpty(row.GroupId) ? "(None)" : row.GroupId);
-                    EditorGUILayout.LabelField("BaseDuration", row.BaseDuration.ToString("0.###"));
-                    EditorGUILayout.LabelField("TickInterval", row.TickInterval.ToString("0.###"));
+                    EditorGUILayout.LabelField("UID", _selectedData.Uid.ToString());
+                    EditorGUILayout.LabelField("Name", _selectedData.Name);
+                    EditorGUILayout.LabelField("GroupId", string.IsNullOrEmpty(_selectedData.GroupId) ? "(None)" : _selectedData.GroupId);
+                    EditorGUILayout.LabelField("BaseDuration", _selectedData.BaseDuration.ToString("0.###"));
+                    EditorGUILayout.LabelField("TickInterval", _selectedData.TickInterval.ToString("0.###"));
                 }
             }
         }
@@ -220,14 +239,13 @@ namespace GGemCo2DAffectEditor
                     return;
                 }
 
-                if (_affectUids.Count == 0)
+                if (_selectedData == null)
                 {
                     EditorGUILayout.HelpBox("Affect가 없습니다.", MessageType.Info);
                     return;
                 }
 
-                int affectUid = _affectUids[Mathf.Clamp(_selectedAffectIndex, 0, _affectUids.Count - 1)];
-                var modifiers = _tableAffectModifier.GetModifiers(affectUid);
+                var modifiers = _tableAffectModifier.GetModifiers(_selectedData.Uid);
 
                 if (modifiers == null || modifiers.Count == 0)
                 {
@@ -404,21 +422,27 @@ namespace GGemCo2DAffectEditor
 
         private void RebuildAffectDropdown()
         {
-            _affectNames.Clear();
-            _affectUids.Clear();
+            _dropDownOptions.Clear();
 
-            if (_affectDict == null) return;
-
+            if (_affectDict == null || _affectDict.Count <= 0)
+            {
+                _selectedData = null;
+                return;
+            }
+            
             foreach (var kvp in _affectDict)
             {
                 var row = kvp.Value;
                 if (row == null || row.Uid <= 0) continue;
 
-                _affectNames.Add($"{row.Uid} - {row.Name}");
-                _affectUids.Add(row.Uid);
+                // Key(Uid) + Value(Name) 형태로 표시되며, 검색은 Key/Value 모두 지원
+                _dropDownOptions.Add(new SearchableDropdownUtility.Option<StruckTableAffect>(
+                    key: row.Uid.ToString(),
+                    value: row.Name,
+                    data: row));
             }
 
-            _selectedAffectIndex = Mathf.Clamp(_selectedAffectIndex, 0, Mathf.Max(0, _affectUids.Count - 1));
+            _selectedData = _dropDownOptions[0].Data;
         }
 
         private void ApplySelectedAffect()
@@ -435,16 +459,17 @@ namespace GGemCo2DAffectEditor
                 return;
             }
 
-            if (_affectUids.Count == 0)
+            if (_selectedData == null)
             {
                 EditorUtility.DisplayDialog(Title, "적용할 Affect가 없습니다. 테이블 로딩을 확인해주세요.", "OK");
                 return;
             }
 
-            int affectUid = _affectUids[Mathf.Clamp(_selectedAffectIndex, 0, _affectUids.Count - 1)];
+            int affectUid = _selectedData.Uid;
 
             // AffectComponent 확보 (+ 옵션에 따라 자동 부착)
-            var affectComp = _targetCharacter.GetComponent<AffectComponent>() ?? _targetCharacter.GetComponentInChildren<AffectComponent>();
+            var affectComp = _targetCharacter.GetComponent<AffectComponent>() ??
+                             _targetCharacter.GetComponentInChildren<AffectComponent>();
             if (affectComp == null && _autoAttachComponents)
             {
                 affectComp = EnsureAffectComponents(_targetCharacter);
