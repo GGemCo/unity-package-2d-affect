@@ -114,13 +114,11 @@ namespace GGemCo2DAffect
                 if (instance?.Definition == null)
                     continue;
 
-                string key = instance.Definition.uiHeartStateKey;
+                string key = instance.Definition.uiHudVisualStateKey;
                 if (string.IsNullOrWhiteSpace(key))
                     continue;
 
-                int priority = 0;
-                if (_receiver is UIWindowHudResourceBase heartView)
-                    priority = heartView.GetAffectVisualPriority(key);
+                int priority = _receiver.GetAffectVisualPriority(key);
 
                 if (bestKey == null || priority > bestPriority)
                 {

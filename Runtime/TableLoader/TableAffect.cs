@@ -39,9 +39,9 @@ namespace GGemCo2DAffect
         public string IconKey;
 
         /// <summary>
-        /// HUD 하트 UI 연출 상태 키. 비어 있으면 하트 상태를 변경하지 않는다.
+        /// HUD 공용 UI 연출 상태 키. 비어 있으면 HUD 상태를 변경하지 않는다.
         /// </summary>
-        public string UiHeartStateKey;
+        public string UiHudVisualStateKey;
 
         // ----------------------
         // Runtime (게임 로직)
@@ -209,7 +209,7 @@ namespace GGemCo2DAffect
                 Name = data.GetValueOrDefault("Memo"),
                 Memo = data.GetValueOrDefault("Memo"),
                 IconKey = data.GetValueOrDefault("IconKey"),
-                UiHeartStateKey = data.GetValueOrDefault("UiHeartStateKey"),
+                UiHudVisualStateKey = data.GetValueOrDefault("UiHudVisualStateKey"),
                 DispelType = EnumHelper.ConvertEnum<DispelType>(data.GetValueOrDefault("DispelType")),
                 GroupId = data.GetValueOrDefault("GroupId"),
                 BaseDuration = MathHelper.ParseFloat(data.GetValueOrDefault("BaseDuration")),
