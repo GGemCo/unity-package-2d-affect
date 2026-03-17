@@ -80,6 +80,7 @@ namespace GGemCo2DAffect
                 {
                     uid = row.Uid,
                     iconKey = row.IconKey,
+                    uiHeartStateKey = row.UiHeartStateKey,
                     groupId = row.GroupId,
                     baseDuration = row.BaseDuration,
                     tickInterval = row.TickInterval,

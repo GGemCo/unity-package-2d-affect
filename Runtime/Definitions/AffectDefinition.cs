@@ -32,6 +32,12 @@ namespace GGemCo2DAffect
         public string iconKey;
 
         /// <summary>
+        /// HUD 하트 UI 연출 상태 키.
+        /// 비어 있으면 하트 상태를 변경하지 않는다.
+        /// </summary>
+        public string uiHeartStateKey;
+
+        /// <summary>
         /// Affect 그룹 ID.
         /// </summary>
         /// <remarks>
