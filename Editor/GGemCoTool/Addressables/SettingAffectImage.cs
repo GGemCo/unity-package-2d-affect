@@ -129,7 +129,7 @@ namespace GGemCo2DAffectEditor
             foreach (KeyValuePair<int, StruckTableAffect> outerPair in dictionary)
             {
                 var info = outerPair.Value;
-                if (info.Uid <= 0) continue;
+                if (info.Uid <= 0 || string.IsNullOrEmpty(info.IconKey)) continue;
 
                 string key = $"{ConfigAddressableKeyAffect.AffectIcon}_{info.Uid}";
                 string assetPath = $"{ConfigAddressablePath.Images.RootImage}";
