@@ -4,11 +4,11 @@ using UnityEngine;
 namespace GGemCo2DAffect
 {
     /// <summary>
-    /// Affect 시스템의 Effect 요청을 Core의 <see cref="VfxManager"/>로 연결하는 구현체.
+    /// Affect 시스템의 Vfx 요청을 Core의 <see cref="VfxManager"/>로 연결하는 구현체.
     /// </summary>
     /// <remarks>
     /// - Affect는 Core에만 의존하며, Core는 Affect를 참조하지 않는다.
-    /// - 실제 Effect 생성/재생은 Core의 <see cref="SceneGame.VfxManager"/>를 통해 수행한다.
+    /// - 실제 Vfx 생성/재생은 Core의 <see cref="SceneGame.VfxManager"/>를 통해 수행한다.
     /// </remarks>
     public sealed class CoreAffectVfxService : IAffectVfxService
     {
@@ -29,19 +29,19 @@ namespace GGemCo2DAffect
             var scene = SceneGame.Instance;
             if (scene == null || scene.VfxManager == null) return null;
 
-            var effect = scene.VfxManager.CreateVfx(vfxUid);
-            if (effect == null) return null;
+            var vfx = scene.VfxManager.CreateVfx(vfxUid);
+            if (vfx == null) return null;
 
             // 기본 파라미터
             // NOTE:
             // - LoopDuringAffectDuration: duration을 그대로 전달(0이면 기본 규칙, 음수는 무제한 loop)
             // - Once: duration을 0으로 취급하여 1회 재생
             float resolvedDuration = playMode == AffectVfxPlayMode.Once ? 0f : duration;
-            if (resolvedDuration != 0f) effect.SetDuration(resolvedDuration);
-            if (scale > 0f) effect.SetScale(scale);
+            if (resolvedDuration != 0f) vfx.SetDuration(resolvedDuration);
+            if (scale > 0f) vfx.SetScale(scale);
 
             // SortingLayer
-            effect.SetSortingLayer(sortingLayerKey);
+            vfx.SetSortingLayer(sortingLayerKey);
 
             // 타겟 캐릭터(있으면 flip/height 계산에 활용)
             CharacterBase character = null;
@@ -50,9 +50,9 @@ namespace GGemCo2DAffect
             {
                 character = tr.GetComponent<CharacterBase>();
                 if (character != null)
-                    effect.SetCreateCharacter(character);
+                    vfx.SetCreateCharacter(character);
                 else
-                    effect.transform.position = tr.position;
+                    vfx.transform.position = tr.position;
             }
 
             // 위치/Follow
@@ -63,22 +63,22 @@ namespace GGemCo2DAffect
             {
                 if (character != null)
                 {
-                    effect.SetFollowCharacter(character);
-                    effect.SetPositionY(offsetY);
-                    effect.SetPositionYType(isHead ? ConfigCommon.PositionYType.CharacterHeight : ConfigCommon.PositionYType.None);
+                    vfx.SetFollowCharacter(character);
+                    vfx.SetPositionY(offsetY);
+                    vfx.SetPositionYType(isHead ? ConfigCommon.PositionYType.CharacterHeight : ConfigCommon.PositionYType.None);
                 }
                 else
                 {
                     // 캐릭터가 없으면 Follow 불가: 1회 위치에만 표시
-                    effect.transform.position = ComputeOneShotPosition(tr, null, isHead, offsetY);
+                    vfx.transform.position = ComputeOneShotPosition(tr, null, isHead, offsetY);
                 }
             }
             else
             {
-                effect.transform.position = ComputeOneShotPosition(tr, character, isHead, offsetY);
+                vfx.transform.position = ComputeOneShotPosition(tr, character, isHead, offsetY);
             }
 
-            return effect;
+            return vfx;
         }
 
         /// <inheritdoc />
