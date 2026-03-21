@@ -4,13 +4,13 @@ using UnityEngine;
 namespace GGemCo2DAffect
 {
     /// <summary>
-    /// Affect 시스템의 Effect 요청을 Core의 <see cref="EffectManager"/>로 연결하는 구현체.
+    /// Affect 시스템의 Effect 요청을 Core의 <see cref="VfxManager"/>로 연결하는 구현체.
     /// </summary>
     /// <remarks>
     /// - Affect는 Core에만 의존하며, Core는 Affect를 참조하지 않는다.
-    /// - 실제 Effect 생성/재생은 Core의 <see cref="SceneGame.EffectManager"/>를 통해 수행한다.
+    /// - 실제 Effect 생성/재생은 Core의 <see cref="SceneGame.VfxManager"/>를 통해 수행한다.
     /// </remarks>
-    public sealed class CoreAffectEffectService : IAffectEffectService
+    public sealed class CoreAffectVfxService : IAffectVfxService
     {
         /// <inheritdoc />
         public object Play(
@@ -19,24 +19,24 @@ namespace GGemCo2DAffect
             float scale,
             float offsetY,
             float duration,
-            AffectEffectPlayMode playMode,
-            AffectEffectPositionType positionType,
-            AffectEffectFollowType followType,
+            AffectVfxPlayMode playMode,
+            AffectVfxPositionType positionType,
+            AffectVfxFollowType followType,
             ConfigSortingLayer.Keys sortingLayerKey)
         {
             if (vfxUid <= 0 || target == null) return null;
 
             var scene = SceneGame.Instance;
-            if (scene == null || scene.EffectManager == null) return null;
+            if (scene == null || scene.VfxManager == null) return null;
 
-            var effect = scene.EffectManager.CreateEffect(vfxUid);
+            var effect = scene.VfxManager.CreateVfx(vfxUid);
             if (effect == null) return null;
 
             // 기본 파라미터
             // NOTE:
             // - LoopDuringAffectDuration: duration을 그대로 전달(0이면 기본 규칙, 음수는 무제한 loop)
             // - Once: duration을 0으로 취급하여 1회 재생
-            float resolvedDuration = playMode == AffectEffectPlayMode.Once ? 0f : duration;
+            float resolvedDuration = playMode == AffectVfxPlayMode.Once ? 0f : duration;
             if (resolvedDuration != 0f) effect.SetDuration(resolvedDuration);
             if (scale > 0f) effect.SetScale(scale);
 
@@ -56,8 +56,8 @@ namespace GGemCo2DAffect
             }
 
             // 위치/Follow
-            bool isFollow = followType == AffectEffectFollowType.Follow;
-            bool isHead = positionType == AffectEffectPositionType.Head;
+            bool isFollow = followType == AffectVfxFollowType.Follow;
+            bool isHead = positionType == AffectVfxPositionType.Head;
 
             if (isFollow)
             {
@@ -84,7 +84,7 @@ namespace GGemCo2DAffect
         /// <inheritdoc />
         public void Stop(object token)
         {
-            if (token is DefaultEffect eff && eff != null)
+            if (token is DefaultVfx eff && eff != null)
             {
                 eff.DestroyForce();
             }

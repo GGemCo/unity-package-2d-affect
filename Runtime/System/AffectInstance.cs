@@ -48,9 +48,9 @@ namespace GGemCo2DAffect
 
         /// <summary>
         /// VFX 서비스가 반환한 토큰(핸들)입니다.
-        /// 만료/해제 시 <see cref="IAffectEffectService.Stop"/> 호출에 사용됩니다.
+        /// 만료/해제 시 <see cref="IAffectVfxService.Stop"/> 호출에 사용됩니다.
         /// </summary>
-        public object EffectToken { get; set; }
+        public object VfxToken { get; set; }
 
         /// <summary>
         /// Outline 서비스가 반환한 토큰(핸들)입니다.

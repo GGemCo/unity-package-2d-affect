@@ -26,7 +26,7 @@ namespace GGemCo2DAffect
             AffectBridge.SetProvider(new AffectDescriptionProvider());
 
             // Affect 이펙트를 Core 이펙트 시스템으로 연결
-            AffectRuntime.EffectService = new CoreAffectEffectService();
+            AffectRuntime.VfxService = new CoreAffectVfxService();
 
             // Affect Outline을 Core 캐릭터 렌더링으로 연결
             AffectRuntime.OutlineService = new CoreAffectOutlineService();

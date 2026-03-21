@@ -74,7 +74,7 @@ namespace GGemCo2DAffectEditor
                 case "CrowdControlUid":
                     return TableEditorRegistry.FindByKey(ConfigAddressableTable.CrowdControl);
                 case "EffectUid":
-                    return TableEditorRegistry.FindByKey(ConfigAddressableTable.Effect);
+                    return TableEditorRegistry.FindByKey(ConfigAddressableTable.Vfx);
                 default:
                     return TableEditorRegistry.FindReferenceTable(headerName);
             }

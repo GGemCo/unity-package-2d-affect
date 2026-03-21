@@ -9,7 +9,7 @@ namespace GGemCo2DAffect
     /// Null Object 패턴을 적용하여,
     /// VFX 시스템이 비활성화된 환경에서도 null 체크 없이 안전하게 호출할 수 있다.
     /// </remarks>
-    public sealed class NullAffectEffectService : IAffectEffectService
+    public sealed class NullAffectVfxService : IAffectVfxService
     {
         /// <summary>
         /// VFX 재생 요청을 무시하고 null 토큰을 반환한다.
@@ -26,9 +26,9 @@ namespace GGemCo2DAffect
             float scale,
             float offsetY,
             float duration,
-            AffectEffectPlayMode playMode,
-            AffectEffectPositionType positionType,
-            AffectEffectFollowType followType,
+            AffectVfxPlayMode playMode,
+            AffectVfxPositionType positionType,
+            AffectVfxFollowType followType,
             ConfigSortingLayer.Keys sortingLayerKey) => null;
 
         /// <summary>

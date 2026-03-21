@@ -9,7 +9,7 @@ namespace GGemCo2DAffect
     /// - Core/게임 프로젝트에서 EffectManager 등 실제 이펙트 시스템에 연결하는 어댑터(Adapter)를 구현합니다.
     /// - Affect 패키지 자체는 특정 이펙트 구현이나 엔진 기능에 직접 의존하지 않도록 설계되었습니다.
     /// </remarks>
-    public interface IAffectEffectService
+    public interface IAffectVfxService
     {
         /// <summary>
         /// 지정된 대상에 비주얼 이펙트(Effect)를 재생합니다.
@@ -29,9 +29,9 @@ namespace GGemCo2DAffect
             float scale,
             float offsetY,
             float duration,
-            AffectEffectPlayMode playMode,
-            AffectEffectPositionType positionType,
-            AffectEffectFollowType followType,
+            AffectVfxPlayMode playMode,
+            AffectVfxPositionType positionType,
+            AffectVfxFollowType followType,
             ConfigSortingLayer.Keys sortingLayerKey);
 
         /// <summary>

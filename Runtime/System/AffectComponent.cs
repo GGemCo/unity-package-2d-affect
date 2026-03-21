@@ -20,7 +20,7 @@ namespace GGemCo2DAffect
         private IAffectTarget _target;
         private IAffectDefinitionRepository _affectRepo;
         private IStatusDefinitionRepository _statusRepo;
-        private IAffectEffectService _effect;
+        private IAffectVfxService _vfx;
         private IAffectOutlineService _outline;
 
         private readonly Dictionary<int, AffectInstance> _byRuntimeId = new();
@@ -97,7 +97,7 @@ namespace GGemCo2DAffect
 
             _affectRepo = AffectRuntime.AffectRepository;
             _statusRepo = AffectRuntime.StatusRepository;
-            _effect = AffectRuntime.EffectService;
+            _vfx = AffectRuntime.VfxService;
             _outline = AffectRuntime.OutlineService;
 
             // 활성 인스턴스가 있을 때만 Update를 돌린다.
@@ -497,29 +497,29 @@ namespace GGemCo2DAffect
             }
 
             // VFX: OnApply 시 1회 재생
-            if (phase == AffectPhase.OnApply && instance.Definition.effectUid > 0)
+            if (phase == AffectPhase.OnApply && instance.Definition.vfxUid > 0)
             {
                 // 재적용(ValueAndDuration) 등으로 OnApply가 다시 실행될 수 있으므로
                 // 기존 토큰이 있으면 먼저 안전하게 중지한다.
-                if (instance.EffectToken != null)
+                if (instance.VfxToken != null)
                 {
-                    _effect?.Stop(instance.EffectToken);
-                    instance.EffectToken = null;
+                    _vfx?.Stop(instance.VfxToken);
+                    instance.VfxToken = null;
                 }
 
                 float duration = instance.TotalDuration;
-                var token = _effect?.Play(
-                    instance.Definition.effectUid,
+                var token = _vfx?.Play(
+                    instance.Definition.vfxUid,
                     _target,
-                    instance.Definition.effectScale,
-                    instance.Definition.effectOffsetY,
+                    instance.Definition.vfxScale,
+                    instance.Definition.vfxOffsetY,
                     duration,
-                    instance.Definition.effectPlayMode,
-                    instance.Definition.effectPositionType,
-                    instance.Definition.effectFollowType,
-                    instance.Definition.effectSortingLayerKey);
+                    instance.Definition.vfxPlayMode,
+                    instance.Definition.vfxPositionType,
+                    instance.Definition.vfxFollowType,
+                    instance.Definition.vfxSortingLayerKey);
 
-                instance.EffectToken = token;
+                instance.VfxToken = token;
             }
 
             // Outline: OnApply 시 적용 (적용 중 갱신될 수 있으므로 기존 토큰은 안전하게 제거 후 재적용)
@@ -557,10 +557,10 @@ namespace GGemCo2DAffect
             ExecutePhase(AffectPhase.OnExpire, instance);
 
             // VFX 중지(만료/해제)
-            if (instance.EffectToken != null)
+            if (instance.VfxToken != null)
             {
-                _effect?.Stop(instance.EffectToken);
-                instance.EffectToken = null;
+                _vfx?.Stop(instance.VfxToken);
+                instance.VfxToken = null;
             }
 
             // Outline 해제(만료/해제)
