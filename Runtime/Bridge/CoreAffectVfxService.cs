@@ -84,7 +84,7 @@ namespace GGemCo2DAffect
         /// <inheritdoc />
         public void Stop(object token)
         {
-            if (token is DefaultVfx eff && eff != null)
+            if (token is VfxBehaviourEffect eff && eff != null)
             {
                 eff.DestroyForce();
             }
