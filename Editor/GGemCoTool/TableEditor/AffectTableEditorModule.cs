@@ -36,6 +36,25 @@ namespace GGemCo2DAffectEditor
             public bool ConsumeOnProc;
         }
 
+
+        private sealed class AffectVisualActionEditorRow
+        {
+            public int Uid;
+            public string Name;
+            public string Memo;
+            public int AffectUid;
+            public int Order;
+            public AffectPhase Phase;
+            public int VfxUid;
+            public AffectVfxPlayMode VfxPlayMode;
+            public float VfxScale;
+            public float VfxOffsetY;
+            public AffectVfxPositionType VfxPositionType;
+            public AffectVfxFollowType VfxFollowType;
+            public ConfigSortingLayer.Keys VfxSortingLayerKey;
+            public float DurationOverride;
+        }
+
         public string ModuleName => "Affect";
         public string PackageName => "Affect";
 
@@ -62,6 +81,17 @@ namespace GGemCo2DAffectEditor
                 typeof(AffectModifierEditorRow),
                 TableEditorDefinitionFactory.CreateDefaultReloadAction(ConfigAddressableTableAffect.TableAffectModifier.Path),
                 ResolveReference);
+
+            yield return TableEditorDefinitionFactory.Create(
+                ModuleName,
+                PackageName,
+                ConfigAddressableTableAffect.AffectVisualAction,
+                ConfigAddressableTableAffect.TableAffectVisualAction.Path,
+                ConfigAddressableTableAffect.AffectVisualAction,
+                typeof(TableAffectVisualAction),
+                typeof(AffectVisualActionEditorRow),
+                TableEditorDefinitionFactory.CreateDefaultReloadAction(ConfigAddressableTableAffect.TableAffectVisualAction.Path),
+                ResolveReference);
         }
 
         private static TableEditorTableDefinition ResolveReference(string headerName)
@@ -73,6 +103,8 @@ namespace GGemCo2DAffectEditor
                     return TableEditorRegistry.FindByKey(ConfigAddressableTableAffect.Affect);
                 case "CrowdControlUid":
                     return TableEditorRegistry.FindByKey(ConfigAddressableTable.CrowdControl);
+                case "VfxUid":
+                    return TableEditorRegistry.FindByKey(ConfigAddressableTable.VfxEffect);
                 case "VfxEffectUid":
                     return TableEditorRegistry.FindByKey(ConfigAddressableTable.VfxEffect);
                 case "VfxParticleUid":

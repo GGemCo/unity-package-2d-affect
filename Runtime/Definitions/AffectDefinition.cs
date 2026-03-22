@@ -125,6 +125,11 @@ namespace GGemCo2DAffect
         /// </summary>
         public float applyChance;
 
+        /// <summary>
+        /// Affect에 연결된 비주얼 액션 목록입니다.
+        /// </summary>
+        public List<AffectVisualActionDefinition> visualActions = new();
+
         // ----------------------
         // Visual Decorators
         // ----------------------

@@ -45,12 +45,7 @@ namespace GGemCo2DAffect
 
         private readonly List<object> _statTokens = new();
         private readonly List<object> _stateTokens = new();
-
-        /// <summary>
-        /// VFX 서비스가 반환한 토큰(핸들)입니다.
-        /// 만료/해제 시 <see cref="IAffectVfxService.Stop"/> 호출에 사용됩니다.
-        /// </summary>
-        public object VfxToken { get; set; }
+        private readonly List<object> _visualTokens = new();
 
         /// <summary>
         /// Outline 서비스가 반환한 토큰(핸들)입니다.
@@ -161,5 +156,20 @@ namespace GGemCo2DAffect
         /// 적용 중 생성된 State 토큰 목록(읽기 전용).
         /// </summary>
         public IReadOnlyList<object> StateTokens => _stateTokens;
+
+        /// <summary>
+        /// 적용 중 유지가 필요한 비주얼 토큰 목록(읽기 전용).
+        /// </summary>
+        public IReadOnlyList<object> VisualTokens => _visualTokens;
+
+        public void AddVisualToken(object token)
+        {
+            if (token != null) _visualTokens.Add(token);
+        }
+
+        public void ClearVisualTokens()
+        {
+            _visualTokens.Clear();
+        }
     }
 }

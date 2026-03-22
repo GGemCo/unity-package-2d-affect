@@ -84,10 +84,8 @@ namespace GGemCo2DAffect
         /// <inheritdoc />
         public void Stop(object token)
         {
-            if (token is VfxBehaviourEffect eff && eff != null)
-            {
-                eff.DestroyForce();
-            }
+            if (token is VfxBehaviourBase vfx && vfx != null)
+                vfx.DestroyForce();
         }
 
         private static Vector3 ComputeOneShotPosition(Transform targetTr, CharacterBase character, bool isHead, float offsetY)

@@ -88,13 +88,6 @@ namespace GGemCo2DAffect
                     maxStacks = row.MaxStacks,
                     refreshPolicy = row.RefreshPolicy,
                     dispelType = row.DispelType,
-                    vfxUid = row.VfxUid,
-                    vfxPlayMode = row.VfxPlayMode,
-                    vfxScale = row.VfxScale,
-                    vfxOffsetY = row.VfxOffsetY,
-                    vfxPositionType = row.VfxPositionType,
-                    vfxFollowType = row.VfxFollowType,
-                    vfxSortingLayerKey = row.VfxSortingLayerKey,
                     applyChance = row.ApplyChance,
 
                     // Visual decorators
@@ -102,6 +95,32 @@ namespace GGemCo2DAffect
                     outlinePixelSize = row.OutlinePixelSize,
                     outlineColor = row.OutlineColor
                 };
+
+
+                var visualRows = tableLoaderManagerAffect.TableAffectVisualAction.GetActions(row.Uid);
+                def.visualActions.Clear();
+                for (int i = 0; i < visualRows.Count; i++)
+                {
+                    var visualRow = visualRows[i];
+                    if (visualRow == null || visualRow.VfxUid <= 0)
+                        continue;
+
+                    def.visualActions.Add(new AffectVisualActionDefinition
+                    {
+                        uid = visualRow.Uid,
+                        affectUid = visualRow.AffectUid,
+                        order = visualRow.Order,
+                        phase = visualRow.Phase,
+                        vfxUid = visualRow.VfxUid,
+                        vfxPlayMode = visualRow.VfxPlayMode,
+                        vfxScale = visualRow.VfxScale,
+                        vfxOffsetY = visualRow.VfxOffsetY,
+                        vfxPositionType = visualRow.VfxPositionType,
+                        vfxFollowType = visualRow.VfxFollowType,
+                        vfxSortingLayerKey = visualRow.VfxSortingLayerKey,
+                        durationOverride = visualRow.DurationOverride,
+                    });
+                }
 
                 // Tags: "a,b c" 형태를 콤마/공백 기준으로 분리하여 정규화한다.
                 def.tags.Clear();

@@ -33,6 +33,11 @@ namespace GGemCo2DAffect
         public TableAffectModifier TableAffectModifier { get; private set; } = new TableAffectModifier();
 
         /// <summary>
+        /// 어펙트 비주얼 액션 서브테이블.
+        /// </summary>
+        public TableAffectVisualAction TableAffectVisualAction { get; private set; } = new TableAffectVisualAction();
+
+        /// <summary>
         /// Unity Awake 생명주기 메서드.
         /// </summary>
         /// <remarks>
@@ -52,6 +57,7 @@ namespace GGemCo2DAffect
                 // (Modifier → Affect 순으로 로드됨)
                 registry = new TableRegistry();
                 registry.Register(TableAffectModifier);
+                registry.Register(TableAffectVisualAction);
                 registry.Register(TableAffect);
             }
             else

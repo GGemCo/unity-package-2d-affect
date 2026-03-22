@@ -14,6 +14,11 @@ namespace GGemCo2DAffectEditor
         {
             return LoadTable<TableAffectModifier>(ConfigAddressableTableAffect.TableAffectModifier.Path);
         }
+
+        public static TableAffectVisualAction LoadAffectVisualActionTable()
+        {
+            return LoadTable<TableAffectVisualAction>(ConfigAddressableTableAffect.TableAffectVisualAction.Path);
+        }
         
         /// <summary>
         /// Core 패키지 테이블을 논리 이름으로 로드한다. (예: "stat", "state", "damage_type")

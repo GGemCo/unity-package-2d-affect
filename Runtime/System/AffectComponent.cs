@@ -418,6 +418,8 @@ namespace GGemCo2DAffect
                     {
                         // 값도 다시 계산해야 하므로, Stat 토큰을 재적용한다.
                         CleanupTokens(instance);
+                        CleanupActiveVisuals(instance);
+                        CleanupOutline(instance);
                         instance.AccumulateTick(-instance.TickElapsed); // tick reset
                         ExecutePhase(AffectPhase.OnApply, instance);
                     }
@@ -496,31 +498,7 @@ namespace GGemCo2DAffect
                 }
             }
 
-            // VFX: OnApply 시 1회 재생
-            if (phase == AffectPhase.OnApply && instance.Definition.vfxUid > 0)
-            {
-                // 재적용(ValueAndDuration) 등으로 OnApply가 다시 실행될 수 있으므로
-                // 기존 토큰이 있으면 먼저 안전하게 중지한다.
-                if (instance.VfxToken != null)
-                {
-                    _vfx?.Stop(instance.VfxToken);
-                    instance.VfxToken = null;
-                }
-
-                float duration = instance.TotalDuration;
-                var token = _vfx?.Play(
-                    instance.Definition.vfxUid,
-                    _target,
-                    instance.Definition.vfxScale,
-                    instance.Definition.vfxOffsetY,
-                    duration,
-                    instance.Definition.vfxPlayMode,
-                    instance.Definition.vfxPositionType,
-                    instance.Definition.vfxFollowType,
-                    instance.Definition.vfxSortingLayerKey);
-
-                instance.VfxToken = token;
-            }
+            ExecuteVisualPhase(phase, instance);
 
             // Outline: OnApply 시 적용 (적용 중 갱신될 수 있으므로 기존 토큰은 안전하게 제거 후 재적용)
             if (phase == AffectPhase.OnApply && instance.Definition.useOutline)
@@ -536,6 +514,60 @@ namespace GGemCo2DAffect
                 Color color = instance.Definition.outlineColor;
                 instance.OutlineToken = _outline?.Apply(_target, px, color);
             }
+        }
+
+
+        private void ExecuteVisualPhase(AffectPhase phase, AffectInstance instance)
+        {
+            if (_vfx == null || instance == null)
+                return;
+
+            var actions = instance.Definition.visualActions;
+            if (actions == null || actions.Count == 0)
+                return;
+
+            for (int i = 0; i < actions.Count; i++)
+            {
+                var action = actions[i];
+                if (action == null || !action.IsValid || action.phase != phase)
+                    continue;
+
+                float duration = action.ResolveDuration(instance.TotalDuration);
+                var token = _vfx.Play(
+                    action.vfxUid,
+                    _target,
+                    action.vfxScale,
+                    action.vfxOffsetY,
+                    duration,
+                    action.vfxPlayMode,
+                    action.vfxPositionType,
+                    action.vfxFollowType,
+                    action.vfxSortingLayerKey);
+
+                if (token != null && action.vfxPlayMode != AffectVfxPlayMode.Once)
+                    instance.AddVisualToken(token);
+            }
+        }
+
+        private void CleanupActiveVisuals(AffectInstance instance)
+        {
+            if (instance == null)
+                return;
+
+            var tokens = instance.VisualTokens;
+            for (int i = 0; i < tokens.Count; i++)
+                _vfx?.Stop(tokens[i]);
+
+            instance.ClearVisualTokens();
+        }
+
+        private void CleanupOutline(AffectInstance instance)
+        {
+            if (instance == null || instance.OutlineToken == null)
+                return;
+
+            _outline?.Remove(instance.OutlineToken);
+            instance.OutlineToken = null;
         }
 
         /// <summary>
@@ -556,19 +588,8 @@ namespace GGemCo2DAffect
             // OnExpire
             ExecutePhase(AffectPhase.OnExpire, instance);
 
-            // VFX 중지(만료/해제)
-            if (instance.VfxToken != null)
-            {
-                _vfx?.Stop(instance.VfxToken);
-                instance.VfxToken = null;
-            }
-
-            // Outline 해제(만료/해제)
-            if (instance.OutlineToken != null)
-            {
-                _outline?.Remove(instance.OutlineToken);
-                instance.OutlineToken = null;
-            }
+            CleanupActiveVisuals(instance);
+            CleanupOutline(instance);
 
             // 토큰 회수(Stat/State)
             CleanupTokens(instance);
