@@ -29,19 +29,22 @@ namespace GGemCo2DAffect
             var scene = SceneGame.Instance;
             if (scene == null || scene.VfxManager == null) return null;
 
-            var vfx = scene.VfxManager.CreateVfx(vfxUid);
-            if (vfx == null) return null;
-
-            // 기본 파라미터
             // NOTE:
             // - LoopDuringAffectDuration: duration을 그대로 전달(0이면 기본 규칙, 음수는 무제한 loop)
             // - Once: duration을 0으로 취급하여 1회 재생
             float resolvedDuration = playMode == AffectVfxPlayMode.Once ? 0f : duration;
-            if (resolvedDuration != 0f) vfx.SetDuration(resolvedDuration);
-            if (scale > 0f) vfx.SetScale(scale);
 
-            // SortingLayer
-            vfx.SetSortingLayer(sortingLayerKey);
+            // 중요:
+            // VfxBehaviourBase.OnEnable() -> PlayOnSpawn() 에서 _duration 을 즉시 사용하므로,
+            // duration/scale/sorting/follow 관련 값은 CreateVfx 이후 후처리로 넣으면 첫 재생에 반영되지 않는다.
+            // 따라서 생성 전에 VfxSpawnRequest 로 전달해서 ApplyRequest 단계에서 먼저 세팅되도록 한다.
+            var request = new VfxSpawnRequest
+            {
+                VfxUid = vfxUid,
+                DurationOverride = resolvedDuration,
+                ScaleOverride = scale > 0f ? scale : 0f,
+                SortingLayerOverride = sortingLayerKey,
+            };
 
             // 타겟 캐릭터(있으면 flip/height 계산에 활용)
             CharacterBase character = null;
@@ -50,9 +53,13 @@ namespace GGemCo2DAffect
             {
                 character = tr.GetComponent<CharacterBase>();
                 if (character != null)
-                    vfx.SetCreateCharacter(character);
+                {
+                    request.Owner = character;
+                }
                 else
-                    vfx.transform.position = tr.position;
+                {
+                    request.WorldPosition = tr.position;
+                }
             }
 
             // 위치/Follow
@@ -63,20 +70,23 @@ namespace GGemCo2DAffect
             {
                 if (character != null)
                 {
-                    vfx.SetFollowCharacter(character);
-                    vfx.SetPositionY(offsetY);
-                    vfx.SetPositionYType(isHead ? ConfigCommon.PositionYType.CharacterHeight : ConfigCommon.PositionYType.None);
+                    request.FollowTarget = character;
+                    request.PositionY = offsetY;
+                    request.PositionYType = isHead ? ConfigCommon.PositionYType.CharacterHeight : ConfigCommon.PositionYType.None;
                 }
                 else
                 {
                     // 캐릭터가 없으면 Follow 불가: 1회 위치에만 표시
-                    vfx.transform.position = ComputeOneShotPosition(tr, null, isHead, offsetY);
+                    request.WorldPosition = ComputeOneShotPosition(tr, null, isHead, offsetY);
                 }
             }
             else
             {
-                vfx.transform.position = ComputeOneShotPosition(tr, character, isHead, offsetY);
+                request.WorldPosition = ComputeOneShotPosition(tr, character, isHead, offsetY);
             }
+
+            var vfx = scene.VfxManager.CreateVfx(request);
+            if (vfx == null) return null;
 
             return vfx;
         }
