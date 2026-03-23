@@ -23,31 +23,18 @@ namespace GGemCo2DAffectEditor
         /// </summary>
         private const string Title = "Affect 설명 체크기";
 
-        /// <summary>
-        /// Affect 테이블(원본 데이터) 참조입니다.
-        /// </summary>
+        // Tables
         private TableAffect _tableAffect;
-
-        /// <summary>
-        /// 팝업에서 선택된 항목의 인덱스입니다.
-        /// </summary>
-        private int _selectedIndex;
-
-        /// <summary>
-        /// Affect UID를 키로 하는 테이블 데이터 사전입니다.
-        /// </summary>
+        private TableAffectModifier _tableAffectModifier;
         private Dictionary<int, StruckTableAffect> _dictionary;
 
-        /// <summary>
-        /// 팝업에 표시할 "Uid - Name" 문자열 목록입니다.
-        /// </summary>
-        private readonly List<string> _names = new List<string>();
-
-        /// <summary>
-        /// 팝업 인덱스와 1:1로 매핑되는 Affect UID 목록입니다.
-        /// </summary>
-        private readonly List<int> _uids = new List<int>();
-
+        // Dropdown data
+        private readonly List<SearchableDropdownUtility.Option<StruckTableAffect>> _dropDownOptions = new();
+        private StruckTableAffect _selectedData;
+        
+        private string _lastReloadMessage = string.Empty;
+        private Vector2 _scroll;
+        
         /// <summary>
         /// Unity 메뉴에서 호출되어 디버그 윈도우를 엽니다.
         /// </summary>
@@ -63,43 +50,140 @@ namespace GGemCo2DAffectEditor
         protected override void OnEnable()
         {
             base.OnEnable();
-            _selectedIndex = 0;
 
-            _tableAffect = TableLoaderManagerAffect.LoadAffectTable();
-            _dictionary = _tableAffect.GetDatas();
+            _selectedData = null;
+            selectedCharacterIndex = 0;
+            selectedCharacter = null;
 
-            LoadInfoData();
+            ReloadAllTables();
+            RefreshSceneCharacters();
         }
-
+        
         /// <summary>
         /// 에디터 윈도우 UI를 그립니다.
         /// </summary>
         private void OnGUI()
         {
-            if (_selectedIndex >= _names.Count)
+            using (var scroll = new EditorGUILayout.ScrollViewScope(_scroll))
             {
-                _selectedIndex = 0;
+                _scroll = scroll.scrollPosition;
+                EditorGUILayout.Space(6);
+
+                DrawPlayModeGate();
+                EditorGUILayout.Space(6);
+
+                DrawSection();
+                EditorGUILayout.Space(8);
+
+                DrawApplySection();
+                EditorGUILayout.Space(8);
+
+                DrawReloadSection();
+                EditorGUILayout.Space(20);
             }
-
-            EditorGUILayout.LabelField(Title, EditorStyles.boldLabel);
-            EditorGUILayout.Space();
-
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
-            {
-                EditorGUILayout.LabelField("게임을 실행 해야 합니다.");
-                EditorGUILayout.Space(4);
-                EditorGUILayout.LabelField("`선택 Affect 설명 확인하기`를 실행하면 콘솔 로그 창에 출력됩니다.");
-                EditorGUILayout.Space(4);
-                EditorGUILayout.LabelField("`모든 Affect 설명 txt로 내보내기`를 실행하면, 선택한 폴더에 txt 파일로 생성됩니다.");
-                EditorGUILayout.Space(4);
-            }
-
-            _selectedIndex = EditorGUILayout.Popup("Affect 선택", _selectedIndex, _names.ToArray());
-
-            if (GUILayout.Button("선택 Affect 설명 확인하기")) CheckAffectDescription();
-            if (GUILayout.Button("모든 Affect 설명 txt로 내보내기")) ExportAllAffectDescription();
         }
 
+        #region GUI
+        
+        private void DrawSection()
+        {
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.PrefixLabel("Affect");
+
+                    if (_dropDownOptions.Count == 0)
+                    {
+                        EditorGUILayout.HelpBox("Affect 테이블이 비어있습니다. 테이블 로딩/Addressables 설정을 확인해주세요.", MessageType.Warning);
+                        return;
+                    }
+
+                    string currentText = _selectedData != null ? _selectedData.Name : "선택...";
+                    int selectIndex = _selectedData?.Uid ?? 0;
+
+                    SearchableDropdownUtility.DrawButtonAndShow(
+                        buttonText: currentText,
+                        options: _dropDownOptions,
+                        selectedIndex: selectIndex,
+                        onSelected: (idx, opt) =>
+                        {
+                            _selectedData = opt.Data;
+                            Repaint();
+                        },
+                        defaultSearchMode: SearchableDropdownUtility.SearchMode.Both);
+                }
+
+                if (_selectedData != null)
+                {
+                    EditorGUILayout.LabelField("UID", _selectedData.Uid.ToString());
+                    EditorGUILayout.LabelField("Name", _selectedData.Name);
+                    EditorGUILayout.LabelField("GroupId", string.IsNullOrEmpty(_selectedData.GroupId) ? "(None)" : _selectedData.GroupId);
+                    EditorGUILayout.LabelField("BaseDuration", _selectedData.BaseDuration.ToString("0.###"));
+                    EditorGUILayout.LabelField("TickInterval", _selectedData.TickInterval.ToString("0.###"));
+                }
+            }
+        }
+        
+        private void DrawApplySection()
+        {
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                using (new EditorGUI.DisabledScope(!Application.isPlaying || !SceneGame.Instance))
+                {
+                    if (GUILayout.Button("선택 Affect 설명 확인하기")) CheckAffectDescription();
+                    if (GUILayout.Button("모든 Affect 설명 txt로 내보내기")) ExportAllAffectDescription();
+                }
+            }
+        }
+        
+        private void DrawReloadSection()
+        {
+            DrawTableReloadSection(
+                _lastReloadMessage,
+                "affect / affect_modifier / stat / state / damage_type 재로딩",
+                ReloadAllTables);
+        }
+
+        #endregion
+        
+        
+        private void ReloadAllTables()
+        {
+            try
+            {
+                _tableAffect = TableLoaderManagerAffect.LoadAffectTable();
+                _tableAffectModifier = TableLoaderManagerAffect.LoadAffectModifierTable();
+
+                _dictionary = _tableAffect?.GetDatas();
+                RebuildDropdown();
+
+                TableLoaderManagerAffect.LoadCoreTable<TableStat>("stat");
+                TableLoaderManagerAffect.LoadCoreTable<TableState>("state");
+                TableLoaderManagerAffect.LoadCoreTable<TableDamageType>("damage_type");
+                
+                _lastReloadMessage = $"테이블 재로딩 완료: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                _lastReloadMessage = $"테이블 재로딩 실패: {e.GetType().Name} - {e.Message}";
+            }
+
+            Repaint();
+        }
+
+        private void RebuildDropdown()
+        {
+            RebuildDropdownOptions(
+                source: _dictionary?.Values,
+                targetOptions: _dropDownOptions,
+                isValidRow: row => row.Uid > 0,
+                keySelector: row => row.Uid.ToString(),
+                valueSelector: row => row.Name,
+                assignSelected: row => _selectedData = row);
+        }
+        
         /// <summary>
         /// 현재 선택된 Affect의 설명을 로컬라이징 결과로 조회하여 콘솔에 출력합니다.
         /// </summary>
@@ -114,7 +198,7 @@ namespace GGemCo2DAffectEditor
                 return;
             }
 
-            int affectUid = _uids[_selectedIndex];
+            int affectUid = _selectedData.Uid;
             if (affectUid <= 0)
             {
                 EditorUtility.DisplayDialog(Title, "확인할 Affect를 선택해주세요.", "OK");
@@ -250,27 +334,6 @@ namespace GGemCo2DAffectEditor
                 return $"\"{value}\"";
 
             return value;
-        }
-
-        /// <summary>
-        /// 테이블 데이터를 기반으로 팝업(이름/UID) 목록을 다시 구성합니다.
-        /// </summary>
-        private void LoadInfoData()
-        {
-            _names.Clear();
-            _uids.Clear();
-
-            foreach (var kvp in _dictionary)
-            {
-                var info = kvp.Value;
-                if (info.Uid <= 0) continue;
-
-                _names.Add($"{info.Uid} - {info.Name}");
-                _uids.Add(info.Uid);
-            }
-
-            // 목록 재구성 시 기본 선택값을 0으로 초기화합니다.
-            _selectedIndex = 0;
         }
     }
 }
