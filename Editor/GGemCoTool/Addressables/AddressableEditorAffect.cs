@@ -78,24 +78,22 @@ namespace GGemCo2DAffectEditor
             // 현재 윈도우 폭을 기준으로 버튼 폭을 반으로 나눠 사용합니다.
             buttonWidth = position.width / 2f - 10f;
 
-            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+            using (var scroll = new EditorGUILayout.ScrollViewScope(_scrollPosition))
+            {
+                _scrollPosition = scroll.scrollPosition;
 
-            EditorGUILayout.BeginHorizontal();
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    _settingScriptableObjectAffect.OnGUI();
+                    _settingTableAffect.OnGUI();
+                }
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    _settingAffectImage.OnGUI();
+                }
 
-            // NOTE: 필요 시 ScriptableObject 셋팅 UI를 활성화하세요.
-            // _settingScriptableObjectAffect.OnGUI();
-
-            _settingTableAffect.OnGUI();
-            _settingAffectImage.OnGUI();
-
-            EditorGUILayout.EndHorizontal();
-
-            // NOTE: 추후 추가 UI 섹션이 필요하면 아래 블록을 사용합니다.
-            // EditorGUILayout.BeginHorizontal();
-            // EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space(20);
-            EditorGUILayout.EndScrollView();
+                EditorGUILayout.Space(20);
+            }
         }
     }
 }

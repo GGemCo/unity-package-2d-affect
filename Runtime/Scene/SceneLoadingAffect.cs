@@ -1,4 +1,5 @@
-﻿using GGemCo2DCore;
+﻿using GGemCo2DControl;
+using GGemCo2DCore;
 using UnityEngine;
 
 namespace GGemCo2DAffect
@@ -56,6 +57,19 @@ namespace GGemCo2DAffect
             GameLoaderManager sender,
             GameLoaderManager.EventArgsBeforeLoadStart e)
         {
+            // 설정 스크립터블 오브젝트 
+            var addrSettings = Object.FindFirstObjectByType<AddressableLoaderSettingsAffect>() ??
+                               new GameObject("AddressableLoaderSettingsAffect")
+                                   .AddComponent<AddressableLoaderSettingsAffect>();
+            var step = new AddressableTaskStep(
+                id: "affect.settings",
+                order: 251,
+                localizedKey: LocalizationConstants.Keys.Loading.TextTypeSettings(),
+                startTask: () => addrSettings.LoadAllSettingsAsync(),
+                getProgress: () => addrSettings.GetLoadProgress()
+            );
+            sender.Register(step);
+            
             // 테이블 로더 준비 및 테이블 로딩 스텝 등록
             var tableLoader =
                 FindFirstObjectByType<TableLoaderManagerAffect>() ??
