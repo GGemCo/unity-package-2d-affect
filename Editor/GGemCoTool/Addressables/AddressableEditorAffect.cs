@@ -82,6 +82,8 @@ namespace GGemCo2DAffectEditor
             {
                 _scrollPosition = scroll.scrollPosition;
 
+                // EditorGUILayout.HelpBox("", MessageType.Info);
+                
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     _settingScriptableObjectAffect.OnGUI();
