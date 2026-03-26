@@ -58,7 +58,7 @@ namespace GGemCo2DAffect
             GameLoaderManager.EventArgsBeforeLoadStart e)
         {
             // 설정 스크립터블 오브젝트 
-            var addrSettings = Object.FindFirstObjectByType<AddressableLoaderSettingsAffect>() ??
+            var addrSettings = CompatObjectFind.FindFirst<AddressableLoaderSettingsAffect>() ??
                                new GameObject("AddressableLoaderSettingsAffect")
                                    .AddComponent<AddressableLoaderSettingsAffect>();
             var step = new AddressableTaskStep(
@@ -71,9 +71,8 @@ namespace GGemCo2DAffect
             sender.Register(step);
             
             // 테이블 로더 준비 및 테이블 로딩 스텝 등록
-            var tableLoader =
-                FindFirstObjectByType<TableLoaderManagerAffect>() ??
-                new GameObject("TableLoaderManagerAffect").AddComponent<TableLoaderManagerAffect>();
+            var tableLoader = CompatObjectFind.FindFirst<TableLoaderManagerAffect>() ??
+                              new GameObject("TableLoaderManagerAffect").AddComponent<TableLoaderManagerAffect>();
 
             var targetTables = ConfigAddressableTableAffect.All;
             var stepTable = new TableLoadStep(
@@ -87,7 +86,7 @@ namespace GGemCo2DAffect
 
             // 로컬라이징 매니저 준비 및 로컬라이징 로딩 스텝 등록
             var loc =
-                Object.FindFirstObjectByType<LocalizationManagerAffect>() ??
+                CompatObjectFind.FindFirst<LocalizationManagerAffect>() ??
                 new GameObject("LocalizationManagerAffect").AddComponent<LocalizationManagerAffect>();
 
             var stepLocalization = new LocalizationLoadStep(
@@ -100,7 +99,7 @@ namespace GGemCo2DAffect
             sender.Register(stepLocalization);
 
             // 어펙트 이미지(아틀라스 등) 로딩 스텝 등록
-            var addrAffect = Object.FindFirstObjectByType<AddressableLoaderAffect>() ??
+            var addrAffect = CompatObjectFind.FindFirst<AddressableLoaderAffect>() ??
                              new GameObject("AddressableLoaderAffect").AddComponent<AddressableLoaderAffect>();
 
             var stepAffect = new AddressableTaskStep(
