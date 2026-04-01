@@ -190,8 +190,18 @@ namespace GGemCo2DAffect
             /// </summary>
             public readonly string StateId;
 
+            /// <summary>
+            /// Core 캐릭터에 획득한 외부 제어 잠금 토큰입니다.
+            /// </summary>
+            public readonly object ControlLockToken;
+
             /// <param name="stateId">적용할 상태 ID.</param>
-            public StateToken(string stateId) => StateId = stateId;
+            /// <param name="controlLockToken">Core 제어 잠금 토큰입니다.</param>
+            public StateToken(string stateId, object controlLockToken = null)
+            {
+                StateId = stateId;
+                ControlLockToken = controlLockToken;
+            }
         }
 
         /// <summary>
@@ -243,13 +253,15 @@ namespace GGemCo2DAffect
                     next = cur + 1;
                 _counts[stateId] = next;
 
-                // DontControl은 Core의 실제 상태로 브릿지한다.
+                object controlLockToken = null;
+
+                // DontControl은 Core의 공용 제어 잠금으로 브리지한다.
                 if (string.Equals(stateId, ConfigCommonAffect.State.DontControl, StringComparison.Ordinal))
                 {
-                    _character?.SetStatusDontControl();
+                    controlLockToken = _character?.AcquireControlLock();
                 }
 
-                return new StateToken(stateId);
+                return new StateToken(stateId, controlLockToken);
             }
 
             /// <summary>
@@ -270,11 +282,9 @@ namespace GGemCo2DAffect
                 else
                     _counts[t.StateId] = next;
 
-                // DontControl이 완전히 해제되면 Idle 상태로 복귀한다.
-                // 정책: CharacterBase.Stop()을 호출하여 Idle 처리.
-                if (next <= 0 && string.Equals(t.StateId, ConfigCommonAffect.State.DontControl, StringComparison.Ordinal))
+                if (string.Equals(t.StateId, ConfigCommonAffect.State.DontControl, StringComparison.Ordinal))
                 {
-                    _character?.Stop();
+                    _character?.ReleaseControlLock(t.ControlLockToken);
                 }
             }
 
