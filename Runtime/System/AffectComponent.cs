@@ -22,6 +22,7 @@ namespace GGemCo2DAffect
         private IStatusDefinitionRepository _statusRepo;
         private IAffectVfxService _vfx;
         private IAffectOutlineService _outline;
+        private IAffectAnimationService _animation;
 
         private readonly Dictionary<int, AffectInstance> _byRuntimeId = new();
         private readonly Dictionary<int, List<int>> _runtimeIdsByAffectUid = new();
@@ -99,6 +100,7 @@ namespace GGemCo2DAffect
             _statusRepo = AffectRuntime.StatusRepository;
             _vfx = AffectRuntime.VfxService;
             _outline = AffectRuntime.OutlineService;
+            _animation = AffectRuntime.AnimationService;
 
             // 활성 인스턴스가 있을 때만 Update를 돌린다.
             enabled = HasAny;
@@ -318,6 +320,7 @@ namespace GGemCo2DAffect
 
             // 4) OnApply 실행
             ExecutePhase(AffectPhase.OnApply, instance);
+            ExecuteAnimationOnApply(instance);
 
             MarkChanged();
             FlushChangedIfNeeded();
@@ -420,8 +423,10 @@ namespace GGemCo2DAffect
                         CleanupTokens(instance);
                         CleanupActiveVisuals(instance);
                         CleanupOutline(instance);
+                        CleanupAnimation(instance);
                         instance.AccumulateTick(-instance.TickElapsed); // tick reset
                         ExecutePhase(AffectPhase.OnApply, instance);
+                        ExecuteAnimationOnApply(instance);
                     }
                     MarkChanged();
                     FlushChangedIfNeeded();
@@ -570,6 +575,28 @@ namespace GGemCo2DAffect
             instance.OutlineToken = null;
         }
 
+        private void ExecuteAnimationOnApply(AffectInstance instance)
+        {
+            if (_animation == null || instance == null)
+                return;
+
+            AffectAnimationDefinition definition = instance.Definition?.animation;
+            if (definition == null || !definition.IsConfigured)
+                return;
+
+            CleanupAnimation(instance);
+            instance.AnimationToken = _animation.Play(_target, definition);
+        }
+
+        private void CleanupAnimation(AffectInstance instance)
+        {
+            if (instance == null || instance.AnimationToken == null)
+                return;
+
+            _animation?.Stop(instance.AnimationToken);
+            instance.AnimationToken = null;
+        }
+
         /// <summary>
         /// runtimeId로 인스턴스를 제거한다.
         /// </summary>
@@ -588,6 +615,7 @@ namespace GGemCo2DAffect
             // OnExpire
             ExecutePhase(AffectPhase.OnExpire, instance);
 
+            CleanupAnimation(instance);
             CleanupActiveVisuals(instance);
             CleanupOutline(instance);
 

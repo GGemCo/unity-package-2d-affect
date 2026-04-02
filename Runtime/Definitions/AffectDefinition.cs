@@ -130,6 +130,11 @@ namespace GGemCo2DAffect
         /// </summary>
         public List<AffectVisualActionDefinition> visualActions = new();
 
+        /// <summary>
+        /// Affect에 연결된 Start/Loop/End 애니메이션 정의입니다.
+        /// </summary>
+        public AffectAnimationDefinition animation;
+
         // ----------------------
         // Visual Decorators
         // ----------------------

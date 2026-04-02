@@ -30,6 +30,9 @@ namespace GGemCo2DAffect
 
             // Affect Outline을 Core 캐릭터 렌더링으로 연결
             AffectRuntime.OutlineService = new CoreAffectOutlineService();
+
+            // Affect 애니메이션을 Core 캐릭터 애니메이션으로 연결
+            AffectRuntime.AnimationService = new CoreAffectAnimationService();
         }
     }
 }

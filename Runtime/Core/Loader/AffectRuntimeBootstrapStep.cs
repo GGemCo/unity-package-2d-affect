@@ -122,6 +122,26 @@ namespace GGemCo2DAffect
                     });
                 }
 
+                var animationRow = tableLoaderManagerAffect.TableAffectAnimation.GetDataByAffectUid(row.Uid);
+                if (animationRow != null)
+                {
+                    def.animation = new AffectAnimationDefinition
+                    {
+                        uid = animationRow.Uid,
+                        affectUid = animationRow.AffectUid,
+                        stopCharacterOnApply = animationRow.StopCharacterOnApply,
+                        startAnimationName = animationRow.StartAnimationName,
+                        loopAnimationName = animationRow.LoopAnimationName,
+                        endAnimationName = animationRow.EndAnimationName,
+                        priority = animationRow.Priority,
+                        restoreWaitOnEnd = animationRow.RestoreWaitOnEnd,
+                    };
+                }
+                else
+                {
+                    def.animation = null;
+                }
+
                 // Tags: "a,b c" 형태를 콤마/공백 기준으로 분리하여 정규화한다.
                 def.tags.Clear();
                 if (!string.IsNullOrWhiteSpace(row.Tags))

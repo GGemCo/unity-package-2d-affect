@@ -48,5 +48,15 @@ namespace GGemCo2DAffect
         /// </remarks>
         public static IAffectOutlineService OutlineService { get; set; }
             = new NullAffectOutlineService();
+
+        /// <summary>
+        /// 어펙트 Start/Loop/End 애니메이션을 재생하는 서비스입니다.
+        /// </summary>
+        /// <remarks>
+        /// 기본값은 <see cref="NullAffectAnimationService"/>로, 애니메이션 연동이 없는 환경에서도
+        /// null 체크 없이 안전하게 호출할 수 있도록 합니다.
+        /// </remarks>
+        public static IAffectAnimationService AnimationService { get; set; }
+            = new NullAffectAnimationService();
     }
 }

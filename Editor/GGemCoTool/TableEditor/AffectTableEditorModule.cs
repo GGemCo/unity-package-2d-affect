@@ -36,7 +36,6 @@ namespace GGemCo2DAffectEditor
             public bool ConsumeOnProc;
         }
 
-
         private sealed class AffectVisualActionEditorRow
         {
             public int Uid;
@@ -53,6 +52,20 @@ namespace GGemCo2DAffectEditor
             public AffectVfxFollowType VfxFollowType;
             public ConfigSortingLayer.Keys VfxSortingLayerKey;
             public float DurationOverride;
+        }
+
+        private sealed class AffectAnimationEditorRow
+        {
+            public int Uid;
+            public string Name;
+            public string Memo;
+            public int AffectUid;
+            public bool StopCharacterOnApply;
+            public string StartAnimationName;
+            public string LoopAnimationName;
+            public string EndAnimationName;
+            public int Priority;
+            public bool RestoreWaitOnEnd;
         }
 
         public string ModuleName => "Affect";
@@ -91,6 +104,17 @@ namespace GGemCo2DAffectEditor
                 typeof(TableAffectVisualAction),
                 typeof(AffectVisualActionEditorRow),
                 TableEditorDefinitionFactory.CreateDefaultReloadAction(ConfigAddressableTableAffect.TableAffectVisualAction.Path),
+                ResolveReference);
+
+            yield return TableEditorDefinitionFactory.Create(
+                ModuleName,
+                PackageName,
+                ConfigAddressableTableAffect.AffectAnimation,
+                ConfigAddressableTableAffect.TableAffectAnimation.Path,
+                ConfigAddressableTableAffect.AffectAnimation,
+                typeof(TableAffectAnimation),
+                typeof(AffectAnimationEditorRow),
+                TableEditorDefinitionFactory.CreateDefaultReloadAction(ConfigAddressableTableAffect.TableAffectAnimation.Path),
                 ResolveReference);
         }
 
