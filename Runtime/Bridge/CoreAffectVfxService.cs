@@ -68,11 +68,19 @@ namespace GGemCo2DAffect
             return scene.VfxManager.CreateVfx(request);
         }
 
-        /// <inheritdoc />
         public void Stop(object token)
         {
-            if (token is VfxBehaviourBase vfx && vfx != null)
-                vfx.DestroyForce();
+            if (token is not VfxBehaviourBase vfx || vfx == null)
+                return;
+
+            var go = vfx.gameObject;
+            if (go == null)
+                return;
+
+            if (!go.activeInHierarchy)
+                return;
+
+            vfx.DestroyForce();
         }
 
         private static Vector3 ComputeOneShotPosition(Transform targetTr, CharacterBase character, bool isHead, float offsetY)
