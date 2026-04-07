@@ -138,6 +138,7 @@ namespace GGemCo2DAffect
                 applyAffectChance = MathHelper.ParseFloat(row.GetValueOrDefault("ApplyAffectChance")),
                 applyAffectDurationOverride = MathHelper.ParseFloat(row.GetValueOrDefault("ApplyAffectDurationOverride")),
                 consumeOnProc = MathHelper.ParseInt(row.GetValueOrDefault("ConsumeOnProc")) != 0,
+                elementGaugeValue = MathHelper.ParseFloat(row.GetValueOrDefault("ElementGaugeValue")),
             };
 
             return mod;

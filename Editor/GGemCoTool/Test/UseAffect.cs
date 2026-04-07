@@ -249,6 +249,11 @@ namespace GGemCo2DAffectEditor
                         EditorGUILayout.LabelField("Chance", m.stateChance.ToString("0.###"));
                         EditorGUILayout.LabelField("DurationOverride", m.stateDurationOverride.ToString("0.###"));
                         break;
+
+                    case ModifierKind.ElementGauge:
+                        EditorGUILayout.LabelField("DamageTypeId", string.IsNullOrEmpty(m.damageTypeId) ? "(None)" : m.damageTypeId);
+                        EditorGUILayout.LabelField("ElementGaugeValue", m.elementGaugeValue.ToString("0.###"));
+                        break;
                 }
 
                 var statusRepo = AffectRuntime.StatusRepository;

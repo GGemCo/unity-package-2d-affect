@@ -65,6 +65,7 @@ namespace GGemCo2DAffect
         private readonly StateExecutor _stateExecutor = new();
         private readonly CrowdControlExecutor _crowdControlExecutor = new();
         private readonly ApplyAffectToTargetExecutor _applyAffectExecutor = new();
+        private readonly ElementGaugeExecutor _elementGaugeExecutor = new();
 
         /// <summary>
         /// 현재 활성 어펙트가 1개 이상 존재하는지 여부.
@@ -266,6 +267,9 @@ namespace GGemCo2DAffect
                 {
                     case ModifierKind.ApplyAffectToTarget:
                         _applyAffectExecutor.ExecuteOnHit(_target, hitTarget, instance, mod, _affectRepo, _statusRepo);
+                        break;
+                    case ModifierKind.ElementGauge:
+                        _elementGaugeExecutor.ExecuteOnHit(_target, hitTarget, instance, mod, _affectRepo, _statusRepo);
                         break;
                     default:
                         break;
