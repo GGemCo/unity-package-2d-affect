@@ -48,6 +48,9 @@ namespace GGemCo2DAffect
 
             /// <summary>표시할 아이콘 키(가능하면 Definition.IconKey 사용).</summary>
             public string IconKey;
+
+            /// <summary>표시할 타입 데코레이터 정보.</summary>
+            public AffectUiDecoratorData Decorator;
         }
 
         /// <summary>
@@ -156,7 +159,8 @@ namespace GGemCo2DAffect
                         Stacks = 0,
                         RemainingMax = 0f,
                         TotalDurationMax = 0f,
-                        IconKey = inst.Definition.iconKey
+                        IconKey = inst.Definition.iconKey,
+                        Decorator = ResolveDecorator(inst.Definition)
                     };
                 }
 
@@ -183,10 +187,31 @@ namespace GGemCo2DAffect
                     agg.Stacks,
                     agg.RemainingMax,
                     agg.TotalDurationMax,
-                    agg.IconKey));
+                    agg.IconKey,
+                    agg.Decorator));
             }
 
             _view.Render(_itemsBuffer);
+        }
+
+        private static AffectUiDecoratorData ResolveDecorator(AffectDefinition definition)
+        {
+            if (definition == null)
+                return AffectUiDecoratorData.Hidden;
+
+            var settings = GGemCoAffectSettingsRuntime.GetOrLoad();
+            if (settings == null)
+                return AffectUiDecoratorData.Hidden;
+
+            if (!settings.TryGetTypeIconStyle(definition.dispelType, out var style) || style == null)
+                return AffectUiDecoratorData.Hidden;
+
+            return new AffectUiDecoratorData(
+                true,
+                style.sprite,
+                style.size,
+                style.anchor,
+                style.offset);
         }
     }
 }
