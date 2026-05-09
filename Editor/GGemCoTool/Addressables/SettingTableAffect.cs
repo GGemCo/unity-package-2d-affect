@@ -67,7 +67,7 @@ namespace GGemCo2DAffectEditor
         }
 
         /// <summary>
-        /// Affect 관련 테이블들을 Addressables에 등록하고 저장합니다.
+        /// Affect 관련 테이블 원본과 런타임 테이블 팩을 Addressables에 등록하고 저장합니다.
         /// </summary>
         /// <param name="ctx">
         /// 배치/자동화 실행 컨텍스트입니다. null이면 완료 시 AssetDatabase 저장 및 다이얼로그를 표시합니다.
@@ -96,6 +96,8 @@ namespace GGemCo2DAffectEditor
                 return;
             }
 
+            RegisterRuntimeTablePack(settings, group, ctx);
+
             // Affect 테이블 목록을 Addressables 엔트리로 등록
             foreach (var addressableAssetInfo in ConfigAddressableTableAffect.All)
             {
@@ -115,6 +117,30 @@ namespace GGemCo2DAffectEditor
                 AssetDatabase.SaveAssets();
                 EditorUtility.DisplayDialog(Title, "Addressable 설정 완료", "OK");
             }
+        }
+
+        /// <summary>
+        /// Affect 개별 테이블 txt를 런타임 팩으로 생성하고 Addressables에 등록합니다.
+        /// </summary>
+        /// <param name="settings">Addressables 설정 객체입니다.</param>
+        /// <param name="group">등록 대상 Table 그룹입니다.</param>
+        /// <param name="ctx">자동 설정 실행 컨텍스트입니다.</param>
+        private void RegisterRuntimeTablePack(AddressableAssetSettings settings, AddressableAssetGroup group, EditorSetupContext ctx)
+        {
+            AddressableAssetInfo pack = ConfigAddressableTablePack.Affect;
+            bool built = RuntimeTablePackBuilder.Build(
+                ConfigAddressableTablePack.PackageAffect,
+                pack,
+                ConfigAddressableTableAffect.All,
+                ctx);
+
+            if (!built)
+            {
+                HelperLog.Warn("Affect 런타임 테이블 팩 생성에 실패했습니다. 개별 테이블 등록은 계속 진행합니다.", ctx);
+                return;
+            }
+
+            Add(settings, group, pack.Key, pack.Path, ConfigAddressableLabel.TablePack);
         }
     }
 }

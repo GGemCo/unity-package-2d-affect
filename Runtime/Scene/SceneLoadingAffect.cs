@@ -75,12 +75,13 @@ namespace GGemCo2DAffect
                               new GameObject("TableLoaderManagerAffect").AddComponent<TableLoaderManagerAffect>();
 
             var targetTables = ConfigAddressableTableAffect.All;
-            var stepTable = new TableLoadStep(
+            var stepTable = new TablePackLoadStep(
                 id: "core.table.affect",
                 order: 246,
                 localizedKey: LocalizationConstants.Keys.Loading.TextTypeTables(),
                 tableLoader: tableLoader,
-                tables: targetTables
+                tablePack: ConfigAddressableTablePack.Affect,
+                fallbackTables: targetTables
             );
             sender.Register(stepTable);
 
