@@ -98,18 +98,9 @@ namespace GGemCo2DAffect
             );
             sender.Register(stepLocalization);
 
-            // 어펙트 이미지(아틀라스 등) 로딩 스텝 등록
-            var addrAffect = CompatObjectFind.FindFirst<AddressableLoaderAffect>() ??
-                             new GameObject("AddressableLoaderAffect").AddComponent<AddressableLoaderAffect>();
-
-            var stepAffect = new AddressableTaskStep(
-                id: "core.image.icon.affect",
-                order: 340,
-                localizedKey: LocalizationConstants.Keys.Loading.TextTypeAffect(),
-                startTask: () => addrAffect.LoadAtlasesAsync(),
-                getProgress: () => addrAffect.GetPrefabLoadProgress()
-            );
-            sender.Register(stepAffect);
+            // Affect 아이콘 Atlas는 시작 로딩에서 제외하고, 로더 인스턴스만 준비합니다.
+            _ = CompatObjectFind.FindFirst<AddressableLoaderAffect>() ??
+                new GameObject("AddressableLoaderAffect").AddComponent<AddressableLoaderAffect>();
 
             // Affect Definition 런타임 부트스트랩(정의/레지스트리 준비 등) 스텝 등록
             var stepAffectDefinition = new AffectRuntimeBootstrapStep(
