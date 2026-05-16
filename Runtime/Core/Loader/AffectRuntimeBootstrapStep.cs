@@ -87,6 +87,7 @@ namespace GGemCo2DAffect
                     stackPolicy = row.StackPolicy,
                     maxStacks = row.MaxStacks,
                     refreshPolicy = row.RefreshPolicy,
+                    sourceLifePolicy = row.SourceLifePolicy,
                     dispelType = row.DispelType,
                     applyChance = row.ApplyChance,
 

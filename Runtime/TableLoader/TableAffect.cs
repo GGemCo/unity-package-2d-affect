@@ -83,6 +83,11 @@ namespace GGemCo2DAffect
         public RefreshPolicy RefreshPolicy;
 
         /// <summary>
+        /// Source(시전자/원인) 생존 상태를 Affect 유지에 반영하는 정책입니다.
+        /// </summary>
+        public SourceLifePolicy SourceLifePolicy;
+
+        /// <summary>
         /// 어펙트 태그 문자열(구분자 기반).
         /// </summary>
         public string Tags;
@@ -180,6 +185,7 @@ namespace GGemCo2DAffect
                 StackPolicy = EnumHelper.ConvertEnum<StackPolicy>(data.GetValueOrDefault("StackPolicy")),
                 MaxStacks = MathHelper.ParseInt(data.GetValueOrDefault("MaxStacks")),
                 RefreshPolicy = EnumHelper.ConvertEnum<RefreshPolicy>(data.GetValueOrDefault("RefreshPolicy")),
+                SourceLifePolicy = EnumHelper.ConvertEnum<SourceLifePolicy>(data.GetValueOrDefault("SourceLifePolicy")),
                 Tags = data.GetValueOrDefault("Tags"),
                 ApplyChance = MathHelper.ParseFloat(data.GetValueOrDefault("ApplyChance")),
                 UseOutline = ConvertBoolean(data.GetValueOrDefault("UseOutline")),

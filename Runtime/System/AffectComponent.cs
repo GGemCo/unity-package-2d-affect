@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GGemCo2DCore;
 using UnityEngine;
 
 namespace GGemCo2DAffect
@@ -134,6 +135,7 @@ namespace GGemCo2DAffect
 
             // 삭제 큐(만료 정리)
             SPendingRemoveIds.Clear();
+            SPendingRemoveReasons.Clear();
 
             // 순회 스냅샷(재사용)
             SRuntimeIdSnapshot.Clear();
@@ -149,6 +151,13 @@ namespace GGemCo2DAffect
                 if (!_byRuntimeId.TryGetValue(runtimeId, out var instance) || instance == null)
                     continue;
 
+                if (ShouldRemoveBySourceLifePolicy(instance))
+                {
+                    SPendingRemoveIds.Add(runtimeId);
+                    SPendingRemoveReasons.Add(AffectExpireReason.SourceDead);
+                    continue;
+                }
+
                 // 시간 감소
                 instance.UpdateTime(dt);
 
@@ -163,12 +172,15 @@ namespace GGemCo2DAffect
                 }
 
                 if (instance.IsExpired)
+                {
                     SPendingRemoveIds.Add(runtimeId);
+                    SPendingRemoveReasons.Add(AffectExpireReason.NaturalExpire);
+                }
             }
 
             // 만료 정리
             for (int i = 0; i < SPendingRemoveIds.Count; i++)
-                RemoveByRuntimeId(SPendingRemoveIds[i], AffectExpireReason.NaturalExpire);
+                RemoveByRuntimeId(SPendingRemoveIds[i], SPendingRemoveReasons[i]);
 
             FlushChangedIfNeeded();
 
@@ -180,6 +192,11 @@ namespace GGemCo2DAffect
         /// 순회 중 삭제가 필요한 runtimeId를 임시로 담는 정적 리스트(재사용).
         /// </summary>
         private static readonly List<int> SPendingRemoveIds = new(32);
+
+        /// <summary>
+        /// <see cref="SPendingRemoveIds"/>와 동일 인덱스로 관리되는 종료 사유 목록입니다.
+        /// </summary>
+        private static readonly List<AffectExpireReason> SPendingRemoveReasons = new(32);
 
         /// <summary>
         /// Update/NotifyHit 등에서 안전한 순회를 위해 사용하는 runtimeId 스냅샷 버퍼.
@@ -539,16 +556,87 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
-        /// OnExpire Damage Modifier를 실행할지 여부를 종료 원인으로 판정합니다.
+        /// Source 생존 정책을 평가하여, Source 사망으로 Affect를 제거해야 하는지 확인합니다.
         /// </summary>
-        /// <param name="reason">Affect 종료 원인입니다.</param>
+        /// <param name="instance">평가할 Affect 인스턴스입니다.</param>
+        /// <returns>
+        /// 정책이 <see cref="SourceLifePolicy.RemoveOnSourceDeath"/>이고 Source가 사망/소멸 상태이면 <c>true</c>입니다.
+        /// </returns>
+        /// <remarks>
+        /// Source가 아예 기록되지 않은 경우(null)는 기존 호환을 위해 제거하지 않습니다.
+        /// </remarks>
+        private static bool ShouldRemoveBySourceLifePolicy(AffectInstance instance)
+        {
+            if (instance == null || instance.Definition == null)
+                return false;
+
+            if (instance.Definition.sourceLifePolicy != SourceLifePolicy.RemoveOnSourceDeath)
+                return false;
+
+            object source = instance.Context?.Source;
+            if (source == null)
+                return false;
+
+            // UnityEngine.Object가 파괴되면 null 비교만 true가 되므로 소멸로 간주한다.
+            if (source is UnityEngine.Object unityObject && unityObject == null)
+                return true;
+
+            GameObject sourceGameObject = ResolveSourceGameObject(source);
+            if (sourceGameObject == null)
+                return false;
+
+            return !IsSourceAlive(sourceGameObject);
+        }
+
+        /// <summary>
+        /// Affect Context에 기록된 Source 객체를 <see cref="GameObject"/>로 변환합니다.
+        /// </summary>
+        /// <param name="source">AffectApplyContext.Source로 전달된 원본 객체입니다.</param>
+        /// <returns>변환 가능한 경우 Source의 <see cref="GameObject"/>, 아니면 <c>null</c>입니다.</returns>
+        private static GameObject ResolveSourceGameObject(object source)
+        {
+            if (source is GameObject sourceGameObject)
+                return sourceGameObject;
+
+            if (source is Component sourceComponent)
+                return sourceComponent.gameObject;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Source GameObject의 생존 여부를 평가합니다.
+        /// </summary>
+        /// <param name="sourceGameObject">생존 여부를 확인할 Source GameObject입니다.</param>
+        /// <returns>생존 상태면 <c>true</c>, 사망 상태면 <c>false</c>입니다.</returns>
+        /// <remarks>
+        /// <see cref="IAffectTarget"/>가 있으면 해당 <c>IsAlive</c>를 우선 사용하고,
+        /// 없으면 <see cref="CharacterBase"/>의 사망 상태를 확인합니다.
+        /// 두 타입 모두 없으면 생존으로 간주합니다.
+        /// </remarks>
+        private static bool IsSourceAlive(GameObject sourceGameObject)
+        {
+            if (sourceGameObject == null)
+                return false;
+
+            var sourceAffectTarget = sourceGameObject.GetComponent<IAffectTarget>();
+            if (sourceAffectTarget != null)
+                return sourceAffectTarget.IsAlive;
+
+            var sourceCharacter = sourceGameObject.GetComponent<CharacterBase>();
+            if (sourceCharacter != null)
+                return !sourceCharacter.IsStatusDead();
+
+            return true;
+        }
+
+        /// <summary>
+        /// 종료 사유를 기준으로 OnExpire Damage Modifier 실행 여부를 판정합니다.
+        /// </summary>
+        /// <param name="reason">Affect 종료 사유입니다.</param>
         /// <returns>
         /// 자연 만료(<see cref="AffectExpireReason.NaturalExpire"/>)인 경우에만 <c>true</c>를 반환합니다.
         /// </returns>
-        /// <remarks>
-        /// Dispel/수동 제거/일괄 제거에서 의도치 않은 종료 피해가 발생하지 않도록
-        /// 현재 정책은 자연 만료에만 종료 피해를 허용합니다.
-        /// </remarks>
         private static bool ShouldExecuteExpireDamage(AffectExpireReason reason)
         {
             return reason == AffectExpireReason.NaturalExpire;

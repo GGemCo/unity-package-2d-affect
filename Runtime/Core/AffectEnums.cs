@@ -9,6 +9,22 @@ namespace GGemCo2DAffect
     /// <summary>Refresh 시 갱신 범위.</summary>
     public enum RefreshPolicy { None, DurationOnly, ValueAndDuration }
 
+    /// <summary>
+    /// Affect의 Source(시전자/원인) 생존 여부를 지속 중에 어떻게 반영할지 정의합니다.
+    /// </summary>
+    public enum SourceLifePolicy
+    {
+        /// <summary>
+        /// Source의 생존 여부를 무시하고 기존 규칙대로 유지합니다.
+        /// </summary>
+        IgnoreSourceStatus = 0,
+
+        /// <summary>
+        /// Source가 사망(또는 소멸)하면 Affect를 즉시 제거합니다.
+        /// </summary>
+        RemoveOnSourceDeath = 1
+    }
+
     /// <summary>Modifier가 실행되는 시점.</summary>
     public enum AffectPhase { OnApply, OnTick, OnHit, OnExpire }
 
@@ -44,7 +60,12 @@ namespace GGemCo2DAffect
         /// <summary>
         /// RemoveAll 호출로 일괄 제거된 경우입니다.
         /// </summary>
-        RemoveAll
+        RemoveAll,
+
+        /// <summary>
+        /// Source(시전자/원인) 사망 정책에 의해 제거된 경우입니다.
+        /// </summary>
+        SourceDead
     }
 
     /// <summary>Modifier의 종류(Stat/DamageType/State).</summary>

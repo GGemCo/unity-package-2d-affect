@@ -72,6 +72,15 @@ namespace GGemCo2DAffect
         public RefreshPolicy refreshPolicy;
 
         /// <summary>
+        /// Source(시전자/원인) 생존 상태를 Affect 유지에 반영하는 정책입니다.
+        /// </summary>
+        /// <remarks>
+        /// 기본값은 <see cref="SourceLifePolicy.IgnoreSourceStatus"/>이며,
+        /// 기존 콘텐츠는 Source 생사와 무관하게 동일하게 동작합니다.
+        /// </remarks>
+        public SourceLifePolicy sourceLifePolicy;
+
+        /// <summary>
         /// 디스펠(해제) 분류 타입.
         /// </summary>
         public DispelType dispelType;
