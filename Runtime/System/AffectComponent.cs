@@ -330,6 +330,7 @@ namespace GGemCo2DAffect
             FlushChangedIfNeeded();
 
             enabled = true;
+            AffectTimerUiPresenter.TryEnsure(this);
         }
 
         /// <summary>
@@ -434,6 +435,7 @@ namespace GGemCo2DAffect
                     }
                     MarkChanged();
                     FlushChangedIfNeeded();
+                    AffectTimerUiPresenter.TryEnsure(this);
                     return;
 
                 case StackPolicy.Add:
@@ -442,12 +444,14 @@ namespace GGemCo2DAffect
                         instance.Refresh(duration);
                     MarkChanged();
                     FlushChangedIfNeeded();
+                    AffectTimerUiPresenter.TryEnsure(this);
                     return;
 
                 default:
                     instance.Refresh(duration);
                     MarkChanged();
                     FlushChangedIfNeeded();
+                    AffectTimerUiPresenter.TryEnsure(this);
                     return;
             }
         }
