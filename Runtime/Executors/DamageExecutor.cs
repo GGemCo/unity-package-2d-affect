@@ -47,7 +47,7 @@ namespace GGemCo2DAffect
             IAffectDefinitionRepository affectRepo,
             IStatusDefinitionRepository statusRepo)
         {
-            ApplyDamageToTarget(target, instance, mod, statusRepo);
+            ApplyDamageToTarget(target, instance, mod, affectRepo, statusRepo);
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace GGemCo2DAffect
             IAffectDefinitionRepository affectRepo,
             IStatusDefinitionRepository statusRepo)
         {
-            ApplyDamageToTarget(target, instance, mod, statusRepo);
+            ApplyDamageToTarget(target, instance, mod, affectRepo, statusRepo);
         }
 
         /// <summary>
@@ -101,6 +101,7 @@ namespace GGemCo2DAffect
         /// <param name="target">데미지를 받을 대상입니다.</param>
         /// <param name="instance">현재 Affect 인스턴스입니다.</param>
         /// <param name="mod">데미지 Modifier 정의입니다.</param>
+        /// <param name="affectRepo">사망 연출 정의를 조회할 Affect 저장소입니다.</param>
         /// <param name="statusRepo">저항 값을 조회할 저장소입니다.</param>
         /// <remarks>
         /// 계산 순서:
@@ -112,6 +113,7 @@ namespace GGemCo2DAffect
             IAffectTarget target,
             AffectInstance instance,
             AffectModifierDefinition mod,
+            IAffectDefinitionRepository affectRepo,
             IStatusDefinitionRepository statusRepo)
         {
             if (target == null || target.Damage == null || instance == null || mod == null)
@@ -146,7 +148,42 @@ namespace GGemCo2DAffect
                 value,
                 mod.canCrit,
                 mod.isDot,
-                instance.Context?.Source);
+                CreateDamageSourceContext(instance, affectRepo));
+        }
+
+        /// <summary>
+        /// Affect 데미지가 Core 데미지 파이프라인으로 전달될 때 사용할 원인 컨텍스트를 생성합니다.
+        /// </summary>
+        /// <param name="instance">현재 데미지를 발생시킨 Affect 인스턴스입니다.</param>
+        /// <param name="affectRepo">Affect 정의 저장소입니다.</param>
+        /// <returns>Affect UID, 원천 객체, 사망 연출 후보를 담은 컨텍스트입니다.</returns>
+        /// <remarks>
+        /// 기존 Source 객체만 전달하면 Core에서 어떤 Affect가 Tick 데미지를 만들었는지 알 수 없으므로,
+        /// 별도 컨텍스트로 감싸서 원천 객체와 Affect 원인을 동시에 보존합니다.
+        /// </remarks>
+        private static AffectDamageSourceContext CreateDamageSourceContext(
+            AffectInstance instance,
+            IAffectDefinitionRepository affectRepo)
+        {
+            if (instance == null)
+                return null;
+
+            var context = new AffectDamageSourceContext
+            {
+                AffectUid = instance.Definition != null ? instance.Definition.uid : 0,
+                Source = instance.Context?.Source,
+            };
+
+            if (context.AffectUid > 0 &&
+                affectRepo != null &&
+                affectRepo.TryGetDeathPresentation(context.AffectUid, out var deathPresentation) &&
+                deathPresentation != null &&
+                deathPresentation.IsConfigured)
+            {
+                context.DeathPresentation = deathPresentation.ToRequest();
+            }
+
+            return context;
         }
     }
 }

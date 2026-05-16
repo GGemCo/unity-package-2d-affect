@@ -323,12 +323,19 @@ namespace GGemCo2DAffect
                 if (_character == null) return;
                 if (amount <= 0f) return;
 
+                var affectSource = source as AffectDamageSourceContext;
+                object originalSource = affectSource != null ? affectSource.Source : source;
+
                 var md = new MetadataDamage
                 {
                     damage = (long)Mathf.RoundToInt(amount),
-                    attacker = source as GameObject,
+                    attacker = ResolveSourceGameObject(originalSource),
                     damageType = MapDamageType(damageTypeId),
-                    affectUid = 0
+                    affectUid = 0,
+                    SourceAffectUid = affectSource != null ? affectSource.AffectUid : 0,
+                    DeathPresentation = affectSource != null && affectSource.DeathPresentation != null
+                        ? affectSource.DeathPresentation.Clone()
+                        : null
                 };
 
                 _character.TakeDamage(md);
@@ -350,6 +357,26 @@ namespace GGemCo2DAffect
                 if (amount <= 0f) return;
 
                 _character.AddHp(Mathf.CeilToInt(amount));
+            }
+
+
+            /// <summary>
+            /// Affect Source 객체를 Core 데미지 메타데이터에서 사용할 GameObject로 변환합니다.
+            /// </summary>
+            /// <param name="source">Affect 컨텍스트에 저장된 원천 객체입니다.</param>
+            /// <returns>원천 GameObject입니다. 변환할 수 없으면 <see langword="null"/>입니다.</returns>
+            /// <remarks>
+            /// Source가 GameObject가 아니라 Component나 CharacterBase로 전달되는 경우도 안전하게 처리합니다.
+            /// </remarks>
+            private static GameObject ResolveSourceGameObject(object source)
+            {
+                if (source is GameObject go)
+                    return go;
+
+                if (source is Component component)
+                    return component.gameObject;
+
+                return null;
             }
 
             /// <summary>

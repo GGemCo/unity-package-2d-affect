@@ -30,5 +30,13 @@ namespace GGemCo2DAffect
         /// UID가 유효하지 않은 경우 빈 목록을 반환할 수 있습니다.
         /// </returns>
         IReadOnlyList<AffectModifierDefinition> GetModifiers(int affectUid);
+
+        /// <summary>
+        /// 지정한 Affect UID에 연결된 사망 연출 정의를 조회합니다.
+        /// </summary>
+        /// <param name="affectUid">사망 연출을 조회할 Affect UID입니다.</param>
+        /// <param name="definition">조회에 성공한 경우 반환되는 사망 연출 정의입니다.</param>
+        /// <returns>정의가 존재하면 <see langword="true"/>를 반환합니다.</returns>
+        bool TryGetDeathPresentation(int affectUid, out AffectDeathPresentationDefinition definition);
     }
 }

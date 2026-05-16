@@ -33,6 +33,11 @@ namespace GGemCo2DAffect
         public const string AffectAnimation = "affect_animation";
 
         /// <summary>
+        /// Affect 사망 연출 정의 테이블의 논리적 이름.
+        /// </summary>
+        public const string AffectDeathPresentation = "affect_death_presentation";
+
+        /// <summary>
         /// Affect 기본 정의 테이블에 대한 Addressables 자산 정보.
         /// </summary>
         public static readonly AddressableAssetInfo TableAffect =
@@ -57,6 +62,12 @@ namespace GGemCo2DAffect
             ConfigAddressableTable.Make(AffectAnimation);
 
         /// <summary>
+        /// Affect 사망 연출 정의 테이블에 대한 Addressables 자산 정보.
+        /// </summary>
+        public static readonly AddressableAssetInfo TableAffectDeathPresentation =
+            ConfigAddressableTable.Make(AffectDeathPresentation);
+
+        /// <summary>
         /// Affect 도메인에서 사용하는 모든 테이블 Addressables 자산 목록.
         /// </summary>
         /// <remarks>
@@ -69,6 +80,7 @@ namespace GGemCo2DAffect
             TableAffectModifier,
             TableAffectVisualAction,
             TableAffectAnimation,
+            TableAffectDeathPresentation,
         };
     }
 }

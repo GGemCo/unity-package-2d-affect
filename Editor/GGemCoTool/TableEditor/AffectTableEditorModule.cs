@@ -69,6 +69,27 @@ namespace GGemCo2DAffectEditor
             public bool RestoreWaitOnEnd;
         }
 
+        private sealed class AffectDeathPresentationEditorRow
+        {
+            public int Uid;
+            public string Name;
+            public string Memo;
+            public int AffectUid;
+            public int Priority;
+            public string DeathAnimationName;
+            public int DeathVfxUid;
+            public float DeathVfxScale;
+            public float DeathVfxOffsetY;
+            public AffectVfxPositionType DeathVfxPositionType;
+            public AffectVfxFollowType DeathVfxFollowType;
+            public ConfigSortingLayer.Keys DeathVfxSortingLayerKey;
+            public bool UseDeathVfxSortingLayer;
+            public float DeathVfxDurationOverride;
+            public int DeathCutsceneUid;
+            public bool SuppressDefaultDeathAnimation;
+            public bool FreezeLastFrame;
+        }
+
         public string ModuleName => "Affect";
         public string PackageName => "Affect";
 
@@ -117,6 +138,17 @@ namespace GGemCo2DAffectEditor
                 typeof(AffectAnimationEditorRow),
                 TableEditorDefinitionFactory.CreateDefaultReloadAction(ConfigAddressableTableAffect.TableAffectAnimation.Path),
                 ResolveReference);
+
+            yield return TableEditorDefinitionFactory.Create(
+                ModuleName,
+                PackageName,
+                ConfigAddressableTableAffect.AffectDeathPresentation,
+                ConfigAddressableTableAffect.TableAffectDeathPresentation.Path,
+                ConfigAddressableTableAffect.AffectDeathPresentation,
+                typeof(TableAffectDeathPresentation),
+                typeof(AffectDeathPresentationEditorRow),
+                TableEditorDefinitionFactory.CreateDefaultReloadAction(ConfigAddressableTableAffect.TableAffectDeathPresentation.Path),
+                ResolveReference);
         }
 
         private static TableEditorTableDefinition ResolveReference(string headerName)
@@ -128,6 +160,9 @@ namespace GGemCo2DAffectEditor
                     return TableEditorRegistry.FindByKey(ConfigAddressableTableAffect.Affect);
                 case "CrowdControlUid":
                     return TableEditorRegistry.FindByKey(ConfigAddressableTable.CrowdControl);
+                case "DeathCutsceneUid":
+                    return TableEditorRegistry.FindByKey(ConfigAddressableTable.Cutscene);
+                case "DeathVfxUid":
                 case "VfxUid":
                     return TableEditorRegistry.FindByKey(ConfigAddressableTable.VfxEffect);
                 case "VfxEffectUid":

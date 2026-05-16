@@ -24,12 +24,18 @@ namespace GGemCo2DAffect
         private readonly Dictionary<int, List<AffectModifierDefinition>> _modifiers = new();
 
         /// <summary>
+        /// Affect UID를 키로 하는 사망 연출 정의 캐시입니다.
+        /// </summary>
+        private readonly Dictionary<int, AffectDeathPresentationDefinition> _deathPresentations = new();
+
+        /// <summary>
         /// 저장된 모든 Affect 정의와 모디파이어를 제거합니다.
         /// </summary>
         public void Clear()
         {
             _affects.Clear();
             _modifiers.Clear();
+            _deathPresentations.Clear();
         }
 
         /// <summary>
@@ -42,11 +48,33 @@ namespace GGemCo2DAffect
         /// </param>
         public void Register(AffectDefinition definition, List<AffectModifierDefinition> modifiers)
         {
+            Register(definition, modifiers, null);
+        }
+
+        /// <summary>
+        /// Affect 정의와 해당 Affect에 속한 모디파이어, 사망 연출 정의를 등록합니다.
+        /// </summary>
+        /// <param name="definition">등록할 Affect 정의입니다.</param>
+        /// <param name="modifiers">Affect에 연결된 모디파이어 정의 목록입니다.</param>
+        /// <param name="deathPresentation">Affect가 사망 원인이 되었을 때 사용할 연출 정의입니다.</param>
+        public void Register(
+            AffectDefinition definition,
+            List<AffectModifierDefinition> modifiers,
+            AffectDeathPresentationDefinition deathPresentation)
+        {
+            if (definition == null)
+                return;
+
             // NOTE: 중복 UID가 등록되면 기존 정의를 덮어씁니다.
             // Debug.Log($"affect 등록. Uid: {definition.uid} / vfxPositionType: {definition.effectPositionType} / vfxFollowType: {definition.effectFollowType}");
 
             _affects[definition.uid] = definition;
             _modifiers[definition.uid] = modifiers ?? new List<AffectModifierDefinition>(0);
+
+            if (deathPresentation != null && deathPresentation.IsConfigured)
+                _deathPresentations[definition.uid] = deathPresentation;
+            else
+                _deathPresentations.Remove(definition.uid);
         }
 
         /// <summary>
@@ -77,6 +105,17 @@ namespace GGemCo2DAffect
                 return list;
 
             return System.Array.Empty<AffectModifierDefinition>();
+        }
+
+        /// <summary>
+        /// 지정한 Affect UID에 연결된 사망 연출 정의를 조회합니다.
+        /// </summary>
+        /// <param name="affectUid">사망 연출을 조회할 Affect UID입니다.</param>
+        /// <param name="definition">조회에 성공한 경우 반환되는 사망 연출 정의입니다.</param>
+        /// <returns>정의가 존재하면 <see langword="true"/>를 반환합니다.</returns>
+        public bool TryGetDeathPresentation(int affectUid, out AffectDeathPresentationDefinition definition)
+        {
+            return _deathPresentations.TryGetValue(affectUid, out definition);
         }
     }
 }

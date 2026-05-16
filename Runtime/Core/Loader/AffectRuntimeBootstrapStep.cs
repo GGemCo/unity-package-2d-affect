@@ -155,9 +155,34 @@ namespace GGemCo2DAffect
                     }
                 }
 
-                // UID에 연결된 modifier 정의를 함께 등록한다.
+                // UID에 연결된 사망 연출 정의를 Core 범용 요청으로 변환할 수 있는 형태로 구성한다.
+                AffectDeathPresentationDefinition deathPresentation = null;
+                var deathPresentationRow = tableLoaderManagerAffect.TableAffectDeathPresentation.GetDataByAffectUid(row.Uid);
+                if (deathPresentationRow != null)
+                {
+                    deathPresentation = new AffectDeathPresentationDefinition
+                    {
+                        uid = deathPresentationRow.Uid,
+                        affectUid = deathPresentationRow.AffectUid,
+                        priority = deathPresentationRow.Priority,
+                        deathAnimationName = deathPresentationRow.DeathAnimationName,
+                        deathVfxUid = deathPresentationRow.DeathVfxUid,
+                        deathVfxScale = deathPresentationRow.DeathVfxScale,
+                        deathVfxOffsetY = deathPresentationRow.DeathVfxOffsetY,
+                        deathVfxPositionType = deathPresentationRow.DeathVfxPositionType,
+                        deathVfxFollowType = deathPresentationRow.DeathVfxFollowType,
+                        deathVfxSortingLayerKey = deathPresentationRow.DeathVfxSortingLayerKey,
+                        useDeathVfxSortingLayer = deathPresentationRow.UseDeathVfxSortingLayer,
+                        deathVfxDurationOverride = deathPresentationRow.DeathVfxDurationOverride,
+                        deathCutsceneUid = deathPresentationRow.DeathCutsceneUid,
+                        suppressDefaultDeathAnimation = deathPresentationRow.SuppressDefaultDeathAnimation,
+                        freezeLastFrame = deathPresentationRow.FreezeLastFrame,
+                    };
+                }
+
+                // UID에 연결된 modifier 정의와 사망 연출 정의를 함께 등록한다.
                 var mods = tableLoaderManagerAffect.TableAffectModifier.GetModifiers(row.Uid);
-                affectRepo.Register(def, new List<AffectModifierDefinition>(mods));
+                affectRepo.Register(def, new List<AffectModifierDefinition>(mods), deathPresentation);
             }
 
             // 전역 런타임 진입점에 주입한다.

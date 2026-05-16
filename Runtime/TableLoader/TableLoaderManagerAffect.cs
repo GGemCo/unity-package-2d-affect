@@ -43,6 +43,11 @@ namespace GGemCo2DAffect
         public TableAffectAnimation TableAffectAnimation { get; private set; } = new TableAffectAnimation();
 
         /// <summary>
+        /// 어펙트 사망 연출 서브테이블.
+        /// </summary>
+        public TableAffectDeathPresentation TableAffectDeathPresentation { get; private set; } = new TableAffectDeathPresentation();
+
+        /// <summary>
         /// Unity Awake 생명주기 메서드.
         /// </summary>
         /// <remarks>
@@ -64,6 +69,7 @@ namespace GGemCo2DAffect
                 registry.Register(TableAffectModifier);
                 registry.Register(TableAffectVisualAction);
                 registry.Register(TableAffectAnimation);
+                registry.Register(TableAffectDeathPresentation);
                 registry.Register(TableAffect);
             }
             else

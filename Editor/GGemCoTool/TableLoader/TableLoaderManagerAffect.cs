@@ -24,6 +24,15 @@ namespace GGemCo2DAffectEditor
         {
             return LoadTable<TableAffectAnimation>(ConfigAddressableTableAffect.TableAffectAnimation.Path);
         }
+
+        /// <summary>
+        /// Affect 사망 연출 테이블을 에디터 환경에서 로드합니다.
+        /// </summary>
+        /// <returns>로드된 Affect 사망 연출 테이블입니다.</returns>
+        public static TableAffectDeathPresentation LoadAffectDeathPresentationTable()
+        {
+            return LoadTable<TableAffectDeathPresentation>(ConfigAddressableTableAffect.TableAffectDeathPresentation.Path);
+        }
         
         /// <summary>
         /// Core 패키지 테이블을 논리 이름으로 로드한다. (예: "stat", "state", "damage_type")
