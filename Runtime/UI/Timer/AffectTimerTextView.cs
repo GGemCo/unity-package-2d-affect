@@ -43,6 +43,7 @@ namespace GGemCo2DAffect
         public void Initialize()
         {
             CacheComponents();
+            EnsureRichTextDefaults();
             SetVisible(false);
         }
 
@@ -114,6 +115,23 @@ namespace GGemCo2DAffect
 
             if (_canvasGroup == null)
                 _canvasGroup = GetComponent<CanvasGroup>();
+
+            EnsureRichTextDefaults();
+        }
+
+        /// <summary>
+        /// TMP 태그 기반 타이머 포맷이 정상 표시되도록 기본 옵션을 보장합니다.
+        /// </summary>
+        /// <remarks>
+        /// <c>&lt;mspace&gt;</c>, <c>&lt;size&gt;</c> 같은 RichText 태그를 사용하므로
+        /// richText 옵션이 꺼진 경우를 대비해 항상 활성화합니다.
+        /// </remarks>
+        private void EnsureRichTextDefaults()
+        {
+            if (textTimer == null)
+                return;
+
+            textTimer.richText = true;
         }
     }
 }

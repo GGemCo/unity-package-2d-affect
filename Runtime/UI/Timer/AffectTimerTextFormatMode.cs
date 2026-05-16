@@ -30,6 +30,12 @@ namespace GGemCo2DAffect
         StackAndSeconds,
 
         /// <summary>어펙트 이름, 스택 수, 남은 시간을 함께 표시합니다. 예: 중독 x3 3.4s</summary>
-        NameStackAndSeconds
+        NameStackAndSeconds,
+
+        /// <summary>
+        /// TMP RichText 태그를 사용해 <c>SS.cc</c> 형태를 스타일링해 표시합니다.
+        /// 예: &lt;mspace=0.45em&gt;02&lt;mspace=0.3em&gt;.&lt;/mspace&gt;&lt;mspace=0.3em&gt;&lt;size=0.6em&gt;00&lt;/size&gt;&lt;/mspace&gt;&lt;/mspace&gt;
+        /// </summary>
+        StyledSecondsCentiseconds
     }
 }

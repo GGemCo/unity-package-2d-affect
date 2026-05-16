@@ -12,6 +12,8 @@ namespace GGemCo2DAffect
     public static class AffectTimerTextFormatter
     {
         private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
+        private const string StyledSecondsCentisecondsTemplate =
+            "<mspace=0.45em>{0}<mspace=0.3em>.</mspace><mspace=0.3em><size=0.6em>{1}</size></mspace></mspace>";
 
         /// <summary>
         /// 지정한 표시 모드에 맞춰 어펙트 남은 시간 텍스트를 생성합니다.
@@ -64,6 +66,9 @@ namespace GGemCo2DAffect
                 case AffectTimerTextFormatMode.NameStackAndSeconds:
                     return FormatNameStackAndSeconds(displayName, stacks, remainingTime);
 
+                case AffectTimerTextFormatMode.StyledSecondsCentiseconds:
+                    return FormatStyledSecondsCentiseconds(remainingTime);
+
                 case AffectTimerTextFormatMode.SecondsDecimal:
                 default:
                     return FormatSecondsDecimal(remainingTime);
@@ -87,6 +92,42 @@ namespace GGemCo2DAffect
             int minutes = Mathf.Max(0, totalSeconds / 60);
             int remainSeconds = Mathf.Max(0, totalSeconds % 60);
             return $"{minutes.ToString("00", Invariant)}:{remainSeconds.ToString("00", Invariant)}";
+        }
+
+        /// <summary>
+        /// TMP RichText 태그를 사용해 <c>SS.cc</c> 형식 문자열을 생성합니다.
+        /// </summary>
+        /// <param name="seconds">남은 시간(초)입니다.</param>
+        /// <returns>
+        /// 예: <c>&lt;mspace=0.45em&gt;02&lt;mspace=0.3em&gt;.&lt;/mspace&gt;&lt;mspace=0.3em&gt;&lt;size=0.6em&gt;00&lt;/size&gt;&lt;/mspace&gt;&lt;/mspace&gt;</c>
+        /// </returns>
+        /// <remarks>
+        /// 밀리세컨즈 2자리 표기 정책을 위해 센티세컨드(1/100초) 단위로 계산합니다.
+        /// </remarks>
+        private static string FormatStyledSecondsCentiseconds(float seconds)
+        {
+            int totalCentiseconds = ToTotalCentiseconds(seconds);
+            int wholeSeconds = totalCentiseconds / 100;
+            int centiseconds = totalCentiseconds % 100;
+
+            string wholeText = wholeSeconds.ToString("00", Invariant);
+            string centiText = centiseconds.ToString("00", Invariant);
+
+            return string.Format(Invariant, StyledSecondsCentisecondsTemplate, wholeText, centiText);
+        }
+
+        /// <summary>
+        /// 초 단위 시간을 센티세컨드 정수로 변환합니다.
+        /// </summary>
+        /// <param name="seconds">변환할 시간(초)입니다.</param>
+        /// <returns>0 이상 센티세컨드 값입니다.</returns>
+        /// <remarks>
+        /// 카운트다운 숫자가 역행하지 않도록 내림(Floor) 기반으로 계산합니다.
+        /// </remarks>
+        private static int ToTotalCentiseconds(float seconds)
+        {
+            float clampedSeconds = Mathf.Max(0f, seconds);
+            return Mathf.Max(0, Mathf.FloorToInt(clampedSeconds * 100f));
         }
 
         /// <summary>
