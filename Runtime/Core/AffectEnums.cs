@@ -12,6 +12,41 @@ namespace GGemCo2DAffect
     /// <summary>Modifier가 실행되는 시점.</summary>
     public enum AffectPhase { OnApply, OnTick, OnHit, OnExpire }
 
+    /// <summary>
+    /// Affect 종료가 발생한 원인을 나타냅니다.
+    /// </summary>
+    /// <remarks>
+    /// OnExpire 페이즈 실행 시, 종료 원인에 따라 일부 Modifier 실행 여부를
+    /// 정책적으로 분기할 때 사용합니다.
+    /// </remarks>
+    public enum AffectExpireReason
+    {
+        /// <summary>
+        /// 지속시간이 0이 되어 자연 만료된 경우입니다.
+        /// </summary>
+        NaturalExpire,
+
+        /// <summary>
+        /// 같은 그룹의 다른 Affect 적용으로 교체 제거된 경우입니다.
+        /// </summary>
+        ReplacedByGroup,
+
+        /// <summary>
+        /// 명시적 RemoveAffect 호출로 제거된 경우입니다.
+        /// </summary>
+        ManualRemove,
+
+        /// <summary>
+        /// Dispel 조건에 의해 해제된 경우입니다.
+        /// </summary>
+        Dispel,
+
+        /// <summary>
+        /// RemoveAll 호출로 일괄 제거된 경우입니다.
+        /// </summary>
+        RemoveAll
+    }
+
     /// <summary>Modifier의 종류(Stat/DamageType/State).</summary>
     public enum ModifierKind { Stat, Damage, Heal, State, CrowdControl, ApplyAffectToTarget, ElementGauge, Custom }
 

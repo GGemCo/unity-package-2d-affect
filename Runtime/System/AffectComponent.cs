@@ -168,7 +168,7 @@ namespace GGemCo2DAffect
 
             // 만료 정리
             for (int i = 0; i < SPendingRemoveIds.Count; i++)
-                RemoveByRuntimeId(SPendingRemoveIds[i]);
+                RemoveByRuntimeId(SPendingRemoveIds[i], AffectExpireReason.NaturalExpire);
 
             FlushChangedIfNeeded();
 
@@ -302,7 +302,7 @@ namespace GGemCo2DAffect
             // 1) 그룹 단일성
             if (!def.IsNoneGroup && _groupIndex.TryGetValue(def.groupId ?? string.Empty, out var existingRuntimeId))
             {
-                RemoveByRuntimeId(existingRuntimeId);
+                RemoveByRuntimeId(existingRuntimeId, AffectExpireReason.ReplacedByGroup);
             }
 
             // 2) 동일 UID 처리(스택 정책)
@@ -341,7 +341,7 @@ namespace GGemCo2DAffect
             if (!TryGetFirstRuntimeId(affectUid, out var runtimeId))
                 return;
 
-            RemoveByRuntimeId(runtimeId);
+            RemoveByRuntimeId(runtimeId, AffectExpireReason.ManualRemove);
             enabled = HasAny;
             FlushChangedIfNeeded();
         }
@@ -372,7 +372,7 @@ namespace GGemCo2DAffect
             }
 
             for (int i = 0; i < SPendingRemoveIds.Count; i++)
-                RemoveByRuntimeId(SPendingRemoveIds[i]);
+                RemoveByRuntimeId(SPendingRemoveIds[i], AffectExpireReason.Dispel);
 
             enabled = HasAny;
             FlushChangedIfNeeded();
@@ -389,7 +389,7 @@ namespace GGemCo2DAffect
                 SPendingRemoveIds.Add(kv.Key);
 
             for (int i = 0; i < SPendingRemoveIds.Count; i++)
-                RemoveByRuntimeId(SPendingRemoveIds[i]);
+                RemoveByRuntimeId(SPendingRemoveIds[i], AffectExpireReason.RemoveAll);
 
             enabled = false;
             FlushChangedIfNeeded();
@@ -453,17 +453,20 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
-        /// 지정한 페이즈에 해당하는 Modifier들을 실행한다.
+        /// 지정한 페이즈에 해당하는 Modifier를 실행합니다.
         /// </summary>
-        /// <param name="phase">실행할 어펙트 페이즈(OnApply/OnTick/OnExpire).</param>
-        /// <param name="instance">대상 어펙트 인스턴스.</param>
+        /// <param name="phase">실행할 Affect 페이즈입니다.</param>
+        /// <param name="instance">실행 대상 Affect 인스턴스입니다.</param>
+        /// <param name="expireReason">
+        /// OnExpire 실행 시 종료 원인입니다. OnApply/OnTick에서는 사용하지 않습니다.
+        /// </param>
         /// <remarks>
-        /// - Stat: OnApply에서만 실행
-        /// - Damage: OnTick에서만 실행
-        /// - State: OnApply/OnTick에서 실행 가능
-        /// - VFX는 OnApply 시 1회 재생한다.
+        /// Damage의 OnExpire 실행은 종료 원인 기반 정책(<see cref="ShouldExecuteExpireDamage"/>)으로 제어합니다.
         /// </remarks>
-        private void ExecutePhase(AffectPhase phase, AffectInstance instance)
+        private void ExecutePhase(
+            AffectPhase phase,
+            AffectInstance instance,
+            AffectExpireReason expireReason = AffectExpireReason.NaturalExpire)
         {
             var mods = _affectRepo.GetModifiers(instance.Definition.uid);
             for (int i = 0; i < mods.Count; i++)
@@ -480,7 +483,13 @@ namespace GGemCo2DAffect
 
                     case ModifierKind.Damage:
                         if (phase == AffectPhase.OnTick)
+                        {
                             _damageExecutor.ExecuteOnTick(_target, instance, mod, _affectRepo, _statusRepo);
+                        }
+                        else if (phase == AffectPhase.OnExpire && ShouldExecuteExpireDamage(expireReason))
+                        {
+                            _damageExecutor.ExecuteOnExpire(_target, instance, mod, _affectRepo, _statusRepo);
+                        }
                         break;
 
                     case ModifierKind.Heal:
@@ -523,6 +532,22 @@ namespace GGemCo2DAffect
                 Color color = instance.Definition.outlineColor;
                 instance.OutlineToken = _outline?.Apply(_target, px, color);
             }
+        }
+
+        /// <summary>
+        /// OnExpire Damage Modifier를 실행할지 여부를 종료 원인으로 판정합니다.
+        /// </summary>
+        /// <param name="reason">Affect 종료 원인입니다.</param>
+        /// <returns>
+        /// 자연 만료(<see cref="AffectExpireReason.NaturalExpire"/>)인 경우에만 <c>true</c>를 반환합니다.
+        /// </returns>
+        /// <remarks>
+        /// Dispel/수동 제거/일괄 제거에서 의도치 않은 종료 피해가 발생하지 않도록
+        /// 현재 정책은 자연 만료에만 종료 피해를 허용합니다.
+        /// </remarks>
+        private static bool ShouldExecuteExpireDamage(AffectExpireReason reason)
+        {
+            return reason == AffectExpireReason.NaturalExpire;
         }
 
 
@@ -602,22 +627,22 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
-        /// runtimeId로 인스턴스를 제거한다.
+        /// runtimeId에 해당하는 Affect 인스턴스를 제거합니다.
         /// </summary>
-        /// <param name="runtimeId">제거할 인스턴스의 runtimeId.</param>
+        /// <param name="runtimeId">제거할 인스턴스의 runtimeId입니다.</param>
+        /// <param name="expireReason">OnExpire 정책 판정에 사용할 종료 사유입니다.</param>
         /// <remarks>
-        /// - OnExpire 페이즈를 실행한다.
-        /// - Stat/State 토큰을 회수한다.
-        /// - UID/그룹 인덱스를 정리한다.
-        /// - Changed 이벤트는 지연 플래그로 마킹한다(즉시 Flush는 호출자가 결정).
+        /// - OnExpire 페이즈를 실행합니다.
+        /// - Stat/State 토큰과 시각 효과 토큰을 정리합니다.
+        /// - UID/그룹 인덱스를 정리하고 Changed 플래그를 마킹합니다.
         /// </remarks>
-        private void RemoveByRuntimeId(int runtimeId)
+        private void RemoveByRuntimeId(int runtimeId, AffectExpireReason expireReason)
         {
             if (!_byRuntimeId.TryGetValue(runtimeId, out var instance))
                 return;
 
             // OnExpire
-            ExecutePhase(AffectPhase.OnExpire, instance);
+            ExecutePhase(AffectPhase.OnExpire, instance, expireReason);
 
             CleanupAnimation(instance);
             CleanupActiveVisuals(instance);
