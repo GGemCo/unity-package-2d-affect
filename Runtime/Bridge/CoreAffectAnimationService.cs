@@ -197,12 +197,16 @@ namespace GGemCo2DAffect
                     animation.PlayCharacterAnimation(loop, loop: true);
             }
 
+            /// <summary>
+            /// 현재 Affect가 종료될 때 End 애니메이션을 재생하고, 필요한 경우 기본 Wait 상태로 복귀시킵니다.
+            /// </summary>
+            /// <param name="endedHandle">종료된 Affect 핸들입니다.</param>
             private void PlayEndThenResume(Handle endedHandle)
             {
                 StopTransition();
                 _current = null;
 
-                if (endedHandle?.Character == null || endedHandle.Character.IsStatusDead())
+                if (ShouldSkipEndThenResume(endedHandle?.Character))
                 {
                     RefreshCurrent();
                     return;
@@ -218,8 +222,12 @@ namespace GGemCo2DAffect
                 string endAnimation = endedHandle.Definition.endAnimationName;
                 if (!HasAnimation(animation, endAnimation))
                 {
-                    if (ResolveBestHandle() == null && endedHandle.Definition.restoreWaitOnEnd && !endedHandle.Character.IsStatusDead())
+                    if (ResolveBestHandle() == null
+                        && endedHandle.Definition.restoreWaitOnEnd
+                        && ShouldRestoreWaitAnimation(endedHandle.Character))
+                    {
                         animation.PlayWaitAnimation();
+                    }
 
                     RefreshCurrent();
                     return;
@@ -233,12 +241,57 @@ namespace GGemCo2DAffect
                     return;
                 }
 
-                if (ResolveBestHandle() == null && endedHandle.Definition.restoreWaitOnEnd && !endedHandle.Character.IsStatusDead())
+                if (ResolveBestHandle() == null
+                    && endedHandle.Definition.restoreWaitOnEnd
+                    && ShouldRestoreWaitAnimation(endedHandle.Character))
+                {
                     animation.PlayWaitAnimation();
+                }
 
                 RefreshCurrent();
             }
 
+            /// <summary>
+            /// Affect 종료 시 End/Resume 처리를 건너뛰어야 하는지 판단합니다.
+            /// </summary>
+            /// <remarks>
+            /// 사망 상태, 사망 보류 상태, Brain/Control 잠금 상태에서는 상위 시스템(사망/페이즈/컷신)의
+            /// 연출 우선순위를 보장하기 위해 End 연출 진입 자체를 막습니다.
+            /// </remarks>
+            /// <param name="character">종료 대상 캐릭터입니다.</param>
+            /// <returns>End/Resume 처리를 생략해야 하면 <see langword="true"/>를 반환합니다.</returns>
+            private static bool ShouldSkipEndThenResume(CharacterBase character)
+            {
+                return character == null
+                       || character.IsStatusDead()
+                       || character.IsDeathPending
+                       || character.IsBrainLocked()
+                       || character.IsDontControl();
+            }
+
+            /// <summary>
+            /// End 애니메이션이 끝난 뒤 기본 Wait 상태 복귀가 가능한지 확인합니다.
+            /// </summary>
+            /// <remarks>
+            /// 페이즈 전환처럼 제어가 잠긴 상태(Brain/Control Lock)나 사망 보류 상태에서는
+            /// Wait 애니메이션 복귀를 막아 상위 연출 흐름을 보존합니다.
+            /// </remarks>
+            /// <param name="character">복귀 대상 캐릭터입니다.</param>
+            /// <returns>Wait 애니메이션 복귀가 가능하면 <see langword="true"/>를 반환합니다.</returns>
+            private static bool ShouldRestoreWaitAnimation(CharacterBase character)
+            {
+                return character != null
+                       && !character.IsStatusDead()
+                       && !character.IsDeathPending
+                       && !character.IsBrainLocked()
+                       && !character.IsDontControl();
+            }
+
+            /// <summary>
+            /// End 애니메이션 재생 후 대기 시간을 지난 다음 Wait 복귀 및 다음 Affect 재평가를 수행합니다.
+            /// </summary>
+            /// <param name="endedHandle">종료된 Affect 핸들입니다.</param>
+            /// <param name="duration">End 애니메이션 대기 시간(초)입니다.</param>
             private IEnumerator CoWaitEndAndResume(Handle endedHandle, float duration)
             {
                 yield return new WaitForSeconds(duration);
@@ -246,9 +299,9 @@ namespace GGemCo2DAffect
                 _transitionCoroutine = null;
 
                 if (endedHandle?.Character != null
-                    && !endedHandle.Character.IsStatusDead()
                     && ResolveBestHandle() == null
-                    && endedHandle.Definition.restoreWaitOnEnd)
+                    && endedHandle.Definition.restoreWaitOnEnd
+                    && ShouldRestoreWaitAnimation(endedHandle.Character))
                 {
                     endedHandle.Character.CharacterAnimationController?.PlayWaitAnimation();
                 }
