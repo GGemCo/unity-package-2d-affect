@@ -273,7 +273,24 @@ namespace GGemCo2DAffect
             if (instance.RemainingTime <= Mathf.Max(0f, settings.timerHideBelowSeconds))
                 return false;
 
-            return instance.Definition.dispelType switch
+            if (instance.Definition.hasUseTimerUiOverride)
+                return instance.Definition.useTimerUi;
+
+            return IsDisplayableByLegacyTypeFilter(instance.Definition.dispelType, settings);
+        }
+
+        /// <summary>
+        /// 레거시 전역 타입 필터 정책으로 타이머 표시 여부를 판단합니다.
+        /// </summary>
+        /// <param name="dispelType">어펙트의 디스펠 분류 타입입니다.</param>
+        /// <param name="settings">Affect 타이머 UI 설정입니다.</param>
+        /// <returns>해당 타입의 타이머를 표시해야 하면 true를 반환합니다.</returns>
+        /// <remarks>
+        /// UseTimerUi 컬럼이 비어 있는 기존 테이블 데이터와의 호환을 위한 폴백 경로입니다.
+        /// </remarks>
+        private static bool IsDisplayableByLegacyTypeFilter(DispelType dispelType, GGemCoAffectSettings settings)
+        {
+            return dispelType switch
             {
                 DispelType.Buff => settings.timerShowBuff,
                 DispelType.Debuff => settings.timerShowDebuff,

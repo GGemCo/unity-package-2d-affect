@@ -98,6 +98,23 @@ namespace GGemCo2DAffect
         public float ApplyChance;
 
         /// <summary>
+        /// 이 어펙트에 대해 타이머 UI 표시를 강제할지 여부입니다.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="HasUseTimerUiOverride"/>가 true일 때만 유효합니다.
+        /// </remarks>
+        public bool UseTimerUi;
+
+        /// <summary>
+        /// 테이블에서 UseTimerUi 컬럼이 명시적으로 지정되었는지 여부입니다.
+        /// </summary>
+        /// <remarks>
+        /// - true: <see cref="UseTimerUi"/> 값을 그대로 사용합니다.
+        /// - false: 레거시 전역 타입 필터 정책으로 폴백합니다.
+        /// </remarks>
+        public bool HasUseTimerUiOverride;
+
+        /// <summary>
         /// 어펙트 적용 시간 동안 캐릭터 외곽선(Outline)을 표시할지 여부.
         /// </summary>
         /// <remarks>
@@ -169,8 +186,8 @@ namespace GGemCo2DAffect
         /// </remarks>
         protected override StruckTableAffect BuildRow(Dictionary<string, string> data)
         {
-            
-            
+            bool hasUseTimerUiOverride = TryParseYesNoOverride(data, "UseTimerUi", out bool useTimerUi);
+
             return new StruckTableAffect
             {
                 Uid = MathHelper.ParseInt(data["Uid"]),
@@ -188,10 +205,53 @@ namespace GGemCo2DAffect
                 SourceLifePolicy = EnumHelper.ConvertEnum<SourceLifePolicy>(data.GetValueOrDefault("SourceLifePolicy")),
                 Tags = data.GetValueOrDefault("Tags"),
                 ApplyChance = MathHelper.ParseFloat(data.GetValueOrDefault("ApplyChance")),
+                UseTimerUi = useTimerUi,
+                HasUseTimerUiOverride = hasUseTimerUiOverride,
                 UseOutline = ConvertBoolean(data.GetValueOrDefault("UseOutline")),
                 OutlinePixelSize = MathHelper.ParseInt(data.GetValueOrDefault("OutlinePixelSize")),
                 OutlineColor = ColorHelper.HexToColor(data.GetValueOrDefault("OutlineColor"), UnityEngine.Color.black)
             };
+        }
+
+        /// <summary>
+        /// 테이블의 Y/N 형태 토글 컬럼을 파싱합니다.
+        /// </summary>
+        /// <param name="data">테이블 1행 데이터입니다.</param>
+        /// <param name="columnName">파싱할 컬럼명입니다.</param>
+        /// <param name="value">파싱된 토글 값입니다. 명시되지 않았으면 false를 반환합니다.</param>
+        /// <returns>
+        /// 컬럼에 Y 또는 N이 명시되어 있으면 true, 비어 있거나 컬럼이 없으면 false를 반환합니다.
+        /// </returns>
+        private static bool TryParseYesNoOverride(
+            IReadOnlyDictionary<string, string> data,
+            string columnName,
+            out bool value)
+        {
+            value = false;
+            if (data == null || string.IsNullOrWhiteSpace(columnName))
+            {
+                return false;
+            }
+
+            if (!data.TryGetValue(columnName, out string raw) || string.IsNullOrWhiteSpace(raw))
+            {
+                return false;
+            }
+
+            string normalized = raw.Trim().ToUpperInvariant();
+            if (normalized == "Y")
+            {
+                value = true;
+                return true;
+            }
+
+            if (normalized == "N")
+            {
+                value = false;
+                return true;
+            }
+
+            return false;
         }
     }
 }

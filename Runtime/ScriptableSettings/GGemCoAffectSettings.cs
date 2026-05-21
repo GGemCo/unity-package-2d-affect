@@ -94,13 +94,13 @@ namespace GGemCo2DAffect
         [Tooltip("같은 AffectUid 를 하나의 타이머 줄로 집계할지 여부")]
         public bool timerAggregateSameAffectUid = true;
 
-        [Tooltip("버프 타입 Affect 타이머 표시 여부")]
+        [Tooltip("레거시 폴백: UseTimerUi 컬럼이 비어 있는 버프 타입 Affect의 타이머 표시 여부")]
         public bool timerShowBuff;
 
-        [Tooltip("디버프 타입 Affect 타이머 표시 여부")]
+        [Tooltip("레거시 폴백: UseTimerUi 컬럼이 비어 있는 디버프 타입 Affect의 타이머 표시 여부")]
         public bool timerShowDebuff = true;
 
-        [Tooltip("None 타입 Affect 타이머 표시 여부")]
+        [Tooltip("레거시 폴백: UseTimerUi 컬럼이 비어 있는 None 타입 Affect의 타이머 표시 여부")]
         public bool timerShowNoneType;
 
         [Tooltip("대상 1개당 표시할 최대 타이머 줄 수")]

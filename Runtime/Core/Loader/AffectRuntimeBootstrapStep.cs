@@ -89,6 +89,8 @@ namespace GGemCo2DAffect
                     refreshPolicy = row.RefreshPolicy,
                     sourceLifePolicy = row.SourceLifePolicy,
                     dispelType = row.DispelType,
+                    hasUseTimerUiOverride = row.HasUseTimerUiOverride,
+                    useTimerUi = row.UseTimerUi,
                     applyChance = row.ApplyChance,
 
                     // Visual decorators

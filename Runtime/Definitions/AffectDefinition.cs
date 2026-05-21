@@ -86,6 +86,22 @@ namespace GGemCo2DAffect
         public DispelType dispelType;
 
         /// <summary>
+        /// 이 어펙트의 타이머 UI 표시 정책을 테이블에서 명시했는지 여부입니다.
+        /// </summary>
+        /// <remarks>
+        /// true면 <see cref="useTimerUi"/> 값을 사용하고, false면 레거시 전역 타입 필터 정책으로 폴백합니다.
+        /// </remarks>
+        public bool hasUseTimerUiOverride;
+
+        /// <summary>
+        /// 타이머 UI 표시 여부입니다.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="hasUseTimerUiOverride"/>가 true일 때만 유효합니다.
+        /// </remarks>
+        public bool useTimerUi;
+
+        /// <summary>
         /// Affect에 부여된 태그 목록.
         /// </summary>
         /// <remarks>
