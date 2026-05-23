@@ -396,7 +396,7 @@ namespace GGemCo2DAffect
             var text = go.GetComponent<TextMeshProUGUI>();
             text.raycastTarget = false;
             text.alignment = TextAlignmentOptions.Center;
-            text.enableWordWrapping = false;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
             text.fontSize = 20f;
 
             return go.GetComponent<AffectTimerTextView>();
