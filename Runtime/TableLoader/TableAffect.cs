@@ -186,30 +186,31 @@ namespace GGemCo2DAffect
         /// </remarks>
         protected override StruckTableAffect BuildRow(Dictionary<string, string> data)
         {
+            TableRowReader reader = ReadRow(data);
             bool hasUseTimerUiOverride = TryParseYesNoOverride(data, "UseTimerUi", out bool useTimerUi);
 
             return new StruckTableAffect
             {
-                Uid = MathHelper.ParseInt(data["Uid"]),
-                Name = data.GetValueOrDefault("Memo"),
-                Memo = data.GetValueOrDefault("Memo"),
-                IconKey = data.GetValueOrDefault("IconKey"),
-                UiHudVisualStateKey = data.GetValueOrDefault("UiHudVisualStateKey"),
-                DispelType = EnumHelper.ConvertEnum<DispelType>(data.GetValueOrDefault("DispelType")),
-                GroupId = data.GetValueOrDefault("GroupId"),
-                BaseDuration = MathHelper.ParseFloat(data.GetValueOrDefault("BaseDuration")),
-                TickInterval = MathHelper.ParseFloat(data.GetValueOrDefault("TickInterval")),
-                StackPolicy = EnumHelper.ConvertEnum<StackPolicy>(data.GetValueOrDefault("StackPolicy")),
-                MaxStacks = MathHelper.ParseInt(data.GetValueOrDefault("MaxStacks")),
-                RefreshPolicy = EnumHelper.ConvertEnum<RefreshPolicy>(data.GetValueOrDefault("RefreshPolicy")),
-                SourceLifePolicy = EnumHelper.ConvertEnum<SourceLifePolicy>(data.GetValueOrDefault("SourceLifePolicy")),
-                Tags = data.GetValueOrDefault("Tags"),
-                ApplyChance = MathHelper.ParseFloat(data.GetValueOrDefault("ApplyChance")),
+                Uid = reader.Int("Uid"),
+                Name = reader.String("Memo"),
+                Memo = reader.String("Memo"),
+                IconKey = reader.String("IconKey"),
+                UiHudVisualStateKey = reader.String("UiHudVisualStateKey"),
+                DispelType = reader.Enum<DispelType>("DispelType"),
+                GroupId = reader.String("GroupId"),
+                BaseDuration = reader.Float("BaseDuration"),
+                TickInterval = reader.Float("TickInterval"),
+                StackPolicy = reader.Enum<StackPolicy>("StackPolicy"),
+                MaxStacks = reader.Int("MaxStacks"),
+                RefreshPolicy = reader.Enum<RefreshPolicy>("RefreshPolicy"),
+                SourceLifePolicy = reader.Enum<SourceLifePolicy>("SourceLifePolicy"),
+                Tags = reader.String("Tags"),
+                ApplyChance = reader.Float("ApplyChance"),
                 UseTimerUi = useTimerUi,
                 HasUseTimerUiOverride = hasUseTimerUiOverride,
-                UseOutline = ConvertBoolean(data.GetValueOrDefault("UseOutline")),
-                OutlinePixelSize = MathHelper.ParseInt(data.GetValueOrDefault("OutlinePixelSize")),
-                OutlineColor = ColorHelper.HexToColor(data.GetValueOrDefault("OutlineColor"), UnityEngine.Color.black)
+                UseOutline = reader.BoolYN("UseOutline"),
+                OutlinePixelSize = reader.Int("OutlinePixelSize"),
+                OutlineColor = ColorHelper.HexToColor(reader.String("OutlineColor"), UnityEngine.Color.black)
             };
         }
 

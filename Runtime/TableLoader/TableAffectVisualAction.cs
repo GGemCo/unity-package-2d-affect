@@ -46,11 +46,12 @@ namespace GGemCo2DAffect
 
         protected override StruckTableAffectVisualAction BuildRow(Dictionary<string, string> data)
         {
-            int uid = MathHelper.ParseInt(data.GetValueOrDefault("Uid"));
-            int affectUid = MathHelper.ParseInt(data.GetValueOrDefault("AffectUid"));
-            int order = MathHelper.ParseInt(data.GetValueOrDefault("Order"));
-            string memo = data.GetValueOrDefault("Memo");
-            string name = data.GetValueOrDefault("Name");
+            TableRowReader reader = ReadRow(data);
+            int uid = reader.Int("Uid");
+            int affectUid = reader.Int("AffectUid");
+            int order = reader.Int("Order");
+            string memo = reader.String("Memo");
+            string name = reader.String("Name");
             if (string.IsNullOrWhiteSpace(name))
                 name = string.IsNullOrWhiteSpace(memo) ? $"AffectVisualAction_{uid}" : memo;
 
@@ -61,15 +62,15 @@ namespace GGemCo2DAffect
                 Memo = memo,
                 AffectUid = affectUid,
                 Order = order,
-                Phase = EnumHelper.ConvertEnum<AffectPhase>(data.GetValueOrDefault("Phase")),
-                VfxUid = MathHelper.ParseInt(data.GetValueOrDefault("VfxUid")),
-                VfxPlayMode = EnumHelper.ConvertEnum<AffectVfxPlayMode>(data.GetValueOrDefault("VfxPlayMode")),
-                VfxScale = MathHelper.ParseFloat(data.GetValueOrDefault("VfxScale")),
-                VfxOffsetY = MathHelper.ParseFloat(data.GetValueOrDefault("VfxOffsetY")),
-                VfxPositionType = EnumHelper.ConvertEnum<AffectVfxPositionType>(data.GetValueOrDefault("VfxPositionType")),
-                VfxFollowType = EnumHelper.ConvertEnum<AffectVfxFollowType>(data.GetValueOrDefault("VfxFollowType")),
-                VfxSortingLayerKey = EnumHelper.ConvertEnum<ConfigSortingLayer.Keys>(data.GetValueOrDefault("VfxSortingLayerKey")),
-                DurationOverride = MathHelper.ParseFloat(data.GetValueOrDefault("DurationOverride")),
+                Phase = reader.Enum<AffectPhase>("Phase"),
+                VfxUid = reader.Int("VfxUid"),
+                VfxPlayMode = reader.Enum<AffectVfxPlayMode>("VfxPlayMode"),
+                VfxScale = reader.Float("VfxScale"),
+                VfxOffsetY = reader.Float("VfxOffsetY"),
+                VfxPositionType = reader.Enum<AffectVfxPositionType>("VfxPositionType"),
+                VfxFollowType = reader.Enum<AffectVfxFollowType>("VfxFollowType"),
+                VfxSortingLayerKey = reader.Enum<ConfigSortingLayer.Keys>("VfxSortingLayerKey"),
+                DurationOverride = reader.Float("DurationOverride"),
             };
         }
 

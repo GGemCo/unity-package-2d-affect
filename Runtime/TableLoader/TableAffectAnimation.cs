@@ -39,10 +39,11 @@ namespace GGemCo2DAffect
 
         protected override StruckTableAffectAnimation BuildRow(Dictionary<string, string> data)
         {
-            int uid = MathHelper.ParseInt(data.GetValueOrDefault("Uid"));
-            int affectUid = MathHelper.ParseInt(data.GetValueOrDefault("AffectUid"));
-            string memo = data.GetValueOrDefault("Memo");
-            string name = data.GetValueOrDefault("Name");
+            TableRowReader reader = ReadRow(data);
+            int uid = reader.Int("Uid");
+            int affectUid = reader.Int("AffectUid");
+            string memo = reader.String("Memo");
+            string name = reader.String("Name");
             if (string.IsNullOrWhiteSpace(name))
                 name = string.IsNullOrWhiteSpace(memo) ? $"AffectAnimation_{uid}" : memo;
 
@@ -52,12 +53,12 @@ namespace GGemCo2DAffect
                 Name = name,
                 Memo = memo,
                 AffectUid = affectUid,
-                StopCharacterOnApply = ConvertBoolean(data.GetValueOrDefault("StopCharacterOnApply")),
-                StartAnimationName = data.GetValueOrDefault("StartAnimationName"),
-                LoopAnimationName = data.GetValueOrDefault("LoopAnimationName"),
-                EndAnimationName = data.GetValueOrDefault("EndAnimationName"),
-                Priority = MathHelper.ParseInt(data.GetValueOrDefault("Priority")),
-                RestoreWaitOnEnd = ConvertBoolean(data.GetValueOrDefault("RestoreWaitOnEnd")),
+                StopCharacterOnApply = reader.BoolYN("StopCharacterOnApply"),
+                StartAnimationName = reader.String("StartAnimationName"),
+                LoopAnimationName = reader.String("LoopAnimationName"),
+                EndAnimationName = reader.String("EndAnimationName"),
+                Priority = reader.Int("Priority"),
+                RestoreWaitOnEnd = reader.BoolYN("RestoreWaitOnEnd"),
             };
         }
 

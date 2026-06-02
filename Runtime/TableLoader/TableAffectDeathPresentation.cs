@@ -50,10 +50,11 @@ namespace GGemCo2DAffect
 
         protected override StruckTableAffectDeathPresentation BuildRow(Dictionary<string, string> data)
         {
-            int uid = MathHelper.ParseInt(data.GetValueOrDefault("Uid"));
-            int affectUid = MathHelper.ParseInt(data.GetValueOrDefault("AffectUid"));
-            string memo = data.GetValueOrDefault("Memo");
-            string name = data.GetValueOrDefault("Name");
+            TableRowReader reader = ReadRow(data);
+            int uid = reader.Int("Uid");
+            int affectUid = reader.Int("AffectUid");
+            string memo = reader.String("Memo");
+            string name = reader.String("Name");
             if (string.IsNullOrWhiteSpace(name))
                 name = string.IsNullOrWhiteSpace(memo) ? $"AffectDeathPresentation_{uid}" : memo;
 
@@ -63,19 +64,19 @@ namespace GGemCo2DAffect
                 Name = name,
                 Memo = memo,
                 AffectUid = affectUid,
-                Priority = MathHelper.ParseInt(data.GetValueOrDefault("Priority")),
-                DeathAnimationName = data.GetValueOrDefault("DeathAnimationName"),
-                DeathVfxUid = MathHelper.ParseInt(data.GetValueOrDefault("DeathVfxUid")),
-                DeathVfxScale = MathHelper.ParseFloat(data.GetValueOrDefault("DeathVfxScale")),
-                DeathVfxOffsetY = MathHelper.ParseFloat(data.GetValueOrDefault("DeathVfxOffsetY")),
-                DeathVfxPositionType = EnumHelper.ConvertEnum<AffectVfxPositionType>(data.GetValueOrDefault("DeathVfxPositionType")),
-                DeathVfxFollowType = EnumHelper.ConvertEnum<AffectVfxFollowType>(data.GetValueOrDefault("DeathVfxFollowType")),
-                DeathVfxSortingLayerKey = EnumHelper.ConvertEnum<ConfigSortingLayer.Keys>(data.GetValueOrDefault("DeathVfxSortingLayerKey")),
-                UseDeathVfxSortingLayer = ConvertBoolean(data.GetValueOrDefault("UseDeathVfxSortingLayer")),
-                DeathVfxDurationOverride = MathHelper.ParseFloat(data.GetValueOrDefault("DeathVfxDurationOverride")),
-                DeathCutsceneUid = MathHelper.ParseInt(data.GetValueOrDefault("DeathCutsceneUid")),
-                SuppressDefaultDeathAnimation = ConvertBoolean(data.GetValueOrDefault("SuppressDefaultDeathAnimation")),
-                FreezeLastFrame = ConvertBoolean(data.GetValueOrDefault("FreezeLastFrame")),
+                Priority = reader.Int("Priority"),
+                DeathAnimationName = reader.String("DeathAnimationName"),
+                DeathVfxUid = reader.Int("DeathVfxUid"),
+                DeathVfxScale = reader.Float("DeathVfxScale"),
+                DeathVfxOffsetY = reader.Float("DeathVfxOffsetY"),
+                DeathVfxPositionType = reader.Enum<AffectVfxPositionType>("DeathVfxPositionType"),
+                DeathVfxFollowType = reader.Enum<AffectVfxFollowType>("DeathVfxFollowType"),
+                DeathVfxSortingLayerKey = reader.Enum<ConfigSortingLayer.Keys>("DeathVfxSortingLayerKey"),
+                UseDeathVfxSortingLayer = reader.BoolYN("UseDeathVfxSortingLayer"),
+                DeathVfxDurationOverride = reader.Float("DeathVfxDurationOverride"),
+                DeathCutsceneUid = reader.Int("DeathCutsceneUid"),
+                SuppressDefaultDeathAnimation = reader.BoolYN("SuppressDefaultDeathAnimation"),
+                FreezeLastFrame = reader.BoolYN("FreezeLastFrame"),
             };
         }
 

@@ -69,7 +69,8 @@ namespace GGemCo2DAffect
                     row[headers[j].Trim()] = v.Trim();
                 }
 
-                int affectUid = MathHelper.ParseInt(row.GetValueOrDefault("AffectUid"));
+                TableRowReader reader = new TableRowReader(row, nameof(TableAffectModifier));
+                int affectUid = reader.Int("AffectUid");
                 if (affectUid <= 0) continue;
 
                 var def = BuildModifier(row);
@@ -107,38 +108,40 @@ namespace GGemCo2DAffect
         /// </remarks>
         private static AffectModifierDefinition BuildModifier(Dictionary<string, string> row)
         {
+            TableRowReader reader = new TableRowReader(row, nameof(TableAffectModifier));
+
             var mod = new AffectModifierDefinition
             {
-                modifierId = MathHelper.ParseInt(row.GetValueOrDefault("ModifierId")),
-                phase = EnumHelper.ConvertEnum<AffectPhase>(row.GetValueOrDefault("Phase")),
-                kind = EnumHelper.ConvertEnum<ModifierKind>(row.GetValueOrDefault("Kind")),
+                modifierId = reader.Int("ModifierId"),
+                phase = reader.Enum<AffectPhase>("Phase"),
+                kind = reader.Enum<ModifierKind>("Kind"),
 
-                statId = row.GetValueOrDefault("StatId"),
-                statValue = MathHelper.ParseFloat(row.GetValueOrDefault("StatValue")),
-                statValueType = EnumHelper.ConvertEnum<StatValueType>(row.GetValueOrDefault("StatValueType")),
-                statOperation = EnumHelper.ConvertEnum<StatOperation>(row.GetValueOrDefault("StatOperation")),
+                statId = reader.String("StatId"),
+                statValue = reader.Float("StatValue"),
+                statValueType = reader.Enum<StatValueType>("StatValueType"),
+                statOperation = reader.Enum<StatOperation>("StatOperation"),
 
-                damageTypeId = row.GetValueOrDefault("DamageTypeId"),
-                damageBaseValue = MathHelper.ParseFloat(row.GetValueOrDefault("DamageBaseValue")),
-                scalingStatId = row.GetValueOrDefault("ScalingStatId"),
-                scalingCoefficient = MathHelper.ParseFloat(row.GetValueOrDefault("ScalingCoefficient")),
-                canCrit = MathHelper.ParseInt(row.GetValueOrDefault("CanCrit")) != 0,
-                isDot = MathHelper.ParseInt(row.GetValueOrDefault("IsDot")) != 0,
+                damageTypeId = reader.String("DamageTypeId"),
+                damageBaseValue = reader.Float("DamageBaseValue"),
+                scalingStatId = reader.String("ScalingStatId"),
+                scalingCoefficient = reader.Float("ScalingCoefficient"),
+                canCrit = reader.Int("CanCrit") != 0,
+                isDot = reader.Int("IsDot") != 0,
 
-                healBaseValue = MathHelper.ParseFloat(row.GetValueOrDefault("HealBaseValue")),
-                healScalingStatId = row.GetValueOrDefault("HealScalingStatId"),
-                healScalingCoefficient = MathHelper.ParseFloat(row.GetValueOrDefault("HealScalingCoefficient")),
+                healBaseValue = reader.Float("HealBaseValue"),
+                healScalingStatId = reader.String("HealScalingStatId"),
+                healScalingCoefficient = reader.Float("HealScalingCoefficient"),
 
-                stateId = row.GetValueOrDefault("StateId"),
-                stateChance = MathHelper.ParseFloat(row.GetValueOrDefault("StateChance")),
-                stateDurationOverride = MathHelper.ParseFloat(row.GetValueOrDefault("StateDurationOverride")),
-                crowdControlUid = MathHelper.ParseInt(row.GetValueOrDefault("CrowdControlUid")),
+                stateId = reader.String("StateId"),
+                stateChance = reader.Float("StateChance"),
+                stateDurationOverride = reader.Float("StateDurationOverride"),
+                crowdControlUid = reader.Int("CrowdControlUid"),
 
-                applyAffectUid = MathHelper.ParseInt(row.GetValueOrDefault("ApplyAffectUid")),
-                applyAffectChance = MathHelper.ParseFloat(row.GetValueOrDefault("ApplyAffectChance")),
-                applyAffectDurationOverride = MathHelper.ParseFloat(row.GetValueOrDefault("ApplyAffectDurationOverride")),
-                consumeOnProc = MathHelper.ParseInt(row.GetValueOrDefault("ConsumeOnProc")) != 0,
-                elementGaugeValue = MathHelper.ParseFloat(row.GetValueOrDefault("ElementGaugeValue")),
+                applyAffectUid = reader.Int("ApplyAffectUid"),
+                applyAffectChance = reader.Float("ApplyAffectChance"),
+                applyAffectDurationOverride = reader.Float("ApplyAffectDurationOverride"),
+                consumeOnProc = reader.Int("ConsumeOnProc") != 0,
+                elementGaugeValue = reader.Float("ElementGaugeValue"),
             };
 
             return mod;
