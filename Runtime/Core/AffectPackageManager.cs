@@ -40,12 +40,23 @@ namespace GGemCo2DAffect
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
+                EnsureAffectBootstrapper();
             }
             else
             {
                 Destroy(gameObject);
                 return;
             }
+        }
+
+        /// <summary>
+        /// 캐릭터 활성화 이벤트를 AffectComponent 초기화로 연결하는 부트스트랩 컴포넌트를 보장합니다.
+        /// </summary>
+        private void EnsureAffectBootstrapper()
+        {
+            var bootstrapper = gameObject.GetComponent<BootstrapperAffectComponent>();
+            if (bootstrapper == null)
+                gameObject.AddComponent<BootstrapperAffectComponent>();
         }
 
         /// <summary>

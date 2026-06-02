@@ -14,7 +14,7 @@ namespace GGemCo2DAffect
     /// - 동일 그룹(groupId) 단일성, 동일 UID 재적용(stack/refresh) 정책을 지원한다.
     /// - 컬렉션 변경(삭제) 시에는 삭제 큐를 사용하여 순회 중 예외를 방지한다.
     /// </remarks>
-    public sealed class AffectComponent : MonoBehaviour
+    public sealed class AffectComponent : MonoBehaviour, IGameInitializable, IGameActivatable, IGameDeinitializable
     {
         [SerializeField] private MonoBehaviour targetBehaviour;
 
@@ -68,13 +68,21 @@ namespace GGemCo2DAffect
         private readonly ApplyAffectToTargetExecutor _applyAffectExecutor = new();
         private readonly ElementGaugeExecutor _elementGaugeExecutor = new();
 
+        private bool _isInitialized;
+        private bool _isActivated;
+
+        /// <summary>
+        /// 캐릭터 단위 컴포넌트이므로 기본 초기화 단계에서 실행합니다.
+        /// </summary>
+        public int InitializeOrder => 0;
+
         /// <summary>
         /// 현재 활성 어펙트가 1개 이상 존재하는지 여부.
         /// </summary>
         private bool HasAny => _byRuntimeId.Count > 0;
 
         /// <summary>
-        /// 타겟(IAffectTarget)을 초기화하고, 런타임 리포지토리/서비스를 바인딩한다.
+        /// 타겟(IAffectTarget)을 캐싱하고, 실제 런타임 서비스 바인딩은 명시적 Initialize 단계로 미룹니다.
         /// </summary>
         /// <remarks>
         /// - targetBehaviour가 지정되어 있으면 우선 사용한다.
@@ -83,29 +91,98 @@ namespace GGemCo2DAffect
         /// </remarks>
         private void Awake()
         {
-            // 1) 인스펙터로 지정된 경우 우선
-            if (targetBehaviour != null)
-                _target = targetBehaviour as IAffectTarget;
+            ResolveTarget();
+        }
 
-            // 2) 미지정이면 같은 GO에서 자동 탐색 (Unity는 인터페이스 GetComponent 지원)
-            if (_target == null)
-                _target = GetComponent<IAffectTarget>();
+        /// <summary>
+        /// 레거시 테스트 씬처럼 별도 부트스트랩이 없는 환경에서 최소 동작을 보장합니다.
+        /// </summary>
+        private void Start()
+        {
+            if (_isInitialized)
+                return;
 
-            if (_target == null)
+            Initialize(null);
+            Activate(null);
+        }
+
+        /// <summary>
+        /// Affect 런타임 저장소와 표시 서비스를 명시적으로 바인딩합니다.
+        /// </summary>
+        /// <param name="context">초기화 컨텍스트입니다. Affect는 전역 런타임 저장소를 사용하므로 null을 허용합니다.</param>
+        public void Initialize(GameInitContext context)
+        {
+            if (_isInitialized)
+                return;
+
+            if (!ResolveTarget())
             {
-                Debug.LogError($"[AffectComponent] IAffectTarget not found. go={name}");
                 enabled = false;
                 return;
             }
 
+            BindRuntimeServices();
+            _isInitialized = true;
+            enabled = _isActivated && HasAny;
+        }
+
+        /// <summary>
+        /// 모든 캐릭터 초기화가 끝난 뒤 Affect 시간 갱신을 허용합니다.
+        /// </summary>
+        /// <param name="context">초기화 컨텍스트입니다.</param>
+        public void Activate(GameInitContext context)
+        {
+            if (!_isInitialized)
+                Initialize(context);
+
+            if (!_isInitialized)
+                return;
+
+            _isActivated = true;
+            enabled = HasAny;
+        }
+
+        /// <summary>
+        /// Affect 갱신을 중지하고 다음 활성화 전까지 Update를 차단합니다.
+        /// </summary>
+        public void Deinitialize()
+        {
+            _isActivated = false;
+            enabled = false;
+        }
+
+        /// <summary>
+        /// 인스펙터 지정 대상 또는 동일 GameObject의 IAffectTarget 구현체를 캐싱합니다.
+        /// </summary>
+        /// <returns>유효한 타겟을 찾았으면 true를 반환합니다.</returns>
+        private bool ResolveTarget()
+        {
+            if (_target != null)
+                return true;
+
+            if (targetBehaviour != null)
+                _target = targetBehaviour as IAffectTarget;
+
+            if (_target == null)
+                _target = GetComponent<IAffectTarget>();
+
+            if (_target != null)
+                return true;
+
+            Debug.LogError($"[AffectComponent] IAffectTarget not found. go={name}");
+            return false;
+        }
+
+        /// <summary>
+        /// AffectRuntime에 등록된 저장소와 표시 서비스를 현재 컴포넌트에 연결합니다.
+        /// </summary>
+        private void BindRuntimeServices()
+        {
             _affectRepo = AffectRuntime.AffectRepository;
             _statusRepo = AffectRuntime.StatusRepository;
             _vfx = AffectRuntime.VfxService;
             _outline = AffectRuntime.OutlineService;
             _animation = AffectRuntime.AnimationService;
-
-            // 활성 인스턴스가 있을 때만 Update를 돌린다.
-            enabled = HasAny;
         }
 
         /// <summary>
@@ -118,6 +195,12 @@ namespace GGemCo2DAffect
         /// </remarks>
         private void Update()
         {
+            if (!_isInitialized || !_isActivated)
+            {
+                enabled = false;
+                return;
+            }
+
             if (!HasAny || _target == null || !_target.IsAlive)
             {
                 enabled = false;
@@ -308,6 +391,11 @@ namespace GGemCo2DAffect
         public void ApplyAffect(int affectUid, AffectApplyContext context = null)
         {
             context ??= new AffectApplyContext();
+
+            if (!_isInitialized)
+                Initialize(null);
+            if (!_isActivated)
+                Activate(null);
 
             if (_target == null || _affectRepo == null) return;
             if (!_affectRepo.TryGetAffect(affectUid, out var def) || def == null)
