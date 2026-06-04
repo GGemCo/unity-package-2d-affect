@@ -34,6 +34,14 @@ namespace GGemCo2DAffect
         public float DurationOverride;
 
         /// <summary>
+        /// Affect 기본 또는 오버라이드 지속시간에 추가로 더할 초 단위 보너스입니다.
+        /// </summary>
+        /// <remarks>
+        /// 0 이하이면 추가 지속시간을 적용하지 않습니다.
+        /// </remarks>
+        public float DurationBonusSeconds;
+
+        /// <summary>
         /// Affect 값(데미지, 스탯 변화 등)에 곱해질 배율입니다.
         /// </summary>
         /// <remarks>

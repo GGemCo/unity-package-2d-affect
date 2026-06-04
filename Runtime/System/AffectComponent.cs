@@ -418,7 +418,7 @@ namespace GGemCo2DAffect
             }
 
             // 3) 신규 인스턴스
-            float duration = context.DurationOverride > 0f ? context.DurationOverride : Mathf.Max(0f, def.baseDuration);
+            float duration = ResolveApplyDuration(def, context);
             var instance = new AffectInstance(def, context, duration);
 
             int runtimeId = _nextRuntimeId++;
@@ -506,6 +506,21 @@ namespace GGemCo2DAffect
         // ----------------------
 
         /// <summary>
+        /// Affect 정의와 적용 컨텍스트를 기준으로 최종 지속시간을 계산합니다.
+        /// </summary>
+        /// <param name="def">적용할 Affect 정의입니다.</param>
+        /// <param name="ctx">적용 시 전달된 런타임 컨텍스트입니다.</param>
+        /// <returns>보너스 지속시간까지 반영한 최종 지속시간입니다.</returns>
+        private static float ResolveApplyDuration(AffectDefinition def, AffectApplyContext ctx)
+        {
+            float baseDuration = ctx != null && ctx.DurationOverride > 0f
+                ? ctx.DurationOverride
+                : Mathf.Max(0f, def != null ? def.baseDuration : 0f);
+            float bonusSeconds = ctx != null ? Mathf.Max(0f, ctx.DurationBonusSeconds) : 0f;
+            return Mathf.Max(0f, baseDuration + bonusSeconds);
+        }
+
+        /// <summary>
         /// 동일 UID를 재적용했을 때의 스택/리프레시 정책을 처리한다.
         /// </summary>
         /// <param name="def">대상 어펙트 정의.</param>
@@ -518,7 +533,7 @@ namespace GGemCo2DAffect
         {
             if (!_byRuntimeId.TryGetValue(runtimeId, out var instance)) return;
 
-            float duration = ctx.DurationOverride > 0f ? ctx.DurationOverride : Mathf.Max(0f, def.baseDuration);
+            float duration = ResolveApplyDuration(def, ctx);
 
             switch (def.stackPolicy)
             {
