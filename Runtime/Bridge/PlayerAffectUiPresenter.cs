@@ -1,67 +1,61 @@
-using System;
-using System.Collections.Generic;
-using GGemCo2DCore;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace GGemCo2DAffect
 {
     /// <summary>
-    /// 플레이어의 <see cref="AffectComponent"/>를 관찰하여 버프 UI(<see cref="UIWindowPlayerBuffInfo"/>) 갱신을 위임하는 프리젠터.
+    /// 플레이어의 <see cref="AffectComponent"/>를 관찰하여 버프 UI를 갱신하는 프리젠터입니다.
     /// </summary>
     /// <remarks>
-    /// - UI는 '표시'만 담당하고, 실제 적용/만료/스택 정책은 <see cref="AffectComponent"/>가 단일 진실 소스(SSOT)이다.
-    /// - 남은 시간은 매 프레임 변하므로, 구조 변경 이벤트(Changed) + 주기 동기화 방식을 함께 사용한다.
+    /// 어펙트 적용, 만료, 스택 규칙은 <see cref="AffectComponent"/>가 단일 진실 소스로 관리합니다.
+    /// 이 프리젠터는 현재 활성 인스턴스를 UI 표시 단위로 집계하고,
+    /// <see cref="UIWindowPlayerBuffInfo"/>에 렌더링 스냅샷을 전달합니다.
     /// </remarks>
     [DisallowMultipleComponent]
     public sealed class PlayerAffectUiPresenter : MonoBehaviour
     {
         /// <summary>
-        /// 구조 변경이 없더라도 남은 시간을 갱신하기 위한 기본 동기화 주기(초).
+        /// 구조 변경 이벤트가 없어도 남은 시간을 갱신하기 위한 기본 동기화 주기입니다.
         /// </summary>
         private const float DefaultSyncInterval = 0.10f;
 
-        private AffectComponent _affectComponent;
-        private UIWindowPlayerBuffInfo _view;
-
-        // GC 최소화를 위해 버퍼를 재사용한다.
         private readonly List<AffectInstance> _instancesBuffer = new(64);
         private readonly List<AffectUiItem> _itemsBuffer = new(64);
         private readonly Dictionary<int, Aggregate> _aggregateByAffectUid = new(64);
 
+        private AffectComponent _affectComponent;
+        private UIWindowPlayerBuffInfo _view;
         private float _syncInterval = DefaultSyncInterval;
         private float _syncTimer;
         private bool _dirty;
 
         /// <summary>
-        /// 동일 Affect(Definition.Uid) 기준으로 UI 표현에 필요한 값을 집계한 결과.
+        /// 동일 어펙트 UID를 하나의 UI 아이콘으로 표시하기 위해 집계한 값입니다.
         /// </summary>
         private struct Aggregate
         {
-            /// <summary>표시용 총 스택 수(여러 인스턴스의 스택을 합산).</summary>
+            /// <summary>동일 UID 인스턴스들의 합산 스택 수입니다.</summary>
             public int Stacks;
 
-            /// <summary>동일 UID 그룹 중 가장 긴 남은 시간(아이콘 1개 표현 기준).</summary>
+            /// <summary>동일 UID 그룹 중 가장 긴 남은 시간입니다.</summary>
             public float RemainingMax;
 
-            /// <summary>동일 UID 그룹 중 가장 긴 총 지속 시간(게이지/퍼센트 계산용).</summary>
+            /// <summary>동일 UID 그룹 중 가장 긴 전체 지속 시간입니다.</summary>
             public float TotalDurationMax;
 
-            /// <summary>표시할 아이콘 키(가능하면 Definition.IconKey 사용).</summary>
+            /// <summary>표시할 아이콘 키입니다.</summary>
             public string IconKey;
 
-            /// <summary>표시할 타입 데코레이터 정보.</summary>
+            /// <summary>표시할 보조 데코레이터 데이터입니다.</summary>
             public AffectUiDecoratorData Decorator;
         }
 
         /// <summary>
-        /// 버프 UI 갱신을 위해 Affect 소스와 뷰를 바인딩한다.
+        /// 어펙트 소스와 버프 UI 윈도우를 연결합니다.
         /// </summary>
-        /// <param name="affectComponent">관찰할 Affect 컴포넌트.</param>
-        /// <param name="view">렌더링 대상 UI 뷰.</param>
-        /// <param name="syncIntervalSeconds">
-        /// 구조 변경 이벤트가 없어도 남은 시간을 갱신하기 위한 동기화 주기(초).
-        /// 너무 작은 값은 비용이 커질 수 있어 최소 0.02초로 클램프한다.
-        /// </param>
+        /// <param name="affectComponent">관찰할 어펙트 컴포넌트입니다.</param>
+        /// <param name="view">렌더링을 담당할 PlayerBuffInfo 윈도우입니다.</param>
+        /// <param name="syncIntervalSeconds">남은 시간 동기화 주기입니다. 최소 0.02초로 보정합니다.</param>
         public void Bind(AffectComponent affectComponent, UIWindowPlayerBuffInfo view, float syncIntervalSeconds = DefaultSyncInterval)
         {
             Unbind();
@@ -78,12 +72,14 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
-        /// 바인딩을 해제하고 내부 버퍼/상태를 초기화한다.
+        /// 현재 바인딩을 해제하고 내부 버퍼와 상태를 초기화합니다.
         /// </summary>
         public void Unbind()
         {
             if (_affectComponent != null)
+            {
                 _affectComponent.Changed -= OnAffectChanged;
+            }
 
             _affectComponent = null;
             _view = null;
@@ -97,7 +93,7 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
-        /// 오브젝트 파괴 시 이벤트 구독을 해제하여 누수/중복 호출을 방지한다.
+        /// 오브젝트 파괴 시 이벤트 구독을 해제해 누수와 중복 호출을 방지합니다.
         /// </summary>
         private void OnDestroy()
         {
@@ -105,7 +101,7 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
-        /// Affect 구조(추가/제거/스택 변경 등)가 변했음을 표시한다.
+        /// 어펙트 구조가 변경되었음을 표시합니다.
         /// </summary>
         private void OnAffectChanged()
         {
@@ -113,17 +109,20 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
-        /// 주기적으로(또는 구조 변경 시 즉시) 버프 UI 스냅샷을 렌더링한다.
+        /// 변경 이벤트 또는 동기화 주기에 맞춰 버프 UI 스냅샷을 갱신합니다.
         /// </summary>
         private void Update()
         {
             if (_view == null || _affectComponent == null)
+            {
                 return;
+            }
 
-            // 구조 변경이 없더라도 남은 시간은 주기적으로 동기화한다.
             _syncTimer += Time.unscaledDeltaTime;
             if (!_dirty && _syncTimer < _syncInterval)
+            {
                 return;
+            }
 
             _syncTimer = 0f;
             _dirty = false;
@@ -132,11 +131,11 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
-        /// 현재 활성 Affect 인스턴스를 수집하고, UID 단위로 집계하여 뷰에 전달한다.
+        /// 현재 활성 어펙트 인스턴스를 UID 기준으로 집계한 뒤 UI 스냅샷으로 전달합니다.
         /// </summary>
         /// <remarks>
-        /// UI는 "AffectUid" 단위로 집계하여 1개 아이콘으로 표현한다.
-        /// (StackPolicy.Independent로 여러 인스턴스가 존재할 수 있어도 UX는 보통 1개로 합친다.)
+        /// 같은 어펙트 UID가 여러 인스턴스로 존재하더라도 UI에서는 하나의 아이콘으로 표시합니다.
+        /// 스택은 합산하고, 남은 시간과 전체 지속 시간은 가장 긴 값을 대표값으로 사용합니다.
         /// </remarks>
         private void RenderSnapshot()
         {
@@ -148,63 +147,82 @@ namespace GGemCo2DAffect
 
             for (int i = 0; i < _instancesBuffer.Count; i++)
             {
-                var inst = _instancesBuffer[i];
-                if (inst == null || inst.Definition == null) continue;
-
-                int uid = inst.Definition.uid;
-                if (!_aggregateByAffectUid.TryGetValue(uid, out var agg))
+                AffectInstance instance = _instancesBuffer[i];
+                if (instance == null || instance.Definition == null)
                 {
-                    agg = new Aggregate
+                    continue;
+                }
+
+                int uid = instance.Definition.uid;
+                if (!_aggregateByAffectUid.TryGetValue(uid, out Aggregate aggregate))
+                {
+                    aggregate = new Aggregate
                     {
                         Stacks = 0,
                         RemainingMax = 0f,
                         TotalDurationMax = 0f,
-                        IconKey = inst.Definition.iconKey,
-                        Decorator = ResolveDecorator(inst.Definition)
+                        IconKey = instance.Definition.iconKey,
+                        Decorator = ResolveDecorator(instance.Definition)
                     };
                 }
 
-                // 표시는 "합산 스택"으로 처리한다(최소 1).
-                agg.Stacks += Mathf.Max(1, inst.Stacks);
+                aggregate.Stacks += Mathf.Max(1, instance.Stacks);
 
-                // 아이콘 1개로 표현할 때 일반적으로 "가장 오래 남은 것"을 대표로 잡는다.
-                if (inst.RemainingTime > agg.RemainingMax) agg.RemainingMax = inst.RemainingTime;
-                if (inst.TotalDuration > agg.TotalDurationMax) agg.TotalDurationMax = inst.TotalDuration;
+                if (instance.RemainingTime > aggregate.RemainingMax)
+                {
+                    aggregate.RemainingMax = instance.RemainingTime;
+                }
 
-                // 최초 정의가 비어있을 수 있으므로, 비어 있으면 갱신한다.
-                if (string.IsNullOrWhiteSpace(agg.IconKey)) agg.IconKey = inst.Definition.iconKey;
+                if (instance.TotalDuration > aggregate.TotalDurationMax)
+                {
+                    aggregate.TotalDurationMax = instance.TotalDuration;
+                }
 
-                _aggregateByAffectUid[uid] = agg;
+                if (string.IsNullOrWhiteSpace(aggregate.IconKey))
+                {
+                    aggregate.IconKey = instance.Definition.iconKey;
+                }
+
+                _aggregateByAffectUid[uid] = aggregate;
             }
 
-            foreach (var kv in _aggregateByAffectUid)
+            foreach (KeyValuePair<int, Aggregate> pair in _aggregateByAffectUid)
             {
-                int uid = kv.Key;
-                var agg = kv.Value;
-
+                Aggregate aggregate = pair.Value;
                 _itemsBuffer.Add(new AffectUiItem(
-                    uid,
-                    agg.Stacks,
-                    agg.RemainingMax,
-                    agg.TotalDurationMax,
-                    agg.IconKey,
-                    agg.Decorator));
+                    pair.Key,
+                    aggregate.Stacks,
+                    aggregate.RemainingMax,
+                    aggregate.TotalDurationMax,
+                    aggregate.IconKey,
+                    aggregate.Decorator));
             }
 
             _view.Render(_itemsBuffer);
         }
 
+        /// <summary>
+        /// 어펙트 정의와 설정값을 기준으로 보조 데코레이터 표시 데이터를 해석합니다.
+        /// </summary>
+        /// <param name="definition">데코레이터를 해석할 어펙트 정의입니다.</param>
+        /// <returns>표시 가능한 데코레이터 데이터입니다. 없으면 Hidden을 반환합니다.</returns>
         private static AffectUiDecoratorData ResolveDecorator(AffectDefinition definition)
         {
             if (definition == null)
+            {
                 return AffectUiDecoratorData.Hidden;
+            }
 
-            var settings = GGemCoAffectSettingsRuntime.GetOrLoad();
+            GGemCoAffectSettings settings = GGemCoAffectSettingsRuntime.GetOrLoad();
             if (settings == null)
+            {
                 return AffectUiDecoratorData.Hidden;
+            }
 
-            if (!settings.TryGetTypeIconStyle(definition.dispelType, out var style) || style == null)
+            if (!settings.TryGetTypeIconStyle(definition.dispelType, out AffectTypeIconStyle style) || style == null)
+            {
                 return AffectUiDecoratorData.Hidden;
+            }
 
             return new AffectUiDecoratorData(
                 true,
