@@ -1,13 +1,28 @@
-using GGemCo2DCore;
+﻿using GGemCo2DCore;
 using UnityEngine;
 
 namespace GGemCo2DAffect
 {
     public enum AffectDebugSortMode
     {
+        /// <summary>
+        /// 남은 시간이 짧은 Affect를 먼저 표시합니다.
+        /// </summary>
         RemainingTimeAsc,
+
+        /// <summary>
+        /// 남은 시간이 긴 Affect를 먼저 표시합니다.
+        /// </summary>
         RemainingTimeDesc,
+
+        /// <summary>
+        /// Affect 표시 이름 기준으로 정렬합니다.
+        /// </summary>
         Name,
+
+        /// <summary>
+        /// Affect 적용 순서 기준으로 정렬합니다.
+        /// </summary>
         ApplyOrder,
     }
 
@@ -142,37 +157,46 @@ namespace GGemCo2DAffect
         [Header("Debug HUD")]
         [SerializeField, DebugOption("Affect Debug HUD 전체 사용 여부")]
         private bool enableAffectDebugHud;
+
+        /// <summary>
+        /// Affect Debug HUD를 사용할 수 있는지 반환합니다.
+        /// </summary>
         public bool EnableAffectDebugHud => DebugOptionRuntimeUtility.Resolve(enableAffectDebugHud);
 
-        [Tooltip("몬스터에 적용된 Affect 만 표시할지 여부")]
+        [Tooltip("몬스터에 적용된 Affect만 표시할지 여부입니다. 비활성화하면 플레이어와 기타 대상도 함께 표시합니다.")]
         public bool showOnlyMonsters = true;
 
-        [Tooltip("같은 AffectUid 를 하나로 묶어 표시할지 여부")]
+        [Tooltip("같은 AffectUid를 하나로 묶어 표시할지 여부입니다.")]
         public bool aggregateSameAffectUid = true;
 
-        [Tooltip("몬스터 1마리당 화면에 표시할 최대 줄 수")]
+        [Tooltip("대상 1개당 화면에 표시할 최대 Affect 줄 수입니다.")]
         public int maxVisibleLinesPerMonster = 4;
 
-        [Tooltip("표시 정렬 기준")]
+        [Tooltip("Affect 표시 정렬 기준입니다.")]
         public AffectDebugSortMode sortMode = AffectDebugSortMode.RemainingTimeAsc;
 
-        [Tooltip("스택 수 표시 여부")]
+        [Tooltip("스택 수 표시 여부입니다.")]
         public bool showStacks = true;
 
-        [Tooltip("Affect GroupId 표시 여부")]
+        [Tooltip("Affect GroupId 표시 여부입니다.")]
         public bool showGroupId;
 
-        [Tooltip("Affect Uid 표시 여부")]
+        [Tooltip("Affect Uid 표시 여부입니다.")]
         public bool showAffectUid;
 
-        [Tooltip("Debug HUD 갱신 주기(초)")]
+        [Tooltip("Debug HUD 갱신 주기(초)입니다.")]
         public float refreshInterval = 0.10f;
 
-        [Tooltip("최대 표시할 몬스터 수")]
+        [Tooltip("HUD에 표시할 최대 대상 수입니다. showOnlyMonsters가 켜져 있으면 몬스터 수, 꺼져 있으면 전체 대상 수로 사용합니다.")]
         public int maxVisibleMonsters = 8;
 
-        [Tooltip("남은 시간이 0 이하인 Affect 도 강제로 표시할지 여부")]
+        [Tooltip("남은 시간이 0 이하인 Affect도 강제로 표시할지 여부입니다.")]
         public bool includeExpiredEntries;
+
+        /// <summary>
+        /// Affect Debug HUD에 표시할 최대 대상 수를 반환합니다.
+        /// </summary>
+        public int MaxVisibleDebugTargets => Mathf.Max(1, maxVisibleMonsters);
 
         private void OnEnable()
         {
