@@ -19,8 +19,10 @@ namespace GGemCo2DAffect
         private readonly List<SpriteAtlas> _atlases = new();
         private readonly Dictionary<string, Sprite> _spriteCache = new(StringComparer.Ordinal);
         private readonly HashSet<AsyncOperationHandle> _activeHandles = new();
+        private readonly AddressableLoaderAffectIconSpriteProvider _iconSpriteProvider = new();
         private float _prefabLoadProgress;
         private bool _isAtlasLoaded;
+        private Task _atlasLoadTask;
 
         private void Awake()
         {
@@ -30,6 +32,7 @@ namespace GGemCo2DAffect
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
+                AddressableIconSpriteProviderRegistry.Register(_iconSpriteProvider);
             }
             else
             {
@@ -39,6 +42,12 @@ namespace GGemCo2DAffect
 
         private void OnDestroy()
         {
+            if (Instance == this)
+            {
+                AddressableIconSpriteProviderRegistry.Unregister(_iconSpriteProvider);
+                Instance = null;
+            }
+
             ReleaseAll();
         }
 
@@ -54,6 +63,38 @@ namespace GGemCo2DAffect
         /// Affect 아이콘 SpriteAtlas들을 비동기로 선로드합니다.
         /// </summary>
         public async Task LoadAtlasesAsync()
+        {
+            if (_isAtlasLoaded)
+            {
+                _prefabLoadProgress = 1f;
+                return;
+            }
+
+            if (_atlasLoadTask != null)
+            {
+                await _atlasLoadTask;
+                return;
+            }
+
+            _atlasLoadTask = LoadAtlasesOnceAsync();
+            try
+            {
+                await _atlasLoadTask;
+            }
+            finally
+            {
+                _atlasLoadTask = null;
+            }
+        }
+
+        /// <summary>
+        /// Affect 아이콘 Atlas 로딩을 1회 수행합니다.
+        /// </summary>
+        /// <remarks>
+        /// 여러 버프 아이콘이 같은 프레임에 로딩을 요청할 수 있으므로,
+        /// 외부 진입점(<see cref="LoadAtlasesAsync"/>)에서 중복 실행을 막고 이 메서드는 실제 로딩만 담당합니다.
+        /// </remarks>
+        private async Task LoadAtlasesOnceAsync()
         {
             try
             {
@@ -99,6 +140,63 @@ namespace GGemCo2DAffect
             _spriteCache[iconKey] = null;
             GcLogger.LogError($"Addressables에서 {iconKey} 아이콘 이미지를 찾을 수 없습니다.");
             return null;
+        }
+
+        /// <summary>
+        /// 이미 로드된 Affect 아이콘 캐시 또는 Atlas에서 Sprite를 즉시 조회합니다.
+        /// </summary>
+        /// <param name="iconKey">Atlas 내부 Sprite 이름입니다.</param>
+        /// <returns>캐시 또는 로드 완료된 Atlas에서 찾은 Sprite입니다.</returns>
+        /// <remarks>
+        /// 이 메서드는 Addressables 동기 로드를 발생시키지 않습니다.
+        /// UI는 먼저 이 경로로 캐시를 확인하고, 없으면 비동기 로딩 경로를 사용합니다.
+        /// </remarks>
+        public Sprite GetCachedImageIconByName(string iconKey)
+        {
+            if (string.IsNullOrEmpty(iconKey)) return null;
+
+            if (_spriteCache.TryGetValue(iconKey, out var cached) && cached != null)
+            {
+                return cached;
+            }
+
+            // Atlas가 아직 준비되지 않았다면 UI 비동기 로딩 단계로 넘긴다.
+            if (!_isAtlasLoaded && _atlases.Count <= 0)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < _atlases.Count; i++)
+            {
+                var atlas = _atlases[i];
+                if (atlas == null) continue;
+
+                var sprite = atlas.GetSprite(iconKey);
+                if (sprite != null)
+                {
+                    _spriteCache[iconKey] = sprite;
+                    return sprite;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Affect 아이콘 Atlas를 비동기로 준비한 뒤 Sprite를 조회합니다.
+        /// </summary>
+        /// <param name="iconKey">Atlas 내부 Sprite 이름입니다.</param>
+        /// <returns>로드 후 찾은 Sprite입니다. 찾지 못하면 null입니다.</returns>
+        public async Task<Sprite> LoadImageIconByNameAsync(string iconKey)
+        {
+            if (string.IsNullOrEmpty(iconKey)) return null;
+
+            if (!_isAtlasLoaded)
+            {
+                await LoadAtlasesAsync();
+            }
+
+            return GetCachedImageIconByName(iconKey);
         }
 
         /// <summary>
