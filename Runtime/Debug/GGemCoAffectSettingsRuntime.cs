@@ -42,6 +42,11 @@ namespace GGemCo2DAffect
             _loadHandle = default;
         }
 
+        /// <summary>
+        /// Affect Settings를 반환하거나 로드를 요청합니다.
+        /// 개발용 Settings Override가 등록되어 있으면 Addressables 직접 로드보다 먼저 사용합니다.
+        /// </summary>
+        /// <returns>현재 즉시 사용할 수 있는 Affect Settings입니다. 아직 비동기 로드가 완료되지 않았으면 null입니다.</returns>
         public static GGemCoAffectSettings GetOrLoad()
         {
             if (Current != null)
@@ -50,6 +55,9 @@ namespace GGemCo2DAffect
             if (!_externalRegistered)
                 RegisterExternalSetting();
 
+            if (TryApplyOverrideSettings())
+                return Current;
+
             if (_loadRequested)
                 return Current;
 
@@ -57,13 +65,34 @@ namespace GGemCo2DAffect
             _loadHandle = Addressables.LoadAssetAsync<GGemCoAffectSettings>(ConfigAddressableSettingAffect.AffectSettings.Key);
             _loadHandle.Completed += handle =>
             {
-                if (handle.Status == AsyncOperationStatus.Succeeded)
-                {
-                    Current = handle.Result;
-                }
+                if (handle.Status != AsyncOperationStatus.Succeeded)
+                    return;
+
+                // 비동기 로드 완료 시점에 개발용 Settings가 준비되어 있을 수 있으므로 한 번 더 우선 확인합니다.
+                if (TryApplyOverrideSettings())
+                    return;
+
+                Current = handle.Result;
             };
 
             return Current;
+        }
+
+        /// <summary>
+        /// 공용 Settings Runtime Resolver에서 Affect 개발용 Settings Override를 조회하여 현재 설정에 반영합니다.
+        /// </summary>
+        /// <returns>개발용 Affect Settings를 찾아 Current에 반영했으면 true입니다.</returns>
+        private static bool TryApplyOverrideSettings()
+        {
+            if (!SettingsRuntimeResolver.TryGetOverride(
+                    ConfigAddressableSettingAffect.AffectSettings.Key,
+                    out GGemCoAffectSettings overrideSettings))
+            {
+                return false;
+            }
+
+            Current = overrideSettings;
+            return Current != null;
         }
     }
 }
