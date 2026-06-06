@@ -152,30 +152,74 @@ namespace GGemCo2DAffect
             }
 
             /// <summary>
-            /// Core에서 제공하는 대표 스탯을 Affect의 statId로 조회한다.
+            /// Core에서 제공하는 스탯 값을 Affect의 statId 기준으로 조회합니다.
             /// </summary>
-            /// <param name="statId">조회할 스탯 ID.</param>
-            /// <returns>매핑된 스탯 값. 알 수 없는 스탯이면 0.</returns>
+            /// <param name="statId">조회할 스탯 ID입니다.</param>
+            /// <returns>매핑된 스탯 값입니다. 알 수 없는 스탯이면 0을 반환합니다.</returns>
+            /// <remarks>
+            /// - BASE_*는 기본 항목 계산 결과(TotalBase*)를 반환합니다.
+            /// - STAT_ATK/STAT_DEF/STAT_HP/STAT_MP/STAT_STAMINA는 성장 스탯 계산 결과(TotalStat*)를 반환합니다.
+            /// - 이동속도, 공격속도, 크리티컬, 저항은 현재 Core에 별도 TotalStat* 분기 값이 없어 최종 계산 결과를 반환합니다.
+            /// </remarks>
             public float GetValue(string statId)
             {
                 if (string.IsNullOrWhiteSpace(statId)) return 0f;
 
-                // Core의 대표 스탯 매핑 (필요 시 확장)
-                if (statId == ConfigCommon.StatusStatAtk) return _character.TotalAtk.Value;
-                if (statId == ConfigCommon.StatusStatDef) return _character.TotalDef.Value;
-                if (statId == ConfigCommon.StatusStatHp) return _character.TotalHp.Value;
-                if (statId == ConfigCommon.StatusStatMp) return _character.TotalMp.Value;
+                float baseValue = GetBaseStatValue(statId);
+                if (baseValue > 0f || ConfigCommon.IsBaseStatId(statId)) return baseValue;
+
+                float growthValue = GetGrowthStatValue(statId);
+                if (growthValue > 0f || ConfigCommon.IsStatusStatId(statId)) return growthValue;
+
+                return 0f;
+            }
+
+            /// <summary>
+            /// BASE_* 계열 스탯 ID를 Core의 기본 항목 계산 결과로 변환합니다.
+            /// </summary>
+            /// <param name="statId">조회할 BASE_* 스탯 ID입니다.</param>
+            /// <returns>매핑된 기본 항목 값입니다. 매핑되지 않은 항목이면 0을 반환합니다.</returns>
+            private float GetBaseStatValue(string statId)
+            {
+                if (statId == ConfigCommon.BaseStatAtk) return _character.TotalBaseAtk.Value;
+                if (statId == ConfigCommon.BaseStatDef) return _character.TotalBaseDef.Value;
+                if (statId == ConfigCommon.BaseStatHp) return _character.TotalBaseHp.Value;
+                if (statId == ConfigCommon.BaseStatMp) return _character.TotalBaseMp.Value;
+                if (statId == ConfigCommon.BaseStatStamina) return _character.TotalBaseStamina.Value;
+                if (statId == ConfigCommon.BaseStatSuperArmor) return _character.TotalSuperArmor.Value;
+                if (statId == ConfigCommon.BaseStatMoveSpeed) return _character.TotalMoveSpeed.Value;
+                if (statId == ConfigCommon.BaseStatAttackSpeed) return _character.TotalAttackSpeed.Value;
+                if (statId == ConfigCommon.BaseStatCriticalDamage) return _character.TotalCriticalDamage.Value;
+                if (statId == ConfigCommon.BaseStatCriticalProbability) return _character.TotalCriticalProbability.Value;
+                if (statId == ConfigCommon.BaseStatResistanceFire) return _character.TotalRegistFire.Value;
+                if (statId == ConfigCommon.BaseStatResistanceCold) return _character.TotalRegistCold.Value;
+                if (statId == ConfigCommon.BaseStatResistanceLightning) return _character.TotalRegistLightning.Value;
+                if (statId == ConfigCommon.BaseStatResistancePoison) return _character.TotalRegistPoison.Value;
+                return 0f;
+            }
+
+            /// <summary>
+            /// STAT_* 계열 스탯 ID를 Core의 성장 스탯 또는 최종 항목 계산 결과로 변환합니다.
+            /// </summary>
+            /// <param name="statId">조회할 STAT_* 스탯 ID입니다.</param>
+            /// <returns>매핑된 스탯 값입니다. 매핑되지 않은 항목이면 0을 반환합니다.</returns>
+            private float GetGrowthStatValue(string statId)
+            {
+                if (statId == ConfigCommon.StatusStatAtk) return _character.TotalStatAtk.Value;
+                if (statId == ConfigCommon.StatusStatDef) return _character.TotalStatDef.Value;
+                if (statId == ConfigCommon.StatusStatHp) return _character.TotalStatHp.Value;
+                if (statId == ConfigCommon.StatusStatMp) return _character.TotalStatMp.Value;
+                if (statId == ConfigCommon.StatusStatStamina) return _character.TotalStatStamina.Value;
+                if (statId == ConfigCommon.StatusStatHpTemp) return _character.TotalHpTemp.Value;
+                if (statId == ConfigCommon.StatusStatSuperArmor) return _character.TotalSuperArmor.Value;
                 if (statId == ConfigCommon.StatusStatMoveSpeed) return _character.TotalMoveSpeed.Value;
                 if (statId == ConfigCommon.StatusStatAttackSpeed) return _character.TotalAttackSpeed.Value;
                 if (statId == ConfigCommon.StatusStatCriticalDamage) return _character.TotalCriticalDamage.Value;
                 if (statId == ConfigCommon.StatusStatCriticalProbability) return _character.TotalCriticalProbability.Value;
-
-                // 저항(기존 Core 구현: Fire/Cold/Lightning)
                 if (statId == ConfigCommon.StatusStatResistanceFire) return _character.TotalRegistFire.Value;
                 if (statId == ConfigCommon.StatusStatResistanceCold) return _character.TotalRegistCold.Value;
                 if (statId == ConfigCommon.StatusStatResistanceLightning) return _character.TotalRegistLightning.Value;
                 if (statId == ConfigCommon.StatusStatResistancePoison) return _character.TotalRegistPoison.Value;
-
                 return 0f;
             }
         }
