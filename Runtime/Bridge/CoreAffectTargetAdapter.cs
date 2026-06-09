@@ -383,7 +383,7 @@ namespace GGemCo2DAffect
             /// <param name="source">회복의 원인 객체(현재는 사용하지 않음).</param>
             /// <remarks>
             /// Player 계열은 공개 메서드 <c>AddHp</c>가 있을 수 있어 우선 Reflection으로 호출한다.
-            /// 그 외에는 <c>CurrentHp</c>(일반 HP)를 직접 증가시키고 <c>TotalHp</c>(일반 최대 HP)를 상한으로 클램프한다.
+            /// 그 외에는 <c>CurrentHp</c>(일반 HP)를 직접 증가시키고 <c>MaxHp</c>(일반 최대 HP)를 상한으로 클램프한다.
             /// - 표준 정책: Heal은 임시 HP(<c>TotalTempHp</c>/<c>_tempHpCurrent</c>)를 회복하지 않는다.
             /// </remarks>
             public void ApplyHeal(float amount, object source)
