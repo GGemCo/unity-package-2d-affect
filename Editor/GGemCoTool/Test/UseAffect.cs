@@ -254,6 +254,13 @@ namespace GGemCo2DAffectEditor
                         EditorGUILayout.LabelField("DamageTypeId", string.IsNullOrEmpty(m.damageTypeId) ? "(None)" : m.damageTypeId);
                         EditorGUILayout.LabelField("ElementGaugeValue", m.elementGaugeValue.ToString("0.###"));
                         break;
+
+                    case ModifierKind.FormulaVariable:
+                        EditorGUILayout.LabelField("FormulaVariableId", string.IsNullOrEmpty(m.formulaVariableId) ? "(None)" : m.formulaVariableId);
+                        EditorGUILayout.LabelField("FormulaVariableValue", m.formulaVariableValue.ToString("0.###"));
+                        EditorGUILayout.LabelField("ValueType", m.formulaVariableValueType.ToString());
+                        EditorGUILayout.LabelField("Operation", m.formulaVariableOperation.ToString());
+                        break;
                 }
 
                 var statusRepo = AffectRuntime.StatusRepository;

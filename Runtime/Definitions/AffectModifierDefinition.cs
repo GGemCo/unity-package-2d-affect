@@ -171,6 +171,40 @@ namespace GGemCo2DAffect
         /// </summary>
         public float elementGaugeValue;
 
+
+        // --------------------------------------------------------------------
+        // Kind = FormulaVariable
+        // --------------------------------------------------------------------
+
+        /// <summary>
+        /// Poly 데미지 공식에만 주입할 어펙트 전용 변수 ID입니다.
+        /// </summary>
+        /// <remarks>
+        /// 이 값은 Base*/Stat* 계산에는 절대 반영되지 않으며,
+        /// <c>damage_formula</c> 공식 평가 직전에만 공식 변수로 등록됩니다.
+        /// 예: <c>FormulaFinalDamageBuff</c>, <c>FORMULA_FINAL_DAMAGE_BUFF</c>.
+        /// </remarks>
+        public string formulaVariableId;
+
+        /// <summary>
+        /// 공식 변수에 누적할 값입니다.
+        /// </summary>
+        public float formulaVariableValue;
+
+        /// <summary>
+        /// 공식 변수 값의 해석 방식입니다.
+        /// </summary>
+        /// <remarks>
+        /// 현재 공식 변수는 원본 수치를 그대로 보관합니다. Percent는 설명/데이터 의미를 표현하기 위한 값이며,
+        /// 실제 배율 적용 여부는 <c>damage_formula</c> 수식에서 명시적으로 처리합니다.
+        /// </remarks>
+        public StatValueType formulaVariableValueType;
+
+        /// <summary>
+        /// 같은 공식 변수 ID가 여러 개 적용될 때의 누적 연산 방식입니다.
+        /// </summary>
+        public StatOperation formulaVariableOperation;
+
         // --------------------------------------------------------------------
         // Common
         // --------------------------------------------------------------------

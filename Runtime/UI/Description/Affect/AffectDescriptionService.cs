@@ -267,6 +267,15 @@ namespace GGemCo2DAffect
                     string damageTypeName = ResolveStatusName(loc, mod.damageTypeId, dmg?.Name);
                     return $"OnHit {damageTypeName} Gauge +{FormatNumber(mod.elementGaugeValue)}";
                 }
+
+                case ModifierKind.FormulaVariable:
+                {
+                    if (string.IsNullOrWhiteSpace(mod.formulaVariableId))
+                        return string.Empty;
+
+                    string sign = mod.formulaVariableValue >= 0f ? "+" : string.Empty;
+                    return $"Formula {mod.formulaVariableId} {mod.formulaVariableOperation} {sign}{FormatNumber(mod.formulaVariableValue)} ({mod.formulaVariableValueType})";
+                }
             }
 
             return string.Empty;

@@ -105,6 +105,7 @@ namespace GGemCo2DAffect
         /// - Stat 계열: statId/statValue/statValueType/statOperation
         /// - Damage 계열: damageTypeId/damageBaseValue/scalingStatId/scalingCoefficient/canCrit/isDot
         /// - State 계열: stateId/stateChance/stateDurationOverride
+        /// - FormulaVariable 계열: formulaVariableId/formulaVariableValue/formulaVariableValueType/formulaVariableOperation
         /// </remarks>
         private static AffectModifierDefinition BuildModifier(Dictionary<string, string> row)
         {
@@ -142,6 +143,11 @@ namespace GGemCo2DAffect
                 applyAffectDurationOverride = reader.Float("ApplyAffectDurationOverride"),
                 consumeOnProc = reader.Int("ConsumeOnProc") != 0,
                 elementGaugeValue = reader.Float("ElementGaugeValue"),
+
+                formulaVariableId = reader.String("FormulaVariableId"),
+                formulaVariableValue = reader.Float("FormulaVariableValue"),
+                formulaVariableValueType = reader.Enum<StatValueType>("FormulaVariableValueType"),
+                formulaVariableOperation = reader.Enum<StatOperation>("FormulaVariableOperation"),
             };
 
             return mod;

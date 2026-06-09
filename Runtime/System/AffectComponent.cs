@@ -67,6 +67,7 @@ namespace GGemCo2DAffect
         private readonly CrowdControlExecutor _crowdControlExecutor = new();
         private readonly ApplyAffectToTargetExecutor _applyAffectExecutor = new();
         private readonly ElementGaugeExecutor _elementGaugeExecutor = new();
+        private readonly FormulaVariableModifierExecutor _formulaVariableExecutor = new();
 
         private bool _isInitialized;
         private bool _isActivated;
@@ -635,6 +636,11 @@ namespace GGemCo2DAffect
                             _crowdControlExecutor.ExecuteOnApply(_target, instance, mod, _affectRepo, _statusRepo);
                         break;
 
+                    case ModifierKind.FormulaVariable:
+                        if (phase == AffectPhase.OnApply)
+                            _formulaVariableExecutor.ExecuteOnApply(_target, instance, mod, _affectRepo, _statusRepo);
+                        break;
+
                     default:
                         break;
                 }
@@ -861,15 +867,16 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
-        /// 인스턴스가 적용한 Stat/State 토큰을 타겟에서 제거한다.
+        /// 인스턴스가 적용한 Stat/State/공식 변수 토큰을 타겟에서 제거한다.
         /// </summary>
         /// <param name="instance">정리할 어펙트 인스턴스.</param>
         /// <remarks>
         /// Stats는 제거 후 Recalculate를 호출하여 최종 능력치를 재계산한다.
+        /// 공식 변수는 Base*/Stat* 값을 변경하지 않으므로 별도 스탯 재계산 없이 제공자에서만 제거한다.
         /// </remarks>
         private void CleanupTokens(AffectInstance instance)
         {
-            if (_target == null) return;
+            if (_target == null || instance == null) return;
 
             if (_target.Stats != null)
             {
@@ -884,6 +891,17 @@ namespace GGemCo2DAffect
                 var tokens = instance.StateTokens;
                 for (int i = 0; i < tokens.Count; i++)
                     _target.States.RemoveState(tokens[i]);
+            }
+
+            if (_target.Transform != null)
+            {
+                AffectFormulaVariableProvider provider = _target.Transform.GetComponent<AffectFormulaVariableProvider>();
+                if (provider != null)
+                {
+                    var tokens = instance.FormulaVariableTokens;
+                    for (int i = 0; i < tokens.Count; i++)
+                        provider.RemoveVariable(tokens[i]);
+                }
             }
         }
 

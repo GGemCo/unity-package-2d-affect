@@ -35,6 +35,10 @@ namespace GGemCo2DAffectEditor
             public float ApplyAffectDurationOverride;
             public bool ConsumeOnProc;
             public float ElementGaugeValue;
+            public string FormulaVariableId;
+            public float FormulaVariableValue;
+            public StatValueType FormulaVariableValueType;
+            public StatOperation FormulaVariableOperation;
         }
 
         private sealed class AffectVisualActionEditorRow

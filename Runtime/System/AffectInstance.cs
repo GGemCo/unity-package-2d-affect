@@ -46,6 +46,7 @@ namespace GGemCo2DAffect
         private readonly List<object> _statTokens = new();
         private readonly List<object> _stateTokens = new();
         private readonly List<object> _visualTokens = new();
+        private readonly List<object> _formulaVariableTokens = new();
 
         /// <summary>
         /// Outline 서비스가 반환한 토큰(핸들)입니다.
@@ -162,6 +163,20 @@ namespace GGemCo2DAffect
         /// 적용 중 생성된 State 토큰 목록(읽기 전용).
         /// </summary>
         public IReadOnlyList<object> StateTokens => _stateTokens;
+
+        /// <summary>
+        /// 공식 변수 제공자에 등록된 토큰을 추가한다(만료/해제 시 제거용).
+        /// </summary>
+        /// <param name="token">공식 변수 제공자가 반환한 토큰 객체.</param>
+        public void AddFormulaVariableToken(object token)
+        {
+            if (token != null) _formulaVariableTokens.Add(token);
+        }
+
+        /// <summary>
+        /// 적용 중 생성된 공식 변수 토큰 목록(읽기 전용).
+        /// </summary>
+        public IReadOnlyList<object> FormulaVariableTokens => _formulaVariableTokens;
 
         /// <summary>
         /// 적용 중 유지가 필요한 비주얼 토큰 목록(읽기 전용).
