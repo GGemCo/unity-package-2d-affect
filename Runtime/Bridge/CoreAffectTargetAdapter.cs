@@ -105,6 +105,7 @@ namespace GGemCo2DAffect
             /// </remarks>
             public object ApplyModifier(string statId, float value, StatValueType statValueType, StatOperation operation)
             {
+                statId = ConfigCommon.NormalizeStatId(statId);
                 if (string.IsNullOrWhiteSpace(statId)) return null;
 
                 if (operation == StatOperation.Override)
@@ -158,6 +159,7 @@ namespace GGemCo2DAffect
             /// <returns>매핑된 스탯 값입니다. 알 수 없는 스탯이면 0을 반환합니다.</returns>
             /// <remarks>
             /// - BASE_*는 기본 항목 계산 결과(TotalBase*)를 반환합니다.
+            /// - BASE_HP_TEMP는 일반 HP와 분리된 보호막/임시 하트 최대치(TotalHpTemp)를 반환합니다.
             /// - STAT_ATK/STAT_DEF/STAT_HP/STAT_MP/STAT_STAMINA는 성장 스탯 계산 결과(TotalStat*)를 반환합니다.
             /// - 이동속도, 공격속도, 크리티컬, 저항은 BASE_* 항목으로만 조회합니다.
             /// </remarks>
@@ -186,6 +188,7 @@ namespace GGemCo2DAffect
                 if (statId == ConfigCommon.BaseStatHp) return _character.TotalBaseHp.Value;
                 if (statId == ConfigCommon.BaseStatMp) return _character.TotalBaseMp.Value;
                 if (statId == ConfigCommon.BaseStatStamina) return _character.TotalBaseStamina.Value;
+                if (ConfigCommon.IsHpTempStatId(statId)) return _character.TotalHpTemp.Value;
                 if (statId == ConfigCommon.BaseStatSuperArmor) return _character.TotalSuperArmor.Value;
                 if (statId == ConfigCommon.BaseStatMoveSpeed) return _character.TotalMoveSpeed.Value;
                 if (statId == ConfigCommon.BaseStatAttackSpeed) return _character.TotalAttackSpeed.Value;
@@ -199,7 +202,7 @@ namespace GGemCo2DAffect
             }
 
             /// <summary>
-            /// STAT_* 계열 스탯 ID를 Core의 성장 스탯 또는 최종 항목 계산 결과로 변환합니다.
+            /// STAT_* 계열 스탯 ID를 Core의 성장 스탯 계산 결과로 변환합니다.
             /// </summary>
             /// <param name="statId">조회할 STAT_* 스탯 ID입니다.</param>
             /// <returns>매핑된 스탯 값입니다. 매핑되지 않은 항목이면 0을 반환합니다.</returns>
@@ -210,7 +213,6 @@ namespace GGemCo2DAffect
                 if (statId == ConfigCommon.StatusStatHp) return _character.TotalStatHp.Value;
                 if (statId == ConfigCommon.StatusStatMp) return _character.TotalStatMp.Value;
                 if (statId == ConfigCommon.StatusStatStamina) return _character.TotalStatStamina.Value;
-                if (statId == ConfigCommon.StatusStatHpTemp) return _character.TotalHpTemp.Value;
                 return 0f;
             }
         }
