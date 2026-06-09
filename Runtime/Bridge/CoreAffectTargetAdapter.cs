@@ -159,7 +159,7 @@ namespace GGemCo2DAffect
             /// <remarks>
             /// - BASE_*는 기본 항목 계산 결과(TotalBase*)를 반환합니다.
             /// - STAT_ATK/STAT_DEF/STAT_HP/STAT_MP/STAT_STAMINA는 성장 스탯 계산 결과(TotalStat*)를 반환합니다.
-            /// - 이동속도, 공격속도, 크리티컬, 저항은 현재 Core에 별도 TotalStat* 분기 값이 없어 최종 계산 결과를 반환합니다.
+            /// - 이동속도, 공격속도, 크리티컬, 저항은 BASE_* 항목으로만 조회합니다.
             /// </remarks>
             public float GetValue(string statId)
             {
@@ -191,10 +191,10 @@ namespace GGemCo2DAffect
                 if (statId == ConfigCommon.BaseStatAttackSpeed) return _character.TotalAttackSpeed.Value;
                 if (statId == ConfigCommon.BaseStatCriticalDamage) return _character.TotalCriticalDamage.Value;
                 if (statId == ConfigCommon.BaseStatCriticalProbability) return _character.TotalCriticalProbability.Value;
-                if (statId == ConfigCommon.BaseStatResistanceFire) return _character.TotalRegistFire.Value;
-                if (statId == ConfigCommon.BaseStatResistanceCold) return _character.TotalRegistCold.Value;
-                if (statId == ConfigCommon.BaseStatResistanceLightning) return _character.TotalRegistLightning.Value;
-                if (statId == ConfigCommon.BaseStatResistancePoison) return _character.TotalRegistPoison.Value;
+                if (statId == ConfigCommon.BaseStatRegistFire) return _character.TotalRegistFire.Value;
+                if (statId == ConfigCommon.BaseStatRegistCold) return _character.TotalRegistCold.Value;
+                if (statId == ConfigCommon.BaseStatRegistLightning) return _character.TotalRegistLightning.Value;
+                if (statId == ConfigCommon.BaseStatRegistPoison) return _character.TotalRegistPoison.Value;
                 return 0f;
             }
 
@@ -211,15 +211,6 @@ namespace GGemCo2DAffect
                 if (statId == ConfigCommon.StatusStatMp) return _character.TotalStatMp.Value;
                 if (statId == ConfigCommon.StatusStatStamina) return _character.TotalStatStamina.Value;
                 if (statId == ConfigCommon.StatusStatHpTemp) return _character.TotalHpTemp.Value;
-                if (statId == ConfigCommon.StatusStatSuperArmor) return _character.TotalSuperArmor.Value;
-                if (statId == ConfigCommon.StatusStatMoveSpeed) return _character.TotalMoveSpeed.Value;
-                if (statId == ConfigCommon.StatusStatAttackSpeed) return _character.TotalAttackSpeed.Value;
-                if (statId == ConfigCommon.StatusStatCriticalDamage) return _character.TotalCriticalDamage.Value;
-                if (statId == ConfigCommon.StatusStatCriticalProbability) return _character.TotalCriticalProbability.Value;
-                if (statId == ConfigCommon.StatusStatResistanceFire) return _character.TotalRegistFire.Value;
-                if (statId == ConfigCommon.StatusStatResistanceCold) return _character.TotalRegistCold.Value;
-                if (statId == ConfigCommon.StatusStatResistanceLightning) return _character.TotalRegistLightning.Value;
-                if (statId == ConfigCommon.StatusStatResistancePoison) return _character.TotalRegistPoison.Value;
                 return 0f;
             }
         }
