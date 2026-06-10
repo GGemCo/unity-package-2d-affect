@@ -15,7 +15,7 @@ namespace GGemCo2DAffect
     /// - 공식 변수 이름은 등록한 원본 ID와, 공격자/피격자 접두어가 붙은 ID를 함께 제공합니다.
     /// </remarks>
     [DisallowMultipleComponent]
-    public sealed class AffectFormulaVariableProvider : MonoBehaviour, IDamageFormulaVariableProvider
+    public sealed class AffectFormulaVariableProvider : MonoBehaviour, IDamageFormulaVariableProvider, IDamageFormulaVariableDebugProvider
     {
         private readonly Dictionary<string, List<FormulaVariableToken>> _tokensById = new(StringComparer.OrdinalIgnoreCase);
 
@@ -94,6 +94,35 @@ namespace GGemCo2DAffect
                     variables.Add(rolePrefix + pair.Key, resolvedValue);
                     variables.Add(rolePrefix + pascalName, resolvedValue);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 디버그 HUD와 마지막 데미지 스냅샷에서 사용할 Affect 공식 변수 기여도를 수집합니다.
+        /// </summary>
+        /// <param name="attacker">공격자 캐릭터입니다.</param>
+        /// <param name="target">피격 대상 캐릭터입니다.</param>
+        /// <param name="results">수집 결과를 추가할 목록입니다.</param>
+        public void CollectDamageFormulaVariableDebugRecords(
+            CharacterBase attacker,
+            CharacterBase target,
+            List<DamageFormulaVariableDebugRecord> results)
+        {
+            if (results == null || _tokensById.Count == 0)
+                return;
+
+            CharacterBase owner = GetComponent<CharacterBase>();
+            string rolePrefix = ResolveRolePrefix(owner, attacker, target);
+
+            foreach (KeyValuePair<string, List<FormulaVariableToken>> pair in _tokensById)
+            {
+                double resolvedValue = ResolveValue(pair.Value);
+                results.Add(new DamageFormulaVariableDebugRecord(
+                    pair.Key,
+                    resolvedValue,
+                    StatModifierDebugSourceType.Affect,
+                    "Affect",
+                    rolePrefix));
             }
         }
 
