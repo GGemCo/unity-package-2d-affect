@@ -182,6 +182,8 @@ namespace GGemCo2DAffect
         /// <param name="decorator">표시할 데코레이터 데이터입니다.</param>
         private void ApplyDecorator(in AffectUiDecoratorData decorator)
         {
+            if (string.IsNullOrEmpty(_iconKey)) return;
+            
             EnsureDecoratorImage();
             if (imageDecorator == null)
             {
