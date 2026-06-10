@@ -49,5 +49,23 @@ namespace GGemCo2DAffect
         /// 기본값은 1입니다.
         /// </remarks>
         public float ValueMultiplier = 1f;
+
+        /// <summary>
+        /// Heal Modifier가 실제 회복량을 계산한 뒤 추가로 더할 HP 값입니다.
+        /// </summary>
+        /// <remarks>
+        /// 스킬 콤보 슬롯, 패시브, 전투 규칙처럼 힐 전용 보정이 필요한 시스템에서 사용합니다.
+        /// 0 이하이면 추가 회복량을 적용하지 않습니다.
+        /// </remarks>
+        public long HealHpBonus;
+
+        /// <summary>
+        /// Heal Modifier가 실제 회복량을 계산한 뒤 곱할 배율입니다.
+        /// </summary>
+        /// <remarks>
+        /// 데미지/스탯 Modifier에 영향을 주는 ValueMultiplier와 달리 힐 계열 Modifier에만 적용합니다.
+        /// 기본값은 1입니다.
+        /// </remarks>
+        public float HealHpMultiplier = 1f;
     }
 }
