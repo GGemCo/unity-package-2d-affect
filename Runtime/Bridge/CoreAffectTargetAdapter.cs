@@ -127,7 +127,7 @@ namespace GGemCo2DAffect
                     list.Add(new ConfigCommon.StruckStatus(statId, suffix, abs));
                 }
 
-                _character.ApplyStatModifiers(list);
+                _character.ApplyAffectStatModifiers(list);
                 _character.RecalculateStats();
                 return new StatToken(list);
             }
@@ -140,7 +140,7 @@ namespace GGemCo2DAffect
             {
                 if (token is not StatToken t || t.Modifiers == null) return;
 
-                _character.RemoveStatModifiers(t.Modifiers);
+                _character.RemoveAffectStatModifiers(t.Modifiers);
                 _character.RecalculateStats();
             }
 
