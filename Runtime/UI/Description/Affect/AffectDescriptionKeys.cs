@@ -1,4 +1,4 @@
-﻿namespace GGemCo2DAffect
+namespace GGemCo2DAffect
 {
     
     /// <summary>
@@ -29,6 +29,9 @@
 
         /// <summary>스택 정책/최대 스택 정보 라인 템플릿 키.</summary>
         public const string InfoStack = "Affect_Info_Stack";
+
+        /// <summary>세션 지속 효과 정보 라인 템플릿 키.</summary>
+        public const string InfoSession = "Affect_Info_Session";
     }
 
 }

@@ -63,6 +63,15 @@ namespace GGemCo2DAffect
         public float BaseDuration;
 
         /// <summary>
+        /// Affect의 시간 기반 생명주기 정책입니다.
+        /// </summary>
+        /// <remarks>
+        /// Session으로 설정하면 Duration이 0이어도 자연 만료하지 않고,
+        /// 게임 실행 세션 동안만 유지되는 런타임 전용 효과로 처리합니다.
+        /// </remarks>
+        public AffectLifetimePolicy LifetimePolicy;
+
+        /// <summary>
         /// Tick 간격(초). 0 이하이면 Tick을 사용하지 않는다.
         /// </summary>
         public float TickInterval;
@@ -199,6 +208,7 @@ namespace GGemCo2DAffect
                 DispelType = reader.Enum<DispelType>("DispelType"),
                 GroupId = reader.String("GroupId"),
                 BaseDuration = reader.Float("BaseDuration"),
+                LifetimePolicy = reader.Enum<AffectLifetimePolicy>("LifetimePolicy"),
                 TickInterval = reader.Float("TickInterval"),
                 StackPolicy = reader.Enum<StackPolicy>("StackPolicy"),
                 MaxStacks = reader.Int("MaxStacks"),

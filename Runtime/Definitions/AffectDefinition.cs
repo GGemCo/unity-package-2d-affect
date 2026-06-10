@@ -52,6 +52,16 @@ namespace GGemCo2DAffect
         public float baseDuration;
 
         /// <summary>
+        /// Affect의 시간 기반 생명주기 정책입니다.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="AffectLifetimePolicy.Session"/>이면 <see cref="baseDuration"/>이 0이어도
+        /// 자연 만료하지 않고 현재 게임 실행 세션 동안 유지됩니다.
+        /// 저장 데이터에는 포함하지 않는 런타임 전용 효과에 사용합니다.
+        /// </remarks>
+        public AffectLifetimePolicy lifetimePolicy;
+
+        /// <summary>
         /// 틱 간격(초). 0 이하이면 틱 효과가 없는 것으로 간주한다.
         /// </summary>
         public float tickInterval;
@@ -182,6 +192,14 @@ namespace GGemCo2DAffect
         /// 틱 효과가 존재하는지 여부를 반환한다.
         /// </summary>
         public bool HasTick => tickInterval > 0f;
+
+        /// <summary>
+        /// 현재 게임 실행 세션 동안 유지되는 Affect인지 여부를 반환합니다.
+        /// </summary>
+        /// <remarks>
+        /// Session 정책은 Duration 0을 “즉시 만료”가 아닌 “저장하지 않는 세션 지속 효과”로 해석합니다.
+        /// </remarks>
+        public bool IsSessionLifetime => lifetimePolicy == AffectLifetimePolicy.Session;
 
         /// <summary>
         /// 그룹이 없다고 간주되는 Affect인지 여부를 반환한다.

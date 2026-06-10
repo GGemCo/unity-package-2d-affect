@@ -270,6 +270,10 @@ namespace GGemCo2DAffect
             if (instance == null || instance.Definition == null || settings == null)
                 return false;
 
+            // Session 정책은 시간 감소가 없는 런타임 전용 효과이므로 타이머 UI 대상에서 제외합니다.
+            if (instance.IsSessionLifetime)
+                return false;
+
             if (instance.RemainingTime <= Mathf.Max(0f, settings.timerHideBelowSeconds))
                 return false;
 

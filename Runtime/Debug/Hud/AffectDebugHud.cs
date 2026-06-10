@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using GGemCo2DCore;
@@ -305,7 +305,7 @@ namespace GGemCo2DAffect
                 return false;
             }
 
-            if (!settings.includeExpiredEntries && instance.RemainingTime <= 0f)
+            if (!settings.includeExpiredEntries && instance.IsExpired)
             {
                 return false;
             }

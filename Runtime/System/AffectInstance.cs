@@ -29,7 +29,8 @@ namespace GGemCo2DAffect
         public int Stacks { get; private set; } = 1;
 
         /// <summary>
-        /// 남은 지속 시간(초). 0이면 만료된 것으로 간주한다.
+        /// 남은 지속 시간(초). Timed 정책에서는 0이면 만료된 것으로 간주합니다.
+        /// Session 정책에서는 표시용 값만 유지하며 자연 만료 판정에 사용하지 않습니다.
         /// </summary>
         public float RemainingTime { get; private set; }
 
@@ -98,17 +99,27 @@ namespace GGemCo2DAffect
         /// 남은 시간을 dt만큼 감소시킨다(0 미만으로 내려가지 않음).
         /// </summary>
         /// <param name="dt">경과 시간(초).</param>
+        /// <remarks>
+        /// Session 정책은 게임 실행 세션 동안 유지되는 효과이므로 시간을 감소시키지 않습니다.
+        /// </remarks>
         public void UpdateTime(float dt)
         {
+            if (IsSessionLifetime) return;
             if (RemainingTime <= 0f) return;
+
             RemainingTime -= dt;
             if (RemainingTime < 0f) RemainingTime = 0f;
         }
 
         /// <summary>
-        /// 만료 여부(남은 시간이 0 이하인지).
+        /// 게임 실행 세션 동안 유지되는 Affect 인스턴스인지 여부입니다.
         /// </summary>
-        public bool IsExpired => RemainingTime <= 0f;
+        public bool IsSessionLifetime => Definition != null && Definition.IsSessionLifetime;
+
+        /// <summary>
+        /// 만료 여부를 반환합니다. Session 정책은 Duration이 0이어도 자연 만료하지 않습니다.
+        /// </summary>
+        public bool IsExpired => !IsSessionLifetime && RemainingTime <= 0f;
 
         /// <summary>
         /// TickElapsed에 dt를 누적한다(0 미만으로 내려가지 않음).

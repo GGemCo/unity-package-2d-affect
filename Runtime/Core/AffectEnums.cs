@@ -25,6 +25,22 @@ namespace GGemCo2DAffect
         RemoveOnSourceDeath = 1
     }
 
+    /// <summary>
+    /// Affect의 시간 기반 생명주기 정책입니다.
+    /// </summary>
+    public enum AffectLifetimePolicy
+    {
+        /// <summary>
+        /// 기존 방식처럼 RemainingTime을 감소시키고, 0 이하가 되면 자연 만료합니다.
+        /// </summary>
+        Timed = 0,
+
+        /// <summary>
+        /// 현재 게임 실행 세션 동안 유지합니다. 시간은 감소하지 않으며 저장 데이터에는 포함하지 않습니다.
+        /// </summary>
+        Session = 1
+    }
+
     /// <summary>Modifier가 실행되는 시점.</summary>
     public enum AffectPhase { OnApply, OnTick, OnHit, OnExpire }
 

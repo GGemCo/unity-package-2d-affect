@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -289,7 +289,11 @@ namespace GGemCo2DAffect
         private void AppendMetaLines(LocalizationManagerAffect loc, StruckTableAffect affectInfo)
         {
             // 지속시간
-            if (affectInfo.BaseDuration > 0f)
+            if (affectInfo.LifetimePolicy == AffectLifetimePolicy.Session)
+            {
+                AppendLineIfAny(ResolveSessionLifetimeText(loc));
+            }
+            else if (affectInfo.BaseDuration > 0f)
             {
                 var args = new AffectDurationArgs { SecondsText = FormatNumber(affectInfo.BaseDuration) };
                 AppendLineIfAny(loc.GetAffectDescriptionSmart(AffectDescriptionKeys.InfoDuration, args));
@@ -327,6 +331,24 @@ namespace GGemCo2DAffect
 
             if (_sb.Length > 0) _sb.Append('\n');
             _sb.Append(line);
+        }
+
+        /// <summary>
+        /// Session 생명주기 설명 문구를 반환합니다.
+        /// </summary>
+        /// <param name="loc">Affect 전용 로컬라이제이션 매니저입니다.</param>
+        /// <returns>로컬라이즈 문구가 있으면 해당 문구, 없으면 기본 한글 문구를 반환합니다.</returns>
+        /// <remarks>
+        /// 신규 로컬라이즈 키가 아직 테이블에 추가되지 않은 프로젝트에서도 설명 창이 비어 보이지 않도록 기본 문구를 제공합니다.
+        /// </remarks>
+        private static string ResolveSessionLifetimeText(LocalizationManagerAffect loc)
+        {
+            const string fallback = "게임 종료 전까지 유지됩니다.";
+            if (loc == null || !loc.HasAffectDescriptionLocalizationKey(AffectDescriptionKeys.InfoSession))
+                return fallback;
+
+            string localized = loc.GetAffectDescriptionSmart(AffectDescriptionKeys.InfoSession);
+            return string.IsNullOrWhiteSpace(localized) ? fallback : localized;
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using GGemCo2DCore;
 
@@ -83,6 +83,7 @@ namespace GGemCo2DAffect
                     uiHudVisualStateKey = row.UiHudVisualStateKey,
                     groupId = row.GroupId,
                     baseDuration = row.BaseDuration,
+                    lifetimePolicy = row.LifetimePolicy,
                     tickInterval = row.TickInterval,
                     stackPolicy = row.StackPolicy,
                     maxStacks = row.MaxStacks,

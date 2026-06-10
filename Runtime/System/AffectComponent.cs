@@ -405,17 +405,19 @@ namespace GGemCo2DAffect
                 return;
             }
 
-            // 1) 그룹 단일성
-            if (!def.IsNoneGroup && _groupIndex.TryGetValue(def.groupId ?? string.Empty, out var existingRuntimeId))
-            {
-                RemoveByRuntimeId(existingRuntimeId, AffectExpireReason.ReplacedByGroup);
-            }
-
-            // 2) 동일 UID 처리(스택 정책)
+            // 1) 동일 UID 처리(스택 정책)
+            // 같은 Affect를 다시 실행한 경우에는 그룹 교체보다 재적용 정책을 먼저 평가합니다.
+            // StackPolicy.None이면 세션형 BASE_HP/BASE_HP_TEMP 보정처럼 중복 누적 없이 기존 효과를 유지합니다.
             if (def.stackPolicy != StackPolicy.Independent && TryGetFirstRuntimeId(affectUid, out var existingId))
             {
                 HandleReapply(def, existingId, context);
                 return;
+            }
+
+            // 2) 그룹 단일성
+            if (!def.IsNoneGroup && _groupIndex.TryGetValue(def.groupId ?? string.Empty, out var existingRuntimeId))
+            {
+                RemoveByRuntimeId(existingRuntimeId, AffectExpireReason.ReplacedByGroup);
             }
 
             // 3) 신규 인스턴스
@@ -512,6 +514,10 @@ namespace GGemCo2DAffect
         /// <param name="def">적용할 Affect 정의입니다.</param>
         /// <param name="ctx">적용 시 전달된 런타임 컨텍스트입니다.</param>
         /// <returns>보너스 지속시간까지 반영한 최종 지속시간입니다.</returns>
+        /// <remarks>
+        /// Session 정책도 표시/디버그용 지속시간 값은 계산하지만,
+        /// 실제 자연 만료 여부는 <see cref="AffectInstance.IsExpired"/>에서 정책별로 판정합니다.
+        /// </remarks>
         private static float ResolveApplyDuration(AffectDefinition def, AffectApplyContext ctx)
         {
             float baseDuration = ctx != null && ctx.DurationOverride > 0f
