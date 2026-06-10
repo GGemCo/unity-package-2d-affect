@@ -76,8 +76,16 @@ namespace GGemCo2DAffect
             /// </summary>
             public readonly List<ConfigCommon.StruckStatus> Modifiers;
 
+            /// <summary>
+            /// 런타임 Temp HP Provider에 적용한 source key입니다.
+            /// </summary>
+            public readonly int? RuntimeTempHpSourceKey;
+
             /// <param name="modifiers">Core에 적용한 modifier 목록.</param>
             public StatToken(List<ConfigCommon.StruckStatus> modifiers) => Modifiers = modifiers;
+
+            /// <param name="runtimeTempHpSourceKey">런타임 Temp HP Provider에 적용한 source key입니다.</param>
+            public StatToken(int runtimeTempHpSourceKey) => RuntimeTempHpSourceKey = runtimeTempHpSourceKey;
         }
 
         /// <summary>
@@ -85,7 +93,10 @@ namespace GGemCo2DAffect
         /// </summary>
         private sealed class CoreStatMutable : IStatMutable
         {
+            private const int RuntimeTempHpSourceKeyStart = -2100000000;
+
             private readonly CharacterBase _character;
+            private int _nextRuntimeTempHpSourceKey = RuntimeTempHpSourceKeyStart;
 
             /// <param name="character">스탯을 적용/조회할 대상 캐릭터.</param>
             public CoreStatMutable(CharacterBase character) => _character = character;
@@ -107,6 +118,9 @@ namespace GGemCo2DAffect
             {
                 statId = ConfigCommon.NormalizeStatId(statId);
                 if (string.IsNullOrWhiteSpace(statId)) return null;
+
+                if (TryApplyRuntimeTempHpModifier(statId, value, statValueType, operation, out object runtimeTempHpToken))
+                    return runtimeTempHpToken;
 
                 if (operation == StatOperation.Override)
                     operation = StatOperation.Add;
@@ -138,7 +152,15 @@ namespace GGemCo2DAffect
             /// <param name="token">적용 시 반환된 토큰.</param>
             public void RemoveModifier(object token)
             {
-                if (token is not StatToken t || t.Modifiers == null) return;
+                if (token is not StatToken t) return;
+
+                if (t.RuntimeTempHpSourceKey.HasValue)
+                {
+                    _character.ClearRuntimeBonusHpTemp(t.RuntimeTempHpSourceKey.Value);
+                    return;
+                }
+
+                if (t.Modifiers == null) return;
 
                 _character.RemoveAffectStatModifiers(t.Modifiers);
                 _character.RecalculateStats();
@@ -150,6 +172,56 @@ namespace GGemCo2DAffect
             public void Recalculate()
             {
                 _character.RecalculateStats();
+            }
+
+            /// <summary>
+            /// BASE_HP_TEMP 스탯 변경을 Core의 런타임 Temp HP Provider 경로로 적용합니다.
+            /// </summary>
+            /// <param name="statId">정규화된 스탯 ID입니다.</param>
+            /// <param name="value">적용할 Temp HP 값입니다.</param>
+            /// <param name="statValueType">값 해석 방식입니다.</param>
+            /// <param name="operation">연산 방식입니다.</param>
+            /// <param name="token">성공 시 해제용 토큰입니다.</param>
+            /// <returns>런타임 Temp HP로 처리했으면 <c>true</c>를 반환합니다.</returns>
+            /// <remarks>
+            /// - BASE_HP_TEMP는 단순 스탯 Provider에만 넣으면 TotalHpTemp는 증가하지만 HUD의 Runtime Temp HP 세그먼트에 포함되지 않습니다.
+            /// - 따라서 Flat/Add 양수 값은 저장되지 않는 런타임 Temp HP source로 등록하여 현재치까지 즉시 채우고 UI에 표시되게 합니다.
+            /// - Percent/Multiply/Override 또는 0 이하 값은 보호막 정책과 의미가 맞지 않으므로 적용하지 않습니다.
+            /// </remarks>
+            private bool TryApplyRuntimeTempHpModifier(string statId, float value, StatValueType statValueType, StatOperation operation, out object token)
+            {
+                token = null;
+
+                if (!ConfigCommon.IsHpTempStatId(statId))
+                    return false;
+
+                if (operation != StatOperation.Add || statValueType == StatValueType.Percent || value <= 0f)
+                {
+                    Debug.LogWarning($"[Affect][CoreAffectTargetAdapter] BASE_HP_TEMP는 Flat/Add 양수 값만 런타임 Temp HP로 적용할 수 있습니다. statId={statId}, value={value}, valueType={statValueType}, operation={operation}");
+                    return true;
+                }
+
+                int sourceKey = AllocateRuntimeTempHpSourceKey();
+                long amount = Math.Max(0L, (long)Mathf.RoundToInt(value));
+                if (amount <= 0L)
+                    return true;
+
+                _character.SetRuntimeBonusHpTemp(sourceKey, amount, fillToMax: true);
+                token = new StatToken(sourceKey);
+                return true;
+            }
+
+            /// <summary>
+            /// Affect에서 사용하는 런타임 Temp HP source key를 할당합니다.
+            /// </summary>
+            /// <returns>다른 런타임 시스템과 충돌 가능성을 낮추기 위한 음수 범위 source key입니다.</returns>
+            private int AllocateRuntimeTempHpSourceKey()
+            {
+                int sourceKey = _nextRuntimeTempHpSourceKey;
+                _nextRuntimeTempHpSourceKey++;
+                if (_nextRuntimeTempHpSourceKey >= -2000000000)
+                    _nextRuntimeTempHpSourceKey = RuntimeTempHpSourceKeyStart;
+                return sourceKey;
             }
 
             /// <summary>
