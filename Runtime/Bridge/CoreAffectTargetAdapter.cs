@@ -438,12 +438,19 @@ namespace GGemCo2DAffect
 
                 var affectSource = source as AffectDamageSourceContext;
                 object originalSource = affectSource != null ? affectSource.Source : source;
+                long roundedAmount = Mathf.RoundToInt(amount);
+                ConfigCommon.DamageType damageType = MapDamageType(damageTypeId);
+                DamageCalculationBreakdown damageBreakdown = CreateAffectDamageBreakdown(
+                    roundedAmount,
+                    damageType,
+                    isDot);
 
                 var md = new MetadataDamage
                 {
-                    damage = (long)Mathf.RoundToInt(amount),
+                    damage = roundedAmount,
                     attacker = ResolveSourceGameObject(originalSource),
-                    damageType = MapDamageType(damageTypeId),
+                    damageType = damageType,
+                    DamageBreakdown = damageBreakdown,
                     affectUid = 0,
                     SourceAffectUid = affectSource != null ? affectSource.AffectUid : 0,
                     SuppressDamageReaction = affectSource != null && affectSource.SuppressDamageReaction,
@@ -454,6 +461,30 @@ namespace GGemCo2DAffect
                 };
 
                 _character.TakeDamage(md);
+            }
+
+            /// <summary>
+            /// Affect에서 전달한 데미지를 Core 데미지 분해 결과로 변환합니다.
+            /// </summary>
+            /// <param name="amount">Affect Executor가 계산한 대상 저항 적용 전 데미지입니다.</param>
+            /// <param name="damageType">Core 데미지 타입입니다.</param>
+            /// <param name="isDot">지속 피해 여부입니다.</param>
+            /// <returns>Affect 데미지를 표현하는 단일 파트 데미지 분해 결과입니다.</returns>
+            private static DamageCalculationBreakdown CreateAffectDamageBreakdown(
+                long amount,
+                ConfigCommon.DamageType damageType,
+                bool isDot)
+            {
+                var breakdown = new DamageCalculationBreakdown();
+                breakdown.AddPart(new DamagePartResult(
+                    amount,
+                    amount,
+                    damageType,
+                    0L,
+                    false,
+                    false,
+                    isDot));
+                return breakdown;
             }
 
             /// <summary>
