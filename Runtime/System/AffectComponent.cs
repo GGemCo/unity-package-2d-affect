@@ -30,6 +30,8 @@ namespace GGemCo2DAffect
         private readonly Dictionary<string, int> _groupIndex = new(StringComparer.Ordinal);
 
         private int _nextRuntimeId = 1;
+        private static readonly List<AffectComponent> SRegisteredComponents = new(64);
+        private static readonly List<AffectComponent> SComponentSnapshot = new(64);
 
         /// <summary>
         /// 어펙트 구성(추가/삭제/스택/리프레시 등)이 변경되었을 때 발생한다.
@@ -93,6 +95,15 @@ namespace GGemCo2DAffect
         private void Awake()
         {
             ResolveTarget();
+            RegisterComponent(this);
+        }
+
+        /// <summary>
+        /// 컴포넌트가 파괴될 때 source 사망 알림 레지스트리에서 제거합니다.
+        /// </summary>
+        private void OnDestroy()
+        {
+            UnregisterComponent(this);
         }
 
         /// <summary>
@@ -184,6 +195,34 @@ namespace GGemCo2DAffect
             _vfx = AffectRuntime.VfxService;
             _outline = AffectRuntime.OutlineService;
             _animation = AffectRuntime.AnimationService;
+        }
+
+        /// <summary>
+        /// Source 사망 알림을 받을 수 있도록 AffectComponent를 전역 레지스트리에 등록합니다.
+        /// </summary>
+        /// <param name="component">등록할 AffectComponent입니다.</param>
+        private static void RegisterComponent(AffectComponent component)
+        {
+            if (component == null || SRegisteredComponents.Contains(component))
+            {
+                return;
+            }
+
+            SRegisteredComponents.Add(component);
+        }
+
+        /// <summary>
+        /// 파괴된 AffectComponent가 source 사망 알림 순회 대상에 남지 않도록 제거합니다.
+        /// </summary>
+        /// <param name="component">제거할 AffectComponent입니다.</param>
+        private static void UnregisterComponent(AffectComponent component)
+        {
+            if (component == null)
+            {
+                return;
+            }
+
+            SRegisteredComponents.Remove(component);
         }
 
         /// <summary>
@@ -399,6 +438,7 @@ namespace GGemCo2DAffect
                 Activate(null);
 
             if (_target == null || _affectRepo == null) return;
+            RegisterComponent(this);
             if (!_affectRepo.TryGetAffect(affectUid, out var def) || def == null)
             {
                 Debug.LogError($"[AffectComponent] AffectDefinition not found. uid={affectUid}");
@@ -439,6 +479,34 @@ namespace GGemCo2DAffect
 
             enabled = true;
             AffectTimerUiPresenter.TryEnsure(this);
+        }
+
+        /// <summary>
+        /// 지정한 Source에서 발생한 어펙트를 모든 활성 AffectComponent에서 Source 사망 사유로 제거합니다.
+        /// </summary>
+        /// <param name="source">사망한 Source GameObject입니다.</param>
+        /// <param name="affectUid">0보다 크면 해당 UID만 제거하고, 0이면 Source 사망 정책 어펙트를 모두 제거합니다.</param>
+        public static void RemoveBySource(GameObject source, int affectUid = 0)
+        {
+            if (source == null)
+            {
+                return;
+            }
+
+            SComponentSnapshot.Clear();
+            for (int i = 0; i < SRegisteredComponents.Count; i++)
+            {
+                AffectComponent component = SRegisteredComponents[i];
+                if (component != null)
+                {
+                    SComponentSnapshot.Add(component);
+                }
+            }
+
+            for (int i = 0; i < SComponentSnapshot.Count; i++)
+            {
+                SComponentSnapshot[i].RemoveInstancesBySource(source, affectUid);
+            }
         }
 
         /// <summary>
@@ -501,6 +569,39 @@ namespace GGemCo2DAffect
                 RemoveByRuntimeId(SPendingRemoveIds[i], AffectExpireReason.RemoveAll);
 
             enabled = false;
+            FlushChangedIfNeeded();
+        }
+
+        /// <summary>
+        /// 지정한 Source에서 발생했고 Source 사망 정책을 가진 어펙트 인스턴스를 제거합니다.
+        /// </summary>
+        /// <param name="source">사망한 Source GameObject입니다.</param>
+        /// <param name="affectUid">0보다 크면 해당 UID만 제거합니다.</param>
+        private void RemoveInstancesBySource(GameObject source, int affectUid)
+        {
+            if (source == null || !HasAny)
+            {
+                return;
+            }
+
+            SPendingRemoveIds.Clear();
+            foreach (var pair in _byRuntimeId)
+            {
+                AffectInstance instance = pair.Value;
+                if (!ShouldRemoveByDeadSourceNotification(instance, source, affectUid))
+                {
+                    continue;
+                }
+
+                SPendingRemoveIds.Add(pair.Key);
+            }
+
+            for (int i = 0; i < SPendingRemoveIds.Count; i++)
+            {
+                RemoveByRuntimeId(SPendingRemoveIds[i], AffectExpireReason.SourceDead);
+            }
+
+            enabled = HasAny;
             FlushChangedIfNeeded();
         }
 
@@ -704,6 +805,48 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
+        /// source 사망 알림으로 제거할 어펙트 인스턴스인지 확인합니다.
+        /// </summary>
+        /// <param name="instance">검사할 어펙트 인스턴스입니다.</param>
+        /// <param name="deadSource">사망한 Source GameObject입니다.</param>
+        /// <param name="affectUid">0보다 크면 일치하는 UID만 허용합니다.</param>
+        /// <returns>Source 사망 사유로 제거해야 하면 true를 반환합니다.</returns>
+        private static bool ShouldRemoveByDeadSourceNotification(
+            AffectInstance instance,
+            GameObject deadSource,
+            int affectUid)
+        {
+            if (instance == null || instance.Definition == null || deadSource == null)
+            {
+                return false;
+            }
+
+            if (instance.Definition.sourceLifePolicy != SourceLifePolicy.RemoveOnSourceDeath)
+            {
+                return false;
+            }
+
+            if (affectUid > 0 && instance.Definition.uid != affectUid)
+            {
+                return false;
+            }
+
+            GameObject sourceGameObject = ResolveSourceGameObject(instance.Context?.Source);
+            return IsSameSource(sourceGameObject, deadSource);
+        }
+
+        /// <summary>
+        /// 두 Source GameObject가 같은 런타임 주체인지 확인합니다.
+        /// </summary>
+        /// <param name="candidate">어펙트 인스턴스에 기록된 Source입니다.</param>
+        /// <param name="source">사망 알림으로 전달된 Source입니다.</param>
+        /// <returns>같은 Source이면 true를 반환합니다.</returns>
+        private static bool IsSameSource(GameObject candidate, GameObject source)
+        {
+            return candidate != null && source != null && candidate == source;
+        }
+
+        /// <summary>
         /// Affect Context에 기록된 Source 객체를 <see cref="GameObject"/>로 변환합니다.
         /// </summary>
         /// <param name="source">AffectApplyContext.Source로 전달된 원본 객체입니다.</param>
@@ -740,7 +883,7 @@ namespace GGemCo2DAffect
 
             var sourceCharacter = sourceGameObject.GetComponent<CharacterBase>();
             if (sourceCharacter != null)
-                return !sourceCharacter.IsStatusDead();
+                return !sourceCharacter.IsStatusDead() && !sourceCharacter.IsDeathPending;
 
             return true;
         }

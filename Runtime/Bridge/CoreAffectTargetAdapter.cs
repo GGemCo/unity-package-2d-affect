@@ -26,9 +26,9 @@ namespace GGemCo2DAffect
         public Transform Transform => _character != null ? _character.transform : transform;
 
         /// <summary>
-        /// 캐릭터가 존재하며 사망 상태가 아닐 때 <c>true</c>를 반환한다.
+        /// 캐릭터가 존재하며 사망 또는 사망 보류 상태가 아닐 때 <c>true</c>를 반환한다.
         /// </summary>
-        public bool IsAlive => _character != null && !_character.IsStatusDead();
+        public bool IsAlive => _character != null && !_character.IsStatusDead() && !_character.IsDeathPending;
 
         /// <summary>
         /// Core 스탯 조작(<see cref="IStatMutable"/>)을 제공한다.
