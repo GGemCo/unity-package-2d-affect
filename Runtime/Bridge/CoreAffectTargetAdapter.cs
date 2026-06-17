@@ -233,7 +233,7 @@ namespace GGemCo2DAffect
             /// - BASE_*는 기본 항목 계산 결과(TotalBase*)를 반환합니다.
             /// - BASE_HP_TEMP는 일반 HP와 분리된 보호막/임시 하트 최대치(TotalHpTemp)를 반환합니다.
             /// - STAT_ATK/STAT_DEF/STAT_HP/STAT_MP/STAT_STAMINA는 성장 스탯 계산 결과(TotalStat*)를 반환합니다.
-            /// - 이동속도, 공격속도, 크리티컬, 저항은 BASE_* 항목으로만 조회합니다.
+            /// - 이동속도, 공격속도, 크리티컬, 저항, 기본 속성 데미지는 BASE_* 항목으로만 조회합니다.
             /// </remarks>
             public float GetValue(string statId)
             {
@@ -270,6 +270,10 @@ namespace GGemCo2DAffect
                 if (statId == ConfigCommon.BaseStatRegistCold) return _character.TotalRegistCold.Value;
                 if (statId == ConfigCommon.BaseStatRegistLightning) return _character.TotalRegistLightning.Value;
                 if (statId == ConfigCommon.BaseStatRegistPoison) return _character.TotalRegistPoison.Value;
+                if (statId == ConfigCommon.BaseStatDamageFire) return _character.TotalDamageFire.Value;
+                if (statId == ConfigCommon.BaseStatDamageCold) return _character.TotalDamageCold.Value;
+                if (statId == ConfigCommon.BaseStatDamageLightning) return _character.TotalDamageLightning.Value;
+                if (statId == ConfigCommon.BaseStatDamagePoison) return _character.TotalDamagePoison.Value;
                 return 0f;
             }
 
