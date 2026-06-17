@@ -58,7 +58,7 @@ namespace GGemCo2DAffect
         public StatOperation statOperation;
 
         // --------------------------------------------------------------------
-        // Kind = Damage
+        // Kind = Damage / ElementDamage
         // --------------------------------------------------------------------
 
         /// <summary>
@@ -171,16 +171,6 @@ namespace GGemCo2DAffect
         /// 발동 시 코팅 버프를 1회 소모(제거)할지 여부(옵션).
         /// </summary>
         public bool consumeOnProc;
-
-        // --------------------------------------------------------------------
-        // Kind = ElementGauge
-        // --------------------------------------------------------------------
-
-        /// <summary>
-        /// 적중 시 누적할 속성 게이지 값입니다.
-        /// </summary>
-        public float elementGaugeValue;
-
 
         // --------------------------------------------------------------------
         // Kind = FormulaVariable

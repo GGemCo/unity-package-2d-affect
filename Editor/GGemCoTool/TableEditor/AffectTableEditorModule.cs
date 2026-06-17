@@ -36,7 +36,6 @@ namespace GGemCo2DAffectEditor
             public float ApplyAffectChance;
             public float ApplyAffectDurationOverride;
             public bool ConsumeOnProc;
-            public float ElementGaugeValue;
             public string FormulaVariableId;
             public float FormulaVariableValue;
             public StatValueType FormulaVariableValueType;

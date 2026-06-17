@@ -236,6 +236,7 @@ namespace GGemCo2DAffectEditor
                         break;
 
                     case ModifierKind.Damage:
+                    case ModifierKind.ElementDamage:
                         EditorGUILayout.LabelField("DamageTypeId", string.IsNullOrEmpty(m.damageTypeId) ? "(None)" : m.damageTypeId);
                         EditorGUILayout.LabelField("BaseValue", m.damageBaseValue.ToString("0.###"));
                         EditorGUILayout.LabelField("ScalingStatId", string.IsNullOrEmpty(m.scalingStatId) ? "(None)" : m.scalingStatId);
@@ -250,11 +251,6 @@ namespace GGemCo2DAffectEditor
                         EditorGUILayout.LabelField("StateId", string.IsNullOrEmpty(m.stateId) ? "(None)" : m.stateId);
                         EditorGUILayout.LabelField("Chance", m.stateChance.ToString("0.###"));
                         EditorGUILayout.LabelField("DurationOverride", m.stateDurationOverride.ToString("0.###"));
-                        break;
-
-                    case ModifierKind.ElementGauge:
-                        EditorGUILayout.LabelField("DamageTypeId", string.IsNullOrEmpty(m.damageTypeId) ? "(None)" : m.damageTypeId);
-                        EditorGUILayout.LabelField("ElementGaugeValue", m.elementGaugeValue.ToString("0.###"));
                         break;
 
                     case ModifierKind.FormulaVariable:

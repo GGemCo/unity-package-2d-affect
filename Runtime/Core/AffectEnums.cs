@@ -85,7 +85,7 @@ namespace GGemCo2DAffect
     }
 
     /// <summary>Modifier의 종류(Stat/DamageType/State).</summary>
-    public enum ModifierKind { Stat, Damage, Heal, State, CrowdControl, ApplyAffectToTarget, ElementGauge, FormulaVariable, Custom }
+    public enum ModifierKind { Stat, Damage, ElementDamage, Heal, State, CrowdControl, ApplyAffectToTarget, FormulaVariable, Custom }
 
     /// <summary>값 해석 방식.</summary>
     public enum StatValueType { None, Flat, Percent }

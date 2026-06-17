@@ -144,7 +144,6 @@ namespace GGemCo2DAffect
                 applyAffectChance = reader.Float("ApplyAffectChance"),
                 applyAffectDurationOverride = reader.Float("ApplyAffectDurationOverride"),
                 consumeOnProc = reader.BoolYN("ConsumeOnProc"),
-                elementGaugeValue = reader.Float("ElementGaugeValue"),
 
                 formulaVariableId = reader.String("FormulaVariableId"),
                 formulaVariableValue = reader.Float("FormulaVariableValue"),

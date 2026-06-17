@@ -82,7 +82,7 @@ namespace GGemCo2DAffect
         /// <param name="affectRepo">Affect 정의 저장소입니다.</param>
         /// <param name="statusRepo">상태/저항 정의 저장소입니다.</param>
         /// <remarks>
-        /// 기본 Damage 실행기는 OnHit를 사용하지 않습니다.
+        /// ElementDamage처럼 OnHit 시점에 속성 데미지를 추가로 부여하는 Modifier에서 사용합니다.
         /// </remarks>
         public void ExecuteOnHit(
             IAffectTarget attacker,
@@ -92,7 +92,25 @@ namespace GGemCo2DAffect
             IAffectDefinitionRepository affectRepo,
             IStatusDefinitionRepository statusRepo)
         {
-            // 기본 정책: Damage 실행기는 OnHit를 사용하지 않는다.
+            ApplyDamageToTarget(hitTarget, instance, mod, affectRepo, statusRepo);
+        }
+
+        /// <summary>
+        /// 즉시 데미지 Modifier를 실행합니다.
+        /// </summary>
+        /// <param name="target">데미지를 받을 대상입니다.</param>
+        /// <param name="instance">현재 Affect 인스턴스입니다.</param>
+        /// <param name="mod">데미지 Modifier 정의입니다.</param>
+        /// <param name="affectRepo">Affect 정의 저장소입니다.</param>
+        /// <param name="statusRepo">상태/저항 정의 저장소입니다.</param>
+        public void ExecuteImmediate(
+            IAffectTarget target,
+            AffectInstance instance,
+            AffectModifierDefinition mod,
+            IAffectDefinitionRepository affectRepo,
+            IStatusDefinitionRepository statusRepo)
+        {
+            ApplyDamageToTarget(target, instance, mod, affectRepo, statusRepo);
         }
 
         /// <summary>
