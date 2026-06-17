@@ -1,4 +1,4 @@
-﻿using GGemCo2DAffect;
+using GGemCo2DAffect;
 using GGemCo2DCore;
 using GGemCo2DCoreEditor;
 
@@ -13,6 +13,62 @@ namespace GGemCo2DAffectEditor
         public static TableAffectModifier LoadAffectModifierTable()
         {
             return LoadTable<TableAffectModifier>(ConfigAddressableTableAffect.TableAffectModifier.Path);
+        }
+
+        /// <summary>
+        /// Affect Modifier Stat 상세 테이블을 에디터 환경에서 로드합니다.
+        /// </summary>
+        public static TableAffectModifierStat LoadAffectModifierStatTable()
+        {
+            return LoadTable<TableAffectModifierStat>(ConfigAddressableTableAffect.TableAffectModifierStat.Path);
+        }
+
+        /// <summary>
+        /// Affect Modifier Damage 상세 테이블을 에디터 환경에서 로드합니다.
+        /// </summary>
+        public static TableAffectModifierDamage LoadAffectModifierDamageTable()
+        {
+            return LoadTable<TableAffectModifierDamage>(ConfigAddressableTableAffect.TableAffectModifierDamage.Path);
+        }
+
+        /// <summary>
+        /// Affect Modifier Heal 상세 테이블을 에디터 환경에서 로드합니다.
+        /// </summary>
+        public static TableAffectModifierHeal LoadAffectModifierHealTable()
+        {
+            return LoadTable<TableAffectModifierHeal>(ConfigAddressableTableAffect.TableAffectModifierHeal.Path);
+        }
+
+        /// <summary>
+        /// Affect Modifier State 상세 테이블을 에디터 환경에서 로드합니다.
+        /// </summary>
+        public static TableAffectModifierState LoadAffectModifierStateTable()
+        {
+            return LoadTable<TableAffectModifierState>(ConfigAddressableTableAffect.TableAffectModifierState.Path);
+        }
+
+        /// <summary>
+        /// Affect Modifier CrowdControl 상세 테이블을 에디터 환경에서 로드합니다.
+        /// </summary>
+        public static TableAffectModifierCrowdControl LoadAffectModifierCrowdControlTable()
+        {
+            return LoadTable<TableAffectModifierCrowdControl>(ConfigAddressableTableAffect.TableAffectModifierCrowdControl.Path);
+        }
+
+        /// <summary>
+        /// Affect Modifier ApplyAffect 상세 테이블을 에디터 환경에서 로드합니다.
+        /// </summary>
+        public static TableAffectModifierApplyAffect LoadAffectModifierApplyAffectTable()
+        {
+            return LoadTable<TableAffectModifierApplyAffect>(ConfigAddressableTableAffect.TableAffectModifierApplyAffect.Path);
+        }
+
+        /// <summary>
+        /// Affect Modifier FormulaVariable 상세 테이블을 에디터 환경에서 로드합니다.
+        /// </summary>
+        public static TableAffectModifierFormulaVariable LoadAffectModifierFormulaVariableTable()
+        {
+            return LoadTable<TableAffectModifierFormulaVariable>(ConfigAddressableTableAffect.TableAffectModifierFormulaVariable.Path);
         }
 
         public static TableAffectVisualAction LoadAffectVisualActionTable()

@@ -1,4 +1,5 @@
-﻿using GGemCo2DCore;
+using System.Collections.Generic;
+using GGemCo2DCore;
 
 namespace GGemCo2DAffect
 {
@@ -7,8 +8,7 @@ namespace GGemCo2DAffect
     /// </summary>
     /// <remarks>
     /// - TableLoaderBase를 상속하여 테이블 로딩 파이프라인에 참여한다.
-    /// - Affect / AffectModifier 테이블을 함께 관리하며,
-    ///   테이블 간 참조 관계를 고려해 등록 순서를 제어한다.
+    /// - Affect / AffectModifier / Kind별 Modifier 상세 테이블을 함께 관리한다.
     /// - Unity 씬 전환 간에도 유지되도록 Singleton + DontDestroyOnLoad 패턴을 사용한다.
     /// </remarks>
     public class TableLoaderManagerAffect : TableLoaderBase
@@ -28,9 +28,44 @@ namespace GGemCo2DAffect
         public TableAffect TableAffect { get; private set; } = new TableAffect();
 
         /// <summary>
-        /// 어펙트 Modifier 서브테이블.
+        /// 어펙트 Modifier 공통 메타 테이블.
         /// </summary>
         public TableAffectModifier TableAffectModifier { get; private set; } = new TableAffectModifier();
+
+        /// <summary>
+        /// Stat Modifier 상세 테이블.
+        /// </summary>
+        public TableAffectModifierStat TableAffectModifierStat { get; private set; } = new TableAffectModifierStat();
+
+        /// <summary>
+        /// Damage / ElementDamage Modifier 상세 테이블.
+        /// </summary>
+        public TableAffectModifierDamage TableAffectModifierDamage { get; private set; } = new TableAffectModifierDamage();
+
+        /// <summary>
+        /// Heal Modifier 상세 테이블.
+        /// </summary>
+        public TableAffectModifierHeal TableAffectModifierHeal { get; private set; } = new TableAffectModifierHeal();
+
+        /// <summary>
+        /// State Modifier 상세 테이블.
+        /// </summary>
+        public TableAffectModifierState TableAffectModifierState { get; private set; } = new TableAffectModifierState();
+
+        /// <summary>
+        /// CrowdControl Modifier 상세 테이블.
+        /// </summary>
+        public TableAffectModifierCrowdControl TableAffectModifierCrowdControl { get; private set; } = new TableAffectModifierCrowdControl();
+
+        /// <summary>
+        /// ApplyAffectToTarget Modifier 상세 테이블.
+        /// </summary>
+        public TableAffectModifierApplyAffect TableAffectModifierApplyAffect { get; private set; } = new TableAffectModifierApplyAffect();
+
+        /// <summary>
+        /// FormulaVariable Modifier 상세 테이블.
+        /// </summary>
+        public TableAffectModifierFormulaVariable TableAffectModifierFormulaVariable { get; private set; } = new TableAffectModifierFormulaVariable();
 
         /// <summary>
         /// 어펙트 비주얼 액션 서브테이블.
@@ -48,12 +83,80 @@ namespace GGemCo2DAffect
         public TableAffectDeathPresentation TableAffectDeathPresentation { get; private set; } = new TableAffectDeathPresentation();
 
         /// <summary>
+        /// Modifier 목록에 Kind별 상세 테이블 Payload를 적용합니다.
+        /// </summary>
+        /// <param name="modifiers">AffectUid 기준으로 조회한 Modifier 목록입니다.</param>
+        /// <remarks>
+        /// - 상세 테이블 Row가 있으면 기존 affect_modifier wide-row 필드보다 상세 테이블 값을 우선합니다.
+        /// - 상세 Row가 없으면 2단계에서 생성한 legacy 기반 Payload를 그대로 유지합니다.
+        /// - 기존 Executor 호환을 위해 Payload 적용 후 legacy 필드에도 값을 복사합니다.
+        /// </remarks>
+        public void ApplyModifierDetailPayloads(IList<AffectModifierDefinition> modifiers)
+        {
+            if (modifiers == null || modifiers.Count == 0)
+                return;
+
+            for (int i = 0; i < modifiers.Count; i++)
+            {
+                var modifier = modifiers[i];
+                if (modifier == null)
+                    continue;
+
+                if (!TryCreateDetailPayload(modifier, out IAffectModifierPayload payload))
+                    continue;
+
+                modifier.payload = payload;
+                modifier.ApplyPayloadToLegacyFields();
+            }
+        }
+
+        /// <summary>
+        /// Modifier Kind에 맞는 상세 테이블에서 Payload 생성을 시도합니다.
+        /// </summary>
+        /// <param name="modifier">상세 Payload를 적용할 Modifier 정의입니다.</param>
+        /// <param name="payload">상세 테이블에서 생성한 Payload입니다.</param>
+        /// <returns>상세 테이블 Row를 찾고 Payload를 생성했으면 true입니다.</returns>
+        private bool TryCreateDetailPayload(AffectModifierDefinition modifier, out IAffectModifierPayload payload)
+        {
+            payload = null;
+            if (modifier == null)
+                return false;
+
+            switch (modifier.kind)
+            {
+                case ModifierKind.Stat:
+                    return TableAffectModifierStat.TryCreatePayload(modifier.affectUid, modifier.modifierId, modifier.kind, out payload);
+
+                case ModifierKind.Damage:
+                case ModifierKind.ElementDamage:
+                    return TableAffectModifierDamage.TryCreatePayload(modifier.affectUid, modifier.modifierId, modifier.kind, out payload);
+
+                case ModifierKind.Heal:
+                    return TableAffectModifierHeal.TryCreatePayload(modifier.affectUid, modifier.modifierId, modifier.kind, out payload);
+
+                case ModifierKind.State:
+                    return TableAffectModifierState.TryCreatePayload(modifier.affectUid, modifier.modifierId, modifier.kind, out payload);
+
+                case ModifierKind.CrowdControl:
+                    return TableAffectModifierCrowdControl.TryCreatePayload(modifier.affectUid, modifier.modifierId, modifier.kind, out payload);
+
+                case ModifierKind.ApplyAffectToTarget:
+                    return TableAffectModifierApplyAffect.TryCreatePayload(modifier.affectUid, modifier.modifierId, modifier.kind, out payload);
+
+                case ModifierKind.FormulaVariable:
+                    return TableAffectModifierFormulaVariable.TryCreatePayload(modifier.affectUid, modifier.modifierId, modifier.kind, out payload);
+
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
         /// Unity Awake 생명주기 메서드.
         /// </summary>
         /// <remarks>
         /// - Singleton 인스턴스를 초기화한다.
-        /// - 테이블 레지스트리를 생성하고,
-        ///   테이블 간 의존성을 고려한 순서로 등록한다.
+        /// - 테이블 레지스트리를 생성하고, 공통 Modifier 및 Kind별 상세 테이블을 등록한다.
         /// - 이미 인스턴스가 존재하면 중복 객체를 파괴한다.
         /// </remarks>
         protected void Awake()
@@ -64,9 +167,16 @@ namespace GGemCo2DAffect
                 DontDestroyOnLoad(gameObject);
 
                 // 테이블 간 참조 및 의존성 해결을 위해 등록 순서가 중요하다.
-                // (Modifier → Affect 순으로 로드됨)
+                // Modifier 공통 메타와 상세 Payload 테이블을 먼저 로드한 뒤 Affect 정의를 구성한다.
                 registry = new TableRegistry();
                 registry.Register(TableAffectModifier);
+                registry.Register(TableAffectModifierStat);
+                registry.Register(TableAffectModifierDamage);
+                registry.Register(TableAffectModifierHeal);
+                registry.Register(TableAffectModifierState);
+                registry.Register(TableAffectModifierCrowdControl);
+                registry.Register(TableAffectModifierApplyAffect);
+                registry.Register(TableAffectModifierFormulaVariable);
                 registry.Register(TableAffectVisualAction);
                 registry.Register(TableAffectAnimation);
                 registry.Register(TableAffectDeathPresentation);
