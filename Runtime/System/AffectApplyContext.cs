@@ -42,6 +42,15 @@ namespace GGemCo2DAffect
         public float DurationBonusSeconds;
 
         /// <summary>
+        /// 이번 적용 인스턴스를 세션 수명으로 강제할지 여부입니다.
+        /// </summary>
+        /// <remarks>
+        /// 테이블의 기본 지속 시간이 있더라도 외부 조건으로 직접 제거해야 하는 디버프에 사용합니다.
+        /// 이 값이 <see langword="true"/>이면 <see cref="AffectComponent.RemoveAffect"/> 같은 명시적 제거 전까지 자연 만료되지 않습니다.
+        /// </remarks>
+        public bool ForceSessionLifetime;
+
+        /// <summary>
         /// Affect 값(데미지, 스탯 변화 등)에 곱해질 배율입니다.
         /// </summary>
         /// <remarks>

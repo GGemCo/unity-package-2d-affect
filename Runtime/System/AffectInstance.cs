@@ -114,7 +114,7 @@ namespace GGemCo2DAffect
         /// <summary>
         /// 게임 실행 세션 동안 유지되는 Affect 인스턴스인지 여부입니다.
         /// </summary>
-        public bool IsSessionLifetime => Definition != null && Definition.IsSessionLifetime;
+        public bool IsSessionLifetime => Context?.ForceSessionLifetime == true || (Definition != null && Definition.IsSessionLifetime);
 
         /// <summary>
         /// 만료 여부를 반환합니다. Session 정책은 Duration이 0이어도 자연 만료하지 않습니다.
