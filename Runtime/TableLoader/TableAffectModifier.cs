@@ -106,6 +106,7 @@ namespace GGemCo2DAffect
         /// - Damage 계열: damageTypeId/damageBaseValue/scalingStatId/scalingCoefficient/canCrit/isDot/suppressDamageReaction/showHitEffect
         /// - State 계열: stateId/stateChance/stateDurationOverride
         /// - FormulaVariable 계열: formulaVariableId/formulaVariableValue/formulaVariableValueType/formulaVariableOperation
+        /// - 2단계 DTO 확장을 위해 기존 wide-row 필드와 Kind별 Payload를 동시에 구성한다.
         /// </remarks>
         private static AffectModifierDefinition BuildModifier(Dictionary<string, string> row)
         {
@@ -113,6 +114,7 @@ namespace GGemCo2DAffect
 
             var mod = new AffectModifierDefinition
             {
+                affectUid = reader.Int("AffectUid"),
                 modifierId = reader.Int("ModifierId"),
                 phase = reader.Enum<AffectPhase>("Phase"),
                 kind = reader.Enum<ModifierKind>("Kind"),
@@ -149,7 +151,12 @@ namespace GGemCo2DAffect
                 formulaVariableValue = reader.Float("FormulaVariableValue"),
                 formulaVariableValueType = reader.Enum<StatValueType>("FormulaVariableValueType"),
                 formulaVariableOperation = reader.Enum<StatOperation>("FormulaVariableOperation"),
+
+                conditionId = reader.String("ConditionId"),
             };
+
+            // 기존 Executor 호환을 유지하면서 다음 단계의 Kind별 상세 테이블 전환을 준비한다.
+            mod.BuildPayloadFromLegacyFields();
 
             return mod;
         }
