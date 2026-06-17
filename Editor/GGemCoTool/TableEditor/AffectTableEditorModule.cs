@@ -9,44 +9,17 @@ namespace GGemCo2DAffectEditor
     /// 공용 TableEditor에 Affect 패키지 테이블 정의를 등록하는 모듈입니다.
     /// </summary>
     /// <remarks>
-    /// affect_modifier는 3단계 리팩터링 이후 공통 메타 테이블로 유지하고,
-    /// Kind별 상세 값은 affect_modifier_* 상세 테이블로 분리하여 함께 노출합니다.
+    /// Kind별 상세 값은 affect_modifier_* 상세 테이블에서 편집합니다.
     /// </remarks>
     internal sealed class AffectTableEditorModule : ITableEditorModule
     {
         private sealed class AffectModifierEditorRow
         {
-            public int AffectUid;
             public int ModifierId;
+            public int AffectUid;
             public AffectPhase Phase;
             public ModifierKind Kind;
-            public string StatId;
-            public float StatValue;
-            public StatValueType StatValueType;
-            public StatOperation StatOperation;
-            public string DamageTypeId;
-            public float DamageBaseValue;
-            public string ScalingStatId;
-            public float ScalingCoefficient;
-            public bool CanCrit;
-            public bool IsDot;
-            public bool SuppressDamageReaction;
-            public bool ShowHitEffect;
-            public float HealBaseValue;
-            public string HealScalingStatId;
-            public float HealScalingCoefficient;
-            public string StateId;
-            public float StateChance;
-            public float StateDurationOverride;
-            public int CrowdControlUid;
-            public int ApplyAffectUid;
-            public float ApplyAffectChance;
-            public float ApplyAffectDurationOverride;
-            public bool ConsumeOnProc;
-            public string FormulaVariableId;
-            public float FormulaVariableValue;
-            public StatValueType FormulaVariableValueType;
-            public StatOperation FormulaVariableOperation;
+            public string ConditionId;
         }
 
         private sealed class AffectVisualActionEditorRow
@@ -110,8 +83,7 @@ namespace GGemCo2DAffectEditor
         /// </summary>
         /// <returns>공용 TableEditor가 사용할 테이블 정의 열거자입니다.</returns>
         /// <remarks>
-        /// Kind별 상세 테이블은 마이그레이션 기간 동안 선택적으로 비어 있을 수 있지만,
-        /// 신규 데이터 작성과 검증을 위해 Editor 목록에는 항상 등록합니다.
+        /// 공통 테이블과 상세 테이블을 함께 노출하여 Modifier 구조를 테이블 편집기에서 직접 관리할 수 있게 합니다.
         /// </remarks>
         public IEnumerable<TableEditorTableDefinition> BuildDefinitions()
         {

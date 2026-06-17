@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GGemCo2DCore;
 
 namespace GGemCo2DAffect
@@ -87,9 +87,9 @@ namespace GGemCo2DAffect
         /// </summary>
         /// <param name="modifiers">AffectUid 기준으로 조회한 Modifier 목록입니다.</param>
         /// <remarks>
-        /// - 상세 테이블 Row가 있으면 기존 affect_modifier wide-row 필드보다 상세 테이블 값을 우선합니다.
-        /// - 상세 Row가 없으면 2단계에서 생성한 legacy 기반 Payload를 그대로 유지합니다.
-        /// - 기존 Executor 호환을 위해 Payload 적용 후 legacy 필드에도 값을 복사합니다.
+        /// <c>affect_modifier</c>는 공통 메타만 보관하므로, 실행에 필요한 상세 값은 반드시
+        /// Kind별 상세 테이블에서 Payload로 주입되어야 합니다. 기존 Executor가 legacy 필드를 읽는 구조를
+        /// 유지하기 위해 Payload 적용 후 <see cref="AffectModifierDefinition.ApplyPayloadToLegacyFields"/>를 호출합니다.
         /// </remarks>
         public void ApplyModifierDetailPayloads(IList<AffectModifierDefinition> modifiers)
         {
@@ -103,10 +103,53 @@ namespace GGemCo2DAffect
                     continue;
 
                 if (!TryCreateDetailPayload(modifier, out IAffectModifierPayload payload))
+                {
+                    LogMissingRequiredDetailPayload(modifier);
                     continue;
+                }
 
                 modifier.payload = payload;
                 modifier.ApplyPayloadToLegacyFields();
+            }
+        }
+
+        /// <summary>
+        /// 상세 테이블 Payload가 필요한 Modifier에서 상세 Row를 찾지 못했을 때 경고를 출력합니다.
+        /// </summary>
+        /// <param name="modifier">상세 Payload를 찾지 못한 Modifier 정의입니다.</param>
+        /// <remarks>
+        /// Custom Kind는 아직 프로젝트별 확장 영역이므로 기본 상세 Payload를 요구하지 않습니다.
+        /// 그 외 Kind는 실행 값이 상세 테이블에만 존재하므로 누락 시 데이터 오류로 판단할 수 있습니다.
+        /// </remarks>
+        private static void LogMissingRequiredDetailPayload(AffectModifierDefinition modifier)
+        {
+            if (modifier == null || !RequiresDetailPayload(modifier.kind))
+                return;
+
+            GcLogger.LogWarning($"[AffectModifier] Kind별 상세 테이블 Row를 찾지 못했습니다. AffectUid={modifier.affectUid}, ModifierId={modifier.modifierId}, Kind={modifier.kind}");
+        }
+
+        /// <summary>
+        /// 지정한 Modifier Kind가 상세 테이블 Payload를 반드시 필요로 하는지 확인합니다.
+        /// </summary>
+        /// <param name="kind">검사할 Modifier Kind입니다.</param>
+        /// <returns>상세 Payload가 필요한 Kind이면 true입니다.</returns>
+        private static bool RequiresDetailPayload(ModifierKind kind)
+        {
+            switch (kind)
+            {
+                case ModifierKind.Stat:
+                case ModifierKind.Damage:
+                case ModifierKind.ElementDamage:
+                case ModifierKind.Heal:
+                case ModifierKind.State:
+                case ModifierKind.CrowdControl:
+                case ModifierKind.ApplyAffectToTarget:
+                case ModifierKind.FormulaVariable:
+                    return true;
+                case ModifierKind.Custom:
+                default:
+                    return false;
             }
         }
 

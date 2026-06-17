@@ -185,7 +185,7 @@ namespace GGemCo2DAffect
                 }
 
                 // UID에 연결된 modifier 정의와 사망 연출 정의를 함께 등록한다.
-                // Kind별 상세 테이블 값이 존재하면 legacy wide-row 필드보다 우선 적용한다.
+                // Modifier 실행 값은 Kind별 상세 테이블 Payload에서 주입한다.
                 var mods = new List<AffectModifierDefinition>(tableLoaderManagerAffect.TableAffectModifier.GetModifiers(row.Uid));
                 tableLoaderManagerAffect.ApplyModifierDetailPayloads(mods);
                 affectRepo.Register(def, mods, deathPresentation);

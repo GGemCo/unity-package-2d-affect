@@ -37,9 +37,8 @@ namespace GGemCo2DAffect
         /// Kind별 상세 값을 담는 Payload DTO입니다.
         /// </summary>
         /// <remarks>
-        /// 2단계 리팩터링에서는 기존 Executor 호환을 위해 레거시 필드를 유지하면서 이 Payload를 병행 사용합니다.
-        /// 이후 Kind별 상세 테이블을 추가하면 상세 테이블 파서는 Payload를 먼저 만들고,
-        /// <see cref="ApplyPayloadToLegacyFields"/>를 통해 기존 실행 흐름과 호환시킬 수 있습니다.
+        /// 테이블 원본 상세 값은 Kind별 상세 테이블에서 Payload로 구성됩니다.
+        /// 기존 Executor가 legacy 필드를 읽는 동안에는 <see cref="ApplyPayloadToLegacyFields"/>로 값을 동기화합니다.
         /// </remarks>
         public IAffectModifierPayload payload;
 
@@ -231,8 +230,8 @@ namespace GGemCo2DAffect
         /// 현재 레거시 필드 값을 기준으로 Kind별 Payload를 생성합니다.
         /// </summary>
         /// <remarks>
-        /// 기존 wide 테이블을 읽은 뒤 호출하면 기존 필드와 신규 Payload가 같은 값을 보유하게 됩니다.
-        /// Executor를 Payload 기반으로 전환하기 전까지 런타임 호환성을 유지하기 위한 브리지 메서드입니다.
+        /// 이전 버전 wide-row 데이터를 임시로 해석해야 하는 호환 상황에서 사용합니다.
+        /// 신규 affect_modifier 테이블 로더는 이 메서드를 호출하지 않고 상세 테이블 Payload를 사용합니다.
         /// </remarks>
         public void BuildPayloadFromLegacyFields()
         {
@@ -243,7 +242,7 @@ namespace GGemCo2DAffect
         /// 현재 Payload 값을 기존 레거시 필드로 복사합니다.
         /// </summary>
         /// <remarks>
-        /// 향후 Kind별 상세 테이블 파서가 Payload만 구성하더라도 기존 Executor가 즉시 동작할 수 있도록 합니다.
+        /// Kind별 상세 테이블 파서가 구성한 Payload를 기존 Executor가 읽는 legacy 필드로 복사합니다.
         /// </remarks>
         public void ApplyPayloadToLegacyFields()
         {

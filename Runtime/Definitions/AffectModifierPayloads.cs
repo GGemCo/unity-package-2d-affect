@@ -292,7 +292,7 @@ namespace GGemCo2DAffect
         /// </summary>
         /// <param name="definition">값을 복사할 Modifier 정의입니다.</param>
         /// <remarks>
-        /// 2단계에서는 기존 Executor가 레거시 필드를 읽으므로, 향후 상세 테이블에서 Payload만 만든 경우에도
+        /// 현재 일부 Executor가 레거시 필드를 읽으므로, 상세 테이블에서 Payload만 만든 경우에도
         /// 이 메서드를 호출하면 기존 실행 흐름을 그대로 사용할 수 있습니다.
         /// </remarks>
         public static void CopyToLegacyFields(AffectModifierDefinition definition)

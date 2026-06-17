@@ -8,8 +8,8 @@ namespace GGemCo2DAffect
     /// Affect Modifier 상세 테이블 Row가 공통으로 제공해야 하는 연결 키 계약입니다.
     /// </summary>
     /// <remarks>
-    /// 3단계 리팩터링에서는 기존 affect_modifier 테이블의 AffectUid + ModifierId 조합을 유지하면서
-    /// Kind별 상세 테이블을 병행 로드합니다. 이후 공통 Modifier UID가 추가되더라도 이 계약만 교체하면 됩니다.
+    /// affect_modifier 공통 메타 테이블의 AffectUid + ModifierId 조합으로
+    /// Kind별 상세 테이블을 연결합니다. 이후 공통 Modifier UID가 추가되더라도 이 계약만 교체하면 됩니다.
     /// </remarks>
     public interface IAffectModifierDetailRow : IUidName
     {
@@ -27,7 +27,7 @@ namespace GGemCo2DAffect
     /// <remarks>
     /// - 각 상세 테이블은 Uid를 독립 Row 식별자로 사용합니다.
     /// - 실제 런타임 연결은 기존 affect_modifier의 AffectUid + ModifierId 조합으로 수행합니다.
-    /// - 상세 테이블 값이 존재하면 legacy wide-row 값보다 우선 적용됩니다.
+    /// - 상세 테이블 값은 실행 Payload의 기준 데이터로 사용됩니다.
     /// </remarks>
     public abstract class TableAffectModifierDetailBase<TRow> : DefaultTable<TRow>
         where TRow : class, IAffectModifierDetailRow

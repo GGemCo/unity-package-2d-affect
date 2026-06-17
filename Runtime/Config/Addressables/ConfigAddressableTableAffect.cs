@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GGemCo2DCore;
 
 namespace GGemCo2DAffect
@@ -21,8 +21,8 @@ namespace GGemCo2DAffect
         /// Affect Modifier 공통 메타 정의 테이블의 논리적 이름.
         /// </summary>
         /// <remarks>
-        /// 3단계 리팩터링 이후 이 테이블은 Phase/Kind/Condition 같은 공통 정보와
-        /// 기존 wide-row 호환 필드를 함께 보관합니다.
+        /// Phase/Kind/Condition 같은 공통 메타만 보관합니다.
+        /// Kind별 실행 값은 affect_modifier_* 상세 테이블에서 관리합니다.
         /// </remarks>
         public const string AffectModifier = "affect_modifier";
 
@@ -153,7 +153,7 @@ namespace GGemCo2DAffect
         /// </summary>
         /// <remarks>
         /// - 초기 로딩 단계에서 일괄 로드/검증 용도로 사용한다.
-        /// - Kind별 상세 테이블은 마이그레이션 기간 동안 선택적으로 비어 있을 수 있다.
+        /// - Kind별 상세 테이블은 affect_modifier 공통 메타와 함께 필수 데이터로 관리한다.
         /// - 테이블이 추가되면 반드시 이 목록에 함께 등록한다.
         /// </remarks>
         public static readonly List<AddressableAssetInfo> All = new()

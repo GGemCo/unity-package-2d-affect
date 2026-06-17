@@ -5,34 +5,32 @@ using GGemCo2DCore;
 namespace GGemCo2DAffect
 {
     /// <summary>
-    /// 어펙트 Modifier 서브테이블을 파싱하는 파서.
+    /// 어펙트 Modifier 공통 메타 테이블을 파싱하는 파서입니다.
     /// </summary>
     /// <remarks>
-    /// 포맷 규칙:
-    /// - key: affect_modifier
-    /// - 1행은 헤더(컬럼명)이며, 이후 행은 탭(\t)으로 구분된다.
-    /// - AffectUid 기준으로 여러 Modifier가 존재할 수 있으므로 내부적으로 List로 보관한다.
-    /// - 빈 줄/주석(#으로 시작하는 줄)은 무시한다.
+    /// <c>affect_modifier</c>는 AffectUid, ModifierId, Phase, Kind, ConditionId 같은
+    /// 실행 공통 메타만 보관합니다. Stat/Damage/Heal/State 같은 Kind별 상세 값은
+    /// <c>affect_modifier_*</c> 상세 테이블에서 로드한 Payload로 구성합니다.
     /// </remarks>
     public sealed class TableAffectModifier : ITableParser
     {
         /// <summary>
-        /// 테이블 시스템에서 사용하는 키 값.
+        /// 테이블 시스템에서 사용하는 키 값입니다.
         /// </summary>
         public string Key => ConfigAddressableTableAffect.AffectModifier;
 
         /// <summary>
-        /// AffectUid → Modifier 정의 목록 매핑.
+        /// AffectUid → Modifier 정의 목록 매핑입니다.
         /// </summary>
         private readonly Dictionary<int, List<AffectModifierDefinition>> _byAffectUid = new();
 
         /// <summary>
-        /// 탭 구분 텍스트를 파싱하여 Modifier 데이터를 로드한다.
+        /// 탭 구분 텍스트를 파싱하여 Modifier 공통 메타 데이터를 로드합니다.
         /// </summary>
-        /// <param name="content">테이블 원문(헤더 포함).</param>
+        /// <param name="content">테이블 원문입니다.</param>
         /// <remarks>
-        /// - headers 길이보다 values가 짧으면 누락 컬럼을 빈 문자열로 보정한다.
-        /// - AffectUid가 0 이하인 행은 무시한다.
+        /// 컬럼 수가 부족한 행은 빈 문자열로 패딩하여 파싱 오류를 방지합니다.
+        /// AffectUid가 0 이하인 행은 실제 어펙트에 연결할 수 없으므로 무시합니다.
         /// </remarks>
         public void LoadData(string content)
         {
@@ -51,17 +49,13 @@ namespace GGemCo2DAffect
             {
                 var rawLine = lines[i];
 
-                // 공백 라인 및 주석 라인은 스킵한다.
                 if (string.IsNullOrWhiteSpace(rawLine) || rawLine.StartsWith("#", StringComparison.Ordinal))
                     continue;
 
                 var values = rawLine.Split('\t');
-
-                // 컬럼 수가 부족한 경우 빈 칸으로 패딩하여 인덱스 예외를 방지한다.
                 if (values.Length < headers.Length)
                     Array.Resize(ref values, headers.Length);
 
-                // "컬럼명 → 값" 딕셔너리로 변환(앞뒤 공백 제거)
                 var row = new Dictionary<string, string>(headers.Length);
                 for (int j = 0; j < headers.Length; j++)
                 {
@@ -79,15 +73,16 @@ namespace GGemCo2DAffect
                     list = new List<AffectModifierDefinition>(4);
                     _byAffectUid.Add(affectUid, list);
                 }
+
                 list.Add(def);
             }
         }
 
         /// <summary>
-        /// 지정한 어펙트 UID에 연결된 Modifier 정의 목록을 반환한다.
+        /// 지정한 어펙트 UID에 연결된 Modifier 정의 목록을 반환합니다.
         /// </summary>
-        /// <param name="affectUid">조회할 어펙트 UID.</param>
-        /// <returns>Modifier 정의 목록(없으면 빈 배열).</returns>
+        /// <param name="affectUid">조회할 어펙트 UID입니다.</param>
+        /// <returns>Modifier 정의 목록입니다. 존재하지 않으면 빈 배열을 반환합니다.</returns>
         public IReadOnlyList<AffectModifierDefinition> GetModifiers(int affectUid)
         {
             if (_byAffectUid.TryGetValue(affectUid, out var list))
@@ -96,69 +91,26 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
-        /// 파싱된 한 행(row)을 AffectModifierDefinition으로 변환한다.
+        /// 파싱된 한 행을 AffectModifierDefinition 공통 메타로 변환합니다.
         /// </summary>
-        /// <param name="row">컬럼명 → 값 딕셔너리.</param>
-        /// <returns>구성된 Modifier 정의 객체.</returns>
+        /// <param name="row">컬럼명 → 값 딕셔너리입니다.</param>
+        /// <returns>공통 메타만 채워진 Modifier 정의 객체입니다.</returns>
         /// <remarks>
-        /// 필드 의미(요약):
-        /// - Stat 계열: statId/statValue/statValueType/statOperation
-        /// - Damage 계열: damageTypeId/damageBaseValue/scalingStatId/scalingCoefficient/canCrit/isDot/suppressDamageReaction/showHitEffect
-        /// - State 계열: stateId/stateChance/stateDurationOverride
-        /// - FormulaVariable 계열: formulaVariableId/formulaVariableValue/formulaVariableValueType/formulaVariableOperation
-        /// - 2단계 DTO 확장을 위해 기존 wide-row 필드와 Kind별 Payload를 동시에 구성한다.
+        /// 여기서는 상세 Payload를 만들지 않습니다.
+        /// Payload는 <see cref="TableLoaderManagerAffect.ApplyModifierDetailPayloads"/>에서 Kind별 상세 테이블을 통해 주입합니다.
         /// </remarks>
         private static AffectModifierDefinition BuildModifier(Dictionary<string, string> row)
         {
             TableRowReader reader = new TableRowReader(row, nameof(TableAffectModifier));
 
-            var mod = new AffectModifierDefinition
+            return new AffectModifierDefinition
             {
                 affectUid = reader.Int("AffectUid"),
                 modifierId = reader.Int("ModifierId"),
                 phase = reader.Enum<AffectPhase>("Phase"),
                 kind = reader.Enum<ModifierKind>("Kind"),
-
-                statId = reader.String("StatId"),
-                statValue = reader.Float("StatValue"),
-                statValueType = reader.Enum<StatValueType>("StatValueType"),
-                statOperation = reader.Enum<StatOperation>("StatOperation"),
-
-                damageTypeId = reader.String("DamageTypeId"),
-                damageBaseValue = reader.Float("DamageBaseValue"),
-                scalingStatId = reader.String("ScalingStatId"),
-                scalingCoefficient = reader.Float("ScalingCoefficient"),
-                canCrit = reader.BoolYN("CanCrit"),
-                isDot = reader.BoolYN("IsDot"),
-                suppressDamageReaction = reader.BoolYN("SuppressDamageReaction"),
-                showHitEffect = reader.BoolYN("ShowHitEffect", true),
-
-                healBaseValue = reader.Float("HealBaseValue"),
-                healScalingStatId = reader.String("HealScalingStatId"),
-                healScalingCoefficient = reader.Float("HealScalingCoefficient"),
-
-                stateId = reader.String("StateId"),
-                stateChance = reader.Float("StateChance"),
-                stateDurationOverride = reader.Float("StateDurationOverride"),
-                crowdControlUid = reader.Int("CrowdControlUid"),
-
-                applyAffectUid = reader.Int("ApplyAffectUid"),
-                applyAffectChance = reader.Float("ApplyAffectChance"),
-                applyAffectDurationOverride = reader.Float("ApplyAffectDurationOverride"),
-                consumeOnProc = reader.BoolYN("ConsumeOnProc"),
-
-                formulaVariableId = reader.String("FormulaVariableId"),
-                formulaVariableValue = reader.Float("FormulaVariableValue"),
-                formulaVariableValueType = reader.Enum<StatValueType>("FormulaVariableValueType"),
-                formulaVariableOperation = reader.Enum<StatOperation>("FormulaVariableOperation"),
-
                 conditionId = reader.String("ConditionId"),
             };
-
-            // 기존 Executor 호환을 유지하면서 다음 단계의 Kind별 상세 테이블 전환을 준비한다.
-            mod.BuildPayloadFromLegacyFields();
-
-            return mod;
         }
     }
 }
