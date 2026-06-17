@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using GGemCo2DAffect;
 using GGemCo2DCore;
@@ -240,8 +240,9 @@ namespace GGemCo2DAffectEditor
                         EditorGUILayout.LabelField("BaseValue", m.damageBaseValue.ToString("0.###"));
                         EditorGUILayout.LabelField("ScalingStatId", string.IsNullOrEmpty(m.scalingStatId) ? "(None)" : m.scalingStatId);
                         EditorGUILayout.LabelField("ScalingCoeff", m.scalingCoefficient.ToString("0.###"));
-                        EditorGUILayout.LabelField("CanCrit", m.canCrit ? "true" : "false");
-                        EditorGUILayout.LabelField("IsDot", m.isDot ? "true" : "false");
+                        EditorGUILayout.LabelField("CanCrit", m.canCrit ? "Y" : "N");
+                        EditorGUILayout.LabelField("IsDot", m.isDot ? "Y" : "N");
+                        EditorGUILayout.LabelField("SuppressDamageReaction", m.suppressDamageReaction ? "Y" : "N");
                         break;
 
                     case ModifierKind.State:

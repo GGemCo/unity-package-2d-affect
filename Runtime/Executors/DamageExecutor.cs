@@ -148,13 +148,14 @@ namespace GGemCo2DAffect
                 value,
                 mod.canCrit,
                 mod.isDot,
-                CreateDamageSourceContext(instance, affectRepo));
+                CreateDamageSourceContext(instance, mod, affectRepo));
         }
 
         /// <summary>
         /// Affect 데미지가 Core 데미지 파이프라인으로 전달될 때 사용할 원인 컨텍스트를 생성합니다.
         /// </summary>
         /// <param name="instance">현재 데미지를 발생시킨 Affect 인스턴스입니다.</param>
+        /// <param name="mod">현재 실행 중인 Damage Modifier 정의입니다.</param>
         /// <param name="affectRepo">Affect 정의 저장소입니다.</param>
         /// <returns>Affect UID, 원천 객체, 사망 연출 후보를 담은 컨텍스트입니다.</returns>
         /// <remarks>
@@ -163,6 +164,7 @@ namespace GGemCo2DAffect
         /// </remarks>
         private static AffectDamageSourceContext CreateDamageSourceContext(
             AffectInstance instance,
+            AffectModifierDefinition mod,
             IAffectDefinitionRepository affectRepo)
         {
             if (instance == null)
@@ -172,6 +174,7 @@ namespace GGemCo2DAffect
             {
                 AffectUid = instance.Definition != null ? instance.Definition.uid : 0,
                 Source = instance.Context?.Source,
+                SuppressDamageReaction = mod != null && mod.suppressDamageReaction,
             };
 
             if (context.AffectUid > 0 &&

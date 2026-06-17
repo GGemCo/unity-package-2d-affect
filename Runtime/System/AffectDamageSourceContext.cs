@@ -25,5 +25,10 @@ namespace GGemCo2DAffect
         /// 이 데미지로 대상이 사망했을 때 사용할 사망 연출 요청입니다.
         /// </summary>
         public DeathPresentationRequest DeathPresentation;
+
+        /// <summary>
+        /// Core 데미지 처리에서 일반 피격 반응을 억제할지 여부입니다.
+        /// </summary>
+        public bool SuppressDamageReaction;
     }
 }

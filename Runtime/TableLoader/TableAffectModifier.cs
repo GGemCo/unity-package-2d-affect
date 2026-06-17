@@ -103,7 +103,7 @@ namespace GGemCo2DAffect
         /// <remarks>
         /// 필드 의미(요약):
         /// - Stat 계열: statId/statValue/statValueType/statOperation
-        /// - Damage 계열: damageTypeId/damageBaseValue/scalingStatId/scalingCoefficient/canCrit/isDot
+        /// - Damage 계열: damageTypeId/damageBaseValue/scalingStatId/scalingCoefficient/canCrit/isDot/suppressDamageReaction
         /// - State 계열: stateId/stateChance/stateDurationOverride
         /// - FormulaVariable 계열: formulaVariableId/formulaVariableValue/formulaVariableValueType/formulaVariableOperation
         /// </remarks>
@@ -126,8 +126,9 @@ namespace GGemCo2DAffect
                 damageBaseValue = reader.Float("DamageBaseValue"),
                 scalingStatId = reader.String("ScalingStatId"),
                 scalingCoefficient = reader.Float("ScalingCoefficient"),
-                canCrit = reader.Int("CanCrit") != 0,
-                isDot = reader.Int("IsDot") != 0,
+                canCrit = reader.BoolYN("CanCrit"),
+                isDot = reader.BoolYN("IsDot"),
+                suppressDamageReaction = reader.BoolYN("SuppressDamageReaction"),
 
                 healBaseValue = reader.Float("HealBaseValue"),
                 healScalingStatId = reader.String("HealScalingStatId"),
@@ -141,7 +142,7 @@ namespace GGemCo2DAffect
                 applyAffectUid = reader.Int("ApplyAffectUid"),
                 applyAffectChance = reader.Float("ApplyAffectChance"),
                 applyAffectDurationOverride = reader.Float("ApplyAffectDurationOverride"),
-                consumeOnProc = reader.Int("ConsumeOnProc") != 0,
+                consumeOnProc = reader.BoolYN("ConsumeOnProc"),
                 elementGaugeValue = reader.Float("ElementGaugeValue"),
 
                 formulaVariableId = reader.String("FormulaVariableId"),

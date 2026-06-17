@@ -91,6 +91,11 @@ namespace GGemCo2DAffect
         /// </summary>
         public bool isDot;
 
+        /// <summary>
+        /// Damage Modifier가 적용될 때 대상의 일반 피격 반응을 억제할지 여부.
+        /// </summary>
+        public bool suppressDamageReaction;
+
         // --------------------------------------------------------------------
         // Kind = Heal
         // --------------------------------------------------------------------

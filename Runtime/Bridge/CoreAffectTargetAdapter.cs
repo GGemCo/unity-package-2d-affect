@@ -442,6 +442,7 @@ namespace GGemCo2DAffect
                     damageType = MapDamageType(damageTypeId),
                     affectUid = 0,
                     SourceAffectUid = affectSource != null ? affectSource.AffectUid : 0,
+                    SuppressDamageReaction = affectSource != null && affectSource.SuppressDamageReaction,
                     DeathPresentation = affectSource != null && affectSource.DeathPresentation != null
                         ? affectSource.DeathPresentation.Clone()
                         : null
