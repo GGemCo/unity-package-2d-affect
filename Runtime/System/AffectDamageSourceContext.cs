@@ -30,5 +30,10 @@ namespace GGemCo2DAffect
         /// Core 데미지 처리에서 일반 피격 반응을 억제할지 여부입니다.
         /// </summary>
         public bool SuppressDamageReaction;
+
+        /// <summary>
+        /// Core 데미지 처리에서 피격 시각 효과를 억제할지 여부입니다.
+        /// </summary>
+        public bool SuppressHitEffect;
     }
 }

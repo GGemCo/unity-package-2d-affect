@@ -243,6 +243,7 @@ namespace GGemCo2DAffectEditor
                         EditorGUILayout.LabelField("CanCrit", m.canCrit ? "Y" : "N");
                         EditorGUILayout.LabelField("IsDot", m.isDot ? "Y" : "N");
                         EditorGUILayout.LabelField("SuppressDamageReaction", m.suppressDamageReaction ? "Y" : "N");
+                        EditorGUILayout.LabelField("ShowHitEffect", m.showHitEffect ? "Y" : "N");
                         break;
 
                     case ModifierKind.State:

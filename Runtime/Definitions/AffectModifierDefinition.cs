@@ -96,6 +96,11 @@ namespace GGemCo2DAffect
         /// </summary>
         public bool suppressDamageReaction;
 
+        /// <summary>
+        /// Damage Modifier가 적용될 때 대상의 피격 시각 효과를 표시할지 여부.
+        /// </summary>
+        public bool showHitEffect = true;
+
         // --------------------------------------------------------------------
         // Kind = Heal
         // --------------------------------------------------------------------

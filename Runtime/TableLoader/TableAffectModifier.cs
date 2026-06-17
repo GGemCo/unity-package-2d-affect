@@ -103,7 +103,7 @@ namespace GGemCo2DAffect
         /// <remarks>
         /// 필드 의미(요약):
         /// - Stat 계열: statId/statValue/statValueType/statOperation
-        /// - Damage 계열: damageTypeId/damageBaseValue/scalingStatId/scalingCoefficient/canCrit/isDot/suppressDamageReaction
+        /// - Damage 계열: damageTypeId/damageBaseValue/scalingStatId/scalingCoefficient/canCrit/isDot/suppressDamageReaction/showHitEffect
         /// - State 계열: stateId/stateChance/stateDurationOverride
         /// - FormulaVariable 계열: formulaVariableId/formulaVariableValue/formulaVariableValueType/formulaVariableOperation
         /// </remarks>
@@ -129,6 +129,7 @@ namespace GGemCo2DAffect
                 canCrit = reader.BoolYN("CanCrit"),
                 isDot = reader.BoolYN("IsDot"),
                 suppressDamageReaction = reader.BoolYN("SuppressDamageReaction"),
+                showHitEffect = reader.BoolYN("ShowHitEffect", true),
 
                 healBaseValue = reader.Float("HealBaseValue"),
                 healScalingStatId = reader.String("HealScalingStatId"),

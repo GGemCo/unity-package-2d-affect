@@ -24,6 +24,7 @@ namespace GGemCo2DAffectEditor
             public bool CanCrit;
             public bool IsDot;
             public bool SuppressDamageReaction;
+            public bool ShowHitEffect;
             public float HealBaseValue;
             public string HealScalingStatId;
             public float HealScalingCoefficient;

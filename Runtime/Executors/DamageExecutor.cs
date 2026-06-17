@@ -175,6 +175,7 @@ namespace GGemCo2DAffect
                 AffectUid = instance.Definition != null ? instance.Definition.uid : 0,
                 Source = instance.Context?.Source,
                 SuppressDamageReaction = mod != null && mod.suppressDamageReaction,
+                SuppressHitEffect = mod != null && !mod.showHitEffect,
             };
 
             if (context.AffectUid > 0 &&
