@@ -236,7 +236,6 @@ namespace GGemCo2DAffectEditor
                         break;
 
                     case ModifierKind.Damage:
-                    case ModifierKind.ElementDamage:
                         EditorGUILayout.LabelField("DamageTypeId", string.IsNullOrEmpty(m.damageTypeId) ? "(None)" : m.damageTypeId);
                         EditorGUILayout.LabelField("BaseValue", m.damageBaseValue.ToString("0.###"));
                         EditorGUILayout.LabelField("ScalingStatId", string.IsNullOrEmpty(m.scalingStatId) ? "(None)" : m.scalingStatId);
@@ -245,6 +244,15 @@ namespace GGemCo2DAffectEditor
                         EditorGUILayout.LabelField("IsDot", m.isDot ? "Y" : "N");
                         EditorGUILayout.LabelField("SuppressDamageReaction", m.suppressDamageReaction ? "Y" : "N");
                         EditorGUILayout.LabelField("ShowHitEffect", m.showHitEffect ? "Y" : "N");
+                        break;
+
+                    case ModifierKind.ElementGauge:
+                        EditorGUILayout.LabelField("ElementTypeId", string.IsNullOrEmpty(m.elementGaugeTypeId) ? "(None)" : m.elementGaugeTypeId);
+                        EditorGUILayout.LabelField("GaugeValue", m.elementGaugeValue.ToString("0.###"));
+                        EditorGUILayout.LabelField("TargetPolicy", m.elementGaugeTargetPolicy.ToString());
+                        EditorGUILayout.LabelField("UseStackMultiplier", m.elementGaugeUseStackMultiplier ? "Y" : "N");
+                        EditorGUILayout.LabelField("UseContextMultiplier", m.elementGaugeUseContextMultiplier ? "Y" : "N");
+                        EditorGUILayout.LabelField("RequireAliveTarget", m.elementGaugeRequireAliveTarget ? "Y" : "N");
                         break;
 
                     case ModifierKind.State:
@@ -269,6 +277,9 @@ namespace GGemCo2DAffectEditor
 
                     if (!string.IsNullOrEmpty(m.damageTypeId))
                         EditorGUILayout.LabelField("DamageType Valid", statusRepo.IsValidDamageType(m.damageTypeId) ? "true" : "false");
+
+                    if (!string.IsNullOrEmpty(m.elementGaugeTypeId))
+                        EditorGUILayout.LabelField("ElementType Valid", statusRepo.IsValidDamageType(m.elementGaugeTypeId) ? "true" : "false");
 
                     if (!string.IsNullOrEmpty(m.stateId))
                         EditorGUILayout.LabelField("State Valid", statusRepo.IsValidState(m.stateId) ? "true" : "false");

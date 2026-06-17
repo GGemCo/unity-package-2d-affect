@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using GGemCo2DCore;
 
 namespace GGemCo2DAffect
@@ -32,9 +32,14 @@ namespace GGemCo2DAffect
         public const string AffectModifierStat = "affect_modifier_stat";
 
         /// <summary>
-        /// Damage / ElementDamage Modifier 상세 테이블의 논리적 이름.
+        /// Damage Modifier 상세 테이블의 논리적 이름.
         /// </summary>
         public const string AffectModifierDamage = "affect_modifier_damage";
+
+        /// <summary>
+        /// ElementGauge Modifier 상세 테이블의 논리적 이름.
+        /// </summary>
+        public const string AffectModifierElementGauge = "affect_modifier_element_gauge";
 
         /// <summary>
         /// Heal Modifier 상세 테이블의 논리적 이름.
@@ -95,10 +100,16 @@ namespace GGemCo2DAffect
             ConfigAddressableTable.Make(AffectModifierStat);
 
         /// <summary>
-        /// Damage / ElementDamage Modifier 상세 테이블에 대한 Addressables 자산 정보.
+        /// Damage Modifier 상세 테이블에 대한 Addressables 자산 정보.
         /// </summary>
         public static readonly AddressableAssetInfo TableAffectModifierDamage =
             ConfigAddressableTable.Make(AffectModifierDamage);
+
+        /// <summary>
+        /// ElementGauge Modifier 상세 테이블에 대한 Addressables 자산 정보.
+        /// </summary>
+        public static readonly AddressableAssetInfo TableAffectModifierElementGauge =
+            ConfigAddressableTable.Make(AffectModifierElementGauge);
 
         /// <summary>
         /// Heal Modifier 상세 테이블에 대한 Addressables 자산 정보.
@@ -162,6 +173,7 @@ namespace GGemCo2DAffect
             TableAffectModifier,
             TableAffectModifierStat,
             TableAffectModifierDamage,
+            TableAffectModifierElementGauge,
             TableAffectModifierHeal,
             TableAffectModifierState,
             TableAffectModifierCrowdControl,

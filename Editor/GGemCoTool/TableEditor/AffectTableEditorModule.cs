@@ -122,6 +122,12 @@ namespace GGemCo2DAffectEditor
                 typeof(StruckTableAffectModifierDamage));
 
             yield return CreateModifierDetailDefinition(
+                ConfigAddressableTableAffect.AffectModifierElementGauge,
+                ConfigAddressableTableAffect.TableAffectModifierElementGauge.Path,
+                typeof(TableAffectModifierElementGauge),
+                typeof(StruckTableAffectModifierElementGauge));
+
+            yield return CreateModifierDetailDefinition(
                 ConfigAddressableTableAffect.AffectModifierHeal,
                 ConfigAddressableTableAffect.TableAffectModifierHeal.Path,
                 typeof(TableAffectModifierHeal),

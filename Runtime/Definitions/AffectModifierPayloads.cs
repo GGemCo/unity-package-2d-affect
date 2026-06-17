@@ -59,12 +59,12 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
-        /// Damage 또는 ElementDamage Payload를 생성합니다.
+        /// Damage Payload를 생성합니다.
         /// </summary>
         /// <param name="kind">피해 계열 Modifier Kind입니다.</param>
         public AffectDamageModifierPayload(ModifierKind kind)
         {
-            this.kind = kind == ModifierKind.ElementDamage ? ModifierKind.ElementDamage : ModifierKind.Damage;
+            this.kind = ModifierKind.Damage;
             showHitEffect = true;
         }
 
@@ -94,6 +94,34 @@ namespace GGemCo2DAffect
 
         /// <summary>피격 시각 효과 표시 여부입니다.</summary>
         public bool showHitEffect;
+    }
+
+    /// <summary>
+    /// 속성 게이지 누적 Modifier의 상세 Payload입니다.
+    /// </summary>
+    [Serializable]
+    public sealed class AffectElementGaugeModifierPayload : IAffectModifierPayload
+    {
+        /// <inheritdoc />
+        public ModifierKind Kind => ModifierKind.ElementGauge;
+
+        /// <summary>누적할 속성 타입 ID입니다.</summary>
+        public string elementTypeId;
+
+        /// <summary>속성 게이지에 직접 더할 수치입니다.</summary>
+        public float gaugeValue;
+
+        /// <summary>게이지를 누적할 대상 선택 정책입니다.</summary>
+        public ElementGaugeTargetPolicy targetPolicy;
+
+        /// <summary>현재 Affect 스택 수를 게이지 수치에 곱할지 여부입니다.</summary>
+        public bool useStackMultiplier;
+
+        /// <summary>적용 컨텍스트의 ValueMultiplier를 게이지 수치에 곱할지 여부입니다.</summary>
+        public bool useContextMultiplier;
+
+        /// <summary>대상이 생존 상태일 때만 누적할지 여부입니다.</summary>
+        public bool requireAliveTarget;
     }
 
     /// <summary>
@@ -228,7 +256,6 @@ namespace GGemCo2DAffect
                     };
 
                 case ModifierKind.Damage:
-                case ModifierKind.ElementDamage:
                     return new AffectDamageModifierPayload(definition.kind)
                     {
                         damageTypeId = definition.damageTypeId,
@@ -239,6 +266,17 @@ namespace GGemCo2DAffect
                         isDot = definition.isDot,
                         suppressDamageReaction = definition.suppressDamageReaction,
                         showHitEffect = definition.showHitEffect,
+                    };
+
+                case ModifierKind.ElementGauge:
+                    return new AffectElementGaugeModifierPayload
+                    {
+                        elementTypeId = definition.elementGaugeTypeId,
+                        gaugeValue = definition.elementGaugeValue,
+                        targetPolicy = definition.elementGaugeTargetPolicy,
+                        useStackMultiplier = definition.elementGaugeUseStackMultiplier,
+                        useContextMultiplier = definition.elementGaugeUseContextMultiplier,
+                        requireAliveTarget = definition.elementGaugeRequireAliveTarget,
                     };
 
                 case ModifierKind.Heal:
@@ -320,6 +358,16 @@ namespace GGemCo2DAffect
                     definition.isDot = damagePayload.isDot;
                     definition.suppressDamageReaction = damagePayload.suppressDamageReaction;
                     definition.showHitEffect = damagePayload.showHitEffect;
+                    break;
+
+                case AffectElementGaugeModifierPayload elementGaugePayload:
+                    definition.kind = ModifierKind.ElementGauge;
+                    definition.elementGaugeTypeId = elementGaugePayload.elementTypeId;
+                    definition.elementGaugeValue = elementGaugePayload.gaugeValue;
+                    definition.elementGaugeTargetPolicy = elementGaugePayload.targetPolicy;
+                    definition.elementGaugeUseStackMultiplier = elementGaugePayload.useStackMultiplier;
+                    definition.elementGaugeUseContextMultiplier = elementGaugePayload.useContextMultiplier;
+                    definition.elementGaugeRequireAliveTarget = elementGaugePayload.requireAliveTarget;
                     break;
 
                 case AffectHealModifierPayload healPayload:

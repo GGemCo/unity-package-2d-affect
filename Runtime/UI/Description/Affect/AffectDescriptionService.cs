@@ -261,11 +261,11 @@ namespace GGemCo2DAffect
                     return loc.GetAffectDescriptionSmart(AffectDescriptionKeys.LineState, args);
                 }
 
-                case ModifierKind.ElementDamage:
+                case ModifierKind.ElementGauge:
                 {
-                    var dmg = _tableLoaderManager.TableDamageType.GetDataById(mod.damageTypeId);
-                    string damageTypeName = ResolveStatusName(loc, mod.damageTypeId, dmg?.Name);
-                    return $"{damageTypeName} Damage {FormatNumber(mod.damageBaseValue)}";
+                    var dmg = _tableLoaderManager.TableDamageType.GetDataById(mod.elementGaugeTypeId);
+                    string damageTypeName = ResolveStatusName(loc, mod.elementGaugeTypeId, dmg?.Name);
+                    return $"{damageTypeName} Gauge {FormatNumber(mod.elementGaugeValue)}";
                 }
 
                 case ModifierKind.FormulaVariable:

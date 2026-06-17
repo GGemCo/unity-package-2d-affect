@@ -64,6 +64,7 @@ namespace GGemCo2DAffect
 
         private readonly StatModifierExecutor _statExecutor = new();
         private readonly DamageExecutor _damageExecutor = new();
+        private readonly ElementGaugeExecutor _elementGaugeExecutor = new();
         private readonly HealExecutor _healExecutor = new();
         private readonly StateExecutor _stateExecutor = new();
         private readonly CrowdControlExecutor _crowdControlExecutor = new();
@@ -407,8 +408,8 @@ namespace GGemCo2DAffect
                     case ModifierKind.ApplyAffectToTarget:
                         _applyAffectExecutor.ExecuteOnHit(_target, hitTarget, instance, mod, _affectRepo, _statusRepo);
                         break;
-                    case ModifierKind.ElementDamage:
-                        _damageExecutor.ExecuteOnHit(_target, hitTarget, instance, mod, _affectRepo, _statusRepo);
+                    case ModifierKind.ElementGauge:
+                        _elementGaugeExecutor.ExecuteOnHit(_target, hitTarget, instance, mod, _affectRepo, _statusRepo);
                         break;
                     default:
                         break;
@@ -723,18 +724,18 @@ namespace GGemCo2DAffect
                         }
                         break;
 
-                    case ModifierKind.ElementDamage:
+                    case ModifierKind.ElementGauge:
                         if (phase == AffectPhase.OnApply)
                         {
-                            _damageExecutor.ExecuteImmediate(_target, instance, mod, _affectRepo, _statusRepo);
+                            _elementGaugeExecutor.ExecuteOnApply(_target, instance, mod, _affectRepo, _statusRepo);
                         }
                         else if (phase == AffectPhase.OnTick)
                         {
-                            _damageExecutor.ExecuteOnTick(_target, instance, mod, _affectRepo, _statusRepo);
+                            _elementGaugeExecutor.ExecuteOnTick(_target, instance, mod, _affectRepo, _statusRepo);
                         }
-                        else if (phase == AffectPhase.OnExpire && ShouldExecuteExpireDamage(expireReason))
+                        else if (phase == AffectPhase.OnExpire)
                         {
-                            _damageExecutor.ExecuteOnExpire(_target, instance, mod, _affectRepo, _statusRepo);
+                            _elementGaugeExecutor.ExecuteOnExpire(_target, instance, mod, _affectRepo, _statusRepo);
                         }
                         break;
 
