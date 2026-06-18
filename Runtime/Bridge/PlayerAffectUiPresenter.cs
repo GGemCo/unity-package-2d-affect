@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GGemCo2DAffect
@@ -42,6 +42,9 @@ namespace GGemCo2DAffect
 
             /// <summary>동일 UID 그룹 중 가장 긴 전체 지속 시간입니다.</summary>
             public float TotalDurationMax;
+
+            /// <summary>아이콘에 쿨타임 게이지를 표시할지 여부입니다.</summary>
+            public bool ShowCoolTimeGauge;
 
             /// <summary>표시할 아이콘 키입니다.</summary>
             public string IconKey;
@@ -161,6 +164,8 @@ namespace GGemCo2DAffect
                         Stacks = 0,
                         RemainingMax = 0f,
                         TotalDurationMax = 0f,
+                        // 정의 정책뿐 아니라 적용 컨텍스트에서 강제된 Session 수명도 동일하게 처리합니다.
+                        ShowCoolTimeGauge = !instance.IsSessionLifetime,
                         IconKey = instance.Definition.iconKey,
                         Decorator = ResolveDecorator(instance.Definition)
                     };
@@ -194,6 +199,7 @@ namespace GGemCo2DAffect
                     aggregate.Stacks,
                     aggregate.RemainingMax,
                     aggregate.TotalDurationMax,
+                    aggregate.ShowCoolTimeGauge,
                     aggregate.IconKey,
                     aggregate.Decorator));
             }

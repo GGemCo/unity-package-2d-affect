@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using GGemCo2DCore;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +22,7 @@ namespace GGemCo2DAffect
         private string _iconKey;
         private float _totalDuration;
         private float _remainingTime;
+        private bool _showCoolTimeGauge;
         private AffectUiDecoratorData _currentDecorator;
         private int _buffIconImageRequestVersion;
 
@@ -78,6 +79,7 @@ namespace GGemCo2DAffect
             _iconKey = newIconKey;
             _totalDuration = newTotal;
             _remainingTime = newRemain;
+            _showCoolTimeGauge = item.ShowCoolTimeGauge;
 
             if (iconChanged)
             {
@@ -110,6 +112,12 @@ namespace GGemCo2DAffect
 
             _coolTimeHandlerStarted = false;
             _cachedTotalDuration = 0f;
+
+            // 매니저가 아직 준비되지 않았거나 기존 핸들러가 없더라도 재사용된 이미지가 남지 않도록 직접 숨깁니다.
+            if (imageCoolTimeGauge != null)
+            {
+                imageCoolTimeGauge.gameObject.SetActive(false);
+            }
         }
 
         /// <summary>
@@ -139,6 +147,7 @@ namespace GGemCo2DAffect
             _cachedStacks = 0;
             _cachedTotalDuration = 0f;
             _coolTimeHandlerStarted = false;
+            _showCoolTimeGauge = false;
             ClearDecorator();
         }
 
@@ -148,6 +157,12 @@ namespace GGemCo2DAffect
         /// <param name="totalChanged">전체 지속 시간 기준이 바뀌었는지 여부입니다.</param>
         private void SyncCoolTimeGauge(bool totalChanged)
         {
+            if (!_showCoolTimeGauge)
+            {
+                ClearCoolTime();
+                return;
+            }
+
             UIIconCoolTimeManager mgr = SceneGame.Instance != null ? SceneGame.Instance.uIIconCoolTimeManager : null;
             if (mgr == null)
             {

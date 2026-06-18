@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace GGemCo2DAffect
 {
@@ -24,6 +24,9 @@ namespace GGemCo2DAffect
         /// <summary>쿨타임 게이지의 기준이 되는 전체 지속 시간입니다.</summary>
         public readonly float TotalDuration;
 
+        /// <summary>어펙트 아이콘에 쿨타임 게이지를 표시할지 여부입니다.</summary>
+        public readonly bool ShowCoolTimeGauge;
+
         /// <summary>어펙트 아이콘 아틀라스에서 조회할 아이콘 키입니다.</summary>
         public readonly string IconKey;
 
@@ -37,14 +40,23 @@ namespace GGemCo2DAffect
         /// <param name="stacks">UI에 표시할 합산 스택 수입니다.</param>
         /// <param name="remainingTime">남은 지속 시간입니다.</param>
         /// <param name="totalDuration">전체 지속 시간입니다.</param>
+        /// <param name="showCoolTimeGauge">쿨타임 게이지 표시 여부입니다.</param>
         /// <param name="iconKey">아이콘 Sprite 조회 키입니다.</param>
         /// <param name="decorator">보조 데코레이터 표시 데이터입니다.</param>
-        public AffectUiItem(int affectUid, int stacks, float remainingTime, float totalDuration, string iconKey, AffectUiDecoratorData decorator)
+        public AffectUiItem(
+            int affectUid,
+            int stacks,
+            float remainingTime,
+            float totalDuration,
+            bool showCoolTimeGauge,
+            string iconKey,
+            AffectUiDecoratorData decorator)
         {
             AffectUid = affectUid;
             Stacks = stacks;
             RemainingTime = remainingTime;
             TotalDuration = totalDuration;
+            ShowCoolTimeGauge = showCoolTimeGauge;
             IconKey = iconKey;
             Decorator = decorator;
         }
