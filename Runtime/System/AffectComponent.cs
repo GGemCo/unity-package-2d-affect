@@ -342,6 +342,81 @@ namespace GGemCo2DAffect
         }
 
         /// <summary>
+        /// 지정한 Affect UID의 첫 번째 활성 런타임 인스턴스를 조회합니다.
+        /// </summary>
+        /// <param name="affectUid">조회할 Affect 정의 UID입니다.</param>
+        /// <param name="instance">조회된 활성 Affect 인스턴스입니다.</param>
+        /// <returns>유효한 활성 인스턴스를 찾으면 <see langword="true"/>입니다.</returns>
+        public bool TryGetActiveInstance(int affectUid, out AffectInstance instance)
+        {
+            instance = null;
+            if (!TryGetFirstRuntimeId(affectUid, out int runtimeId))
+                return false;
+
+            return _byRuntimeId.TryGetValue(runtimeId, out instance) && instance != null;
+        }
+
+        /// <summary>
+        /// 지정한 Affect에 남아 있는 OnTick Damage를 합산하여 대상에게 즉시 적용합니다.
+        /// </summary>
+        /// <param name="affectUid">남은 Tick 피해를 정산할 Affect 정의 UID입니다.</param>
+        /// <param name="remainingTickCount">정산 대상으로 계산된 남은 Tick 횟수입니다.</param>
+        /// <param name="appliedDamage">DamageReceiver에 전달한 합산 피해량입니다.</param>
+        /// <returns>하나 이상의 OnTick Damage Modifier를 합산 적용했으면 <see langword="true"/>입니다.</returns>
+        /// <remarks>
+        /// 이 메서드는 피해만 즉시 정산하며 Affect를 제거하지 않습니다.
+        /// 호출자는 정산 성공 여부와 무관하게 프로젝트 규칙에 따라 Affect 제거 시점을 결정해야 합니다.
+        /// </remarks>
+        public bool TryApplyRemainingTickDamage(
+            int affectUid,
+            out int remainingTickCount,
+            out float appliedDamage)
+        {
+            remainingTickCount = 0;
+            appliedDamage = 0f;
+
+            if (_target == null || _affectRepo == null || !TryGetActiveInstance(affectUid, out AffectInstance instance))
+                return false;
+
+            AffectDefinition definition = instance.Definition;
+            if (definition == null || definition.tickInterval <= 0f)
+                return false;
+
+            remainingTickCount = instance.GetRemainingTickCount(definition.tickInterval);
+            if (remainingTickCount <= 0)
+                return false;
+
+            IReadOnlyList<AffectModifierDefinition> modifiers = _affectRepo.GetModifiers(affectUid);
+            bool applied = false;
+
+            for (int i = 0; i < modifiers.Count; i++)
+            {
+                AffectModifierDefinition modifier = modifiers[i];
+                if (modifier == null ||
+                    modifier.kind != ModifierKind.Damage ||
+                    modifier.phase != AffectPhase.OnTick)
+                {
+                    continue;
+                }
+
+                float modifierDamage = _damageExecutor.ExecuteRemainingTicksImmediately(
+                    _target,
+                    instance,
+                    modifier,
+                    remainingTickCount,
+                    _affectRepo,
+                    _statusRepo);
+                if (modifierDamage <= 0f)
+                    continue;
+
+                appliedDamage += modifierDamage;
+                applied = true;
+            }
+
+            return applied;
+        }
+
+        /// <summary>
         /// 현재 활성화된 어펙트 인스턴스를 <paramref name="buffer"/>에 채운다.
         /// UI 등 외부 시스템이 현재 상태를 스냅샷으로 가져오기 위한 용도이다.
         /// </summary>

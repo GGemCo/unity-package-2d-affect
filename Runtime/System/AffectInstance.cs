@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace GGemCo2DAffect
 {
@@ -145,6 +146,29 @@ namespace GGemCo2DAffect
             if (TickElapsed < interval) return false;
             TickElapsed -= interval;
             return true;
+        }
+
+        /// <summary>
+        /// 현재 시점부터 자연 만료 전까지 실행될 예정인 남은 Tick 횟수를 계산합니다.
+        /// </summary>
+        /// <param name="tickInterval">Affect 정의에 설정된 Tick 간격(초)입니다.</param>
+        /// <returns>앞으로 실행될 Tick 횟수입니다. Tick을 사용할 수 없는 상태이면 0입니다.</returns>
+        /// <remarks>
+        /// 이미 다음 Tick을 향해 누적된 <see cref="TickElapsed"/>와 남은 수명인
+        /// <see cref="RemainingTime"/>을 함께 계산해야 프레임 중간에 조회해도 예정된 Tick 수가 보존됩니다.
+        /// Session 수명은 자연 만료 시점이 없으므로 잔여 Tick 총량을 계산하지 않습니다.
+        /// </remarks>
+        public int GetRemainingTickCount(float tickInterval)
+        {
+            if (IsSessionLifetime || tickInterval <= 0f || RemainingTime <= 0f)
+                return 0;
+
+            float scheduledTickTime = Mathf.Max(0f, TickElapsed) + Mathf.Max(0f, RemainingTime);
+
+            // 부동소수점 경계에서 0.99999994처럼 계산되어 마지막 Tick이 누락되지 않도록
+            // Tick 간격에 비례한 작은 허용 오차만 더합니다.
+            float epsilon = Mathf.Max(0.000001f, tickInterval * 0.000001f);
+            return Mathf.Max(0, Mathf.FloorToInt((scheduledTickTime + epsilon) / tickInterval));
         }
 
         /// <summary>
