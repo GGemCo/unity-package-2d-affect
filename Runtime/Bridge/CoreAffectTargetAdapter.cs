@@ -500,7 +500,7 @@ namespace GGemCo2DAffect
             /// <param name="damageTypeId">피해 타입 ID(예: Fire/Cold/Lightning).</param>
             /// <param name="amount">피해량(0 이하이면 무시).</param>
             /// <param name="canCrit">치명타 가능 여부(현재 Core 전달 값에는 반영하지 않음).</param>
-            /// <param name="isDot">지속 피해 여부(현재 Core 전달 값에는 반영하지 않음).</param>
+            /// <param name="isDot">지속 피해 여부입니다. 지속 피해이면 Core 가드/저스트 가드 판정에서 제외합니다.</param>
             /// <param name="source">공격자/원인 객체(가능하면 <see cref="GameObject"/>로 전달).</param>
             public void ApplyDamage(string damageTypeId, float amount, bool canCrit, bool isDot, object source)
             {
@@ -522,6 +522,9 @@ namespace GGemCo2DAffect
                     attacker = ResolveSourceGameObject(originalSource),
                     damageType = damageType,
                     DamageBreakdown = damageBreakdown,
+                    IsDamageOverTime = isDot,
+                    GuardInteractionMode = isDot ? GuardInteractionMode.IgnoreGuard : GuardInteractionMode.Normal,
+                    GuardAttackType = isDot ? GuardAttackType.None : GuardAttackType.Normal,
                     affectUid = 0,
                     SourceAffectUid = affectSource != null ? affectSource.AffectUid : 0,
                     SuppressDamageReaction = affectSource != null && affectSource.SuppressDamageReaction,
