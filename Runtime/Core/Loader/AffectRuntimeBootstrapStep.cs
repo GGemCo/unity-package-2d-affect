@@ -63,6 +63,8 @@ namespace GGemCo2DAffect
             foreach (var kv in tableLoaderManager.TableStat.GetAll())
                 statusRepo.RegisterStat(kv.Value.ID);
 
+            RegisterCoreElementGaugeStats(statusRepo);
+
             foreach (var kv in tableLoaderManager.TableDamageType.GetAll())
                 statusRepo.RegisterDamageType(kv.Value.ID);
 
@@ -197,6 +199,25 @@ namespace GGemCo2DAffect
 
             progress = 1f;
             yield break;
+        }
+
+        /// <summary>
+        /// Core에서 코드 상수로 제공하는 속성 게이지 누적력 스탯을 Affect 상태 저장소에 등록합니다.
+        /// </summary>
+        /// <param name="statusRepo">등록 대상 상태 저장소입니다.</param>
+        /// <remarks>
+        /// stat 테이블 데이터가 아직 갱신되지 않은 환경에서도 Affect Stat Modifier가
+        /// <c>BASE_ELEMENT_GAUGE_*</c> 스탯을 유효한 대상으로 인식할 수 있도록 보장합니다.
+        /// </remarks>
+        private static void RegisterCoreElementGaugeStats(InMemoryStatusRepository statusRepo)
+        {
+            if (statusRepo == null)
+                return;
+
+            statusRepo.RegisterStat(ConfigCommon.BaseStatElementGaugeFire);
+            statusRepo.RegisterStat(ConfigCommon.BaseStatElementGaugeCold);
+            statusRepo.RegisterStat(ConfigCommon.BaseStatElementGaugeLightning);
+            statusRepo.RegisterStat(ConfigCommon.BaseStatElementGaugePoison);
         }
     }
 }

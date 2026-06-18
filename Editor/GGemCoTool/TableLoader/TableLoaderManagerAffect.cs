@@ -33,14 +33,6 @@ namespace GGemCo2DAffectEditor
 
 
         /// <summary>
-        /// Affect Modifier ElementGauge 상세 테이블을 에디터 환경에서 로드합니다.
-        /// </summary>
-        public static TableAffectModifierElementGauge LoadAffectModifierElementGaugeTable()
-        {
-            return LoadTable<TableAffectModifierElementGauge>(ConfigAddressableTableAffect.TableAffectModifierElementGauge.Path);
-        }
-
-        /// <summary>
         /// Affect Modifier Heal 상세 테이블을 에디터 환경에서 로드합니다.
         /// </summary>
         public static TableAffectModifierHeal LoadAffectModifierHealTable()

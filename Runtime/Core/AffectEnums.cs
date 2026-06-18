@@ -85,23 +85,7 @@ namespace GGemCo2DAffect
     }
 
     /// <summary>Modifier의 종류(Stat/DamageType/State).</summary>
-    public enum ModifierKind { Stat, Damage, ElementGauge, Heal, State, CrowdControl, ApplyAffectToTarget, FormulaVariable, Custom }
-
-    /// <summary>
-    /// ElementGauge Modifier가 게이지를 누적할 대상을 결정하는 정책입니다.
-    /// </summary>
-    public enum ElementGaugeTargetPolicy
-    {
-        /// <summary>
-        /// Affect가 적용된 대상 자신에게 게이지를 누적합니다.
-        /// </summary>
-        Self,
-
-        /// <summary>
-        /// OnHit에서는 피격 대상에게, 그 외 페이즈에서는 자신에게 게이지를 누적합니다.
-        /// </summary>
-        HitTarget
-    }
+    public enum ModifierKind { Stat, Damage, Heal, State, CrowdControl, ApplyAffectToTarget, FormulaVariable, Custom }
 
     /// <summary>값 해석 방식.</summary>
     public enum StatValueType { None, Flat, Percent }

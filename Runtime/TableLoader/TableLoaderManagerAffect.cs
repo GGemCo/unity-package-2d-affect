@@ -43,11 +43,6 @@ namespace GGemCo2DAffect
         public TableAffectModifierDamage TableAffectModifierDamage { get; private set; } = new TableAffectModifierDamage();
 
         /// <summary>
-        /// ElementGauge Modifier 상세 테이블.
-        /// </summary>
-        public TableAffectModifierElementGauge TableAffectModifierElementGauge { get; private set; } = new TableAffectModifierElementGauge();
-
-        /// <summary>
         /// Heal Modifier 상세 테이블.
         /// </summary>
         public TableAffectModifierHeal TableAffectModifierHeal { get; private set; } = new TableAffectModifierHeal();
@@ -145,7 +140,6 @@ namespace GGemCo2DAffect
             {
                 case ModifierKind.Stat:
                 case ModifierKind.Damage:
-                case ModifierKind.ElementGauge:
                 case ModifierKind.Heal:
                 case ModifierKind.State:
                 case ModifierKind.CrowdControl:
@@ -178,8 +172,6 @@ namespace GGemCo2DAffect
                 case ModifierKind.Damage:
                     return TableAffectModifierDamage.TryCreatePayload(modifier.affectUid, modifier.modifierId, modifier.kind, out payload);
 
-                case ModifierKind.ElementGauge:
-                    return TableAffectModifierElementGauge.TryCreatePayload(modifier.affectUid, modifier.modifierId, modifier.kind, out payload);
 
                 case ModifierKind.Heal:
                     return TableAffectModifierHeal.TryCreatePayload(modifier.affectUid, modifier.modifierId, modifier.kind, out payload);
@@ -222,7 +214,6 @@ namespace GGemCo2DAffect
                 registry.Register(TableAffectModifier);
                 registry.Register(TableAffectModifierStat);
                 registry.Register(TableAffectModifierDamage);
-                registry.Register(TableAffectModifierElementGauge);
                 registry.Register(TableAffectModifierHeal);
                 registry.Register(TableAffectModifierState);
                 registry.Register(TableAffectModifierCrowdControl);

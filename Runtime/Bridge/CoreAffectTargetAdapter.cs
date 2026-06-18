@@ -13,7 +13,7 @@ namespace GGemCo2DAffect
     /// - Core는 Affect를 참조하지 않으므로, Core 쪽에서는 Reflection 브리지로 이 컴포넌트를 자동 부착한다.
     /// </remarks>
     [DisallowMultipleComponent]
-    public sealed class CoreAffectTargetAdapter : MonoBehaviour, IAffectTarget, IElementGaugeReceiver
+    public sealed class CoreAffectTargetAdapter : MonoBehaviour, IAffectTarget
     {
         private CharacterBase _character;
         private CoreStatMutable _stats;
@@ -64,77 +64,6 @@ namespace GGemCo2DAffect
             _stats = new CoreStatMutable(_character);
             _states = new CoreStateMutable(_character);
             _damage = new CoreDamageReceiver(_character);
-        }
-
-        /// <inheritdoc />
-        public bool AccumulateElementGauge(
-            string elementTypeId,
-            float gaugeValue,
-            object source,
-            int sourceAffectUid)
-        {
-            if (_character == null || gaugeValue <= 0f)
-                return false;
-
-            ConfigCommon.DamageType damageType = MapDamageType(elementTypeId);
-            if (damageType == ConfigCommon.DamageType.None || damageType == ConfigCommon.DamageType.Physic)
-                return false;
-
-            CharacterElementGaugeController controller = _character.ElementGaugeController;
-            if (controller == null)
-                return false;
-
-            ElementGaugeAccumulationResult result = controller.AccumulateDirect(
-                damageType,
-                gaugeValue,
-                ResolveSourceGameObject(source),
-                null);
-
-            return result.GaugeChanged || result.ThresholdReached || result.RepeatedElementDamage;
-        }
-
-        /// <summary>
-        /// Affect Source 객체를 Core 속성 게이지 컨텍스트에서 사용할 GameObject로 변환합니다.
-        /// </summary>
-        /// <param name="source">Affect 컨텍스트에 저장된 원천 객체입니다.</param>
-        /// <returns>원천 GameObject입니다. 변환할 수 없으면 <see langword="null"/>입니다.</returns>
-        private static GameObject ResolveSourceGameObject(object source)
-        {
-            if (source is GameObject go)
-                return go;
-
-            if (source is Component component)
-                return component.gameObject;
-
-            return null;
-        }
-
-        /// <summary>
-        /// 문자열 기반 속성 타입 ID를 Core의 <see cref="ConfigCommon.DamageType"/>로 매핑합니다.
-        /// </summary>
-        /// <param name="damageTypeId">속성 타입 ID입니다.</param>
-        /// <returns>매핑 결과입니다. 알 수 없으면 <see cref="ConfigCommon.DamageType.None"/>입니다.</returns>
-        private static ConfigCommon.DamageType MapDamageType(string damageTypeId)
-        {
-            if (string.IsNullOrWhiteSpace(damageTypeId)) return ConfigCommon.DamageType.None;
-
-            if (string.Equals(damageTypeId, ConfigCommon.DamageTypeString.Fire, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(damageTypeId, nameof(ConfigCommon.DamageType.Fire), StringComparison.OrdinalIgnoreCase))
-                return ConfigCommon.DamageType.Fire;
-
-            if (string.Equals(damageTypeId, ConfigCommon.DamageTypeString.Cold, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(damageTypeId, nameof(ConfigCommon.DamageType.Cold), StringComparison.OrdinalIgnoreCase))
-                return ConfigCommon.DamageType.Cold;
-
-            if (string.Equals(damageTypeId, ConfigCommon.DamageTypeString.Lightning, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(damageTypeId, nameof(ConfigCommon.DamageType.Lightning), StringComparison.OrdinalIgnoreCase))
-                return ConfigCommon.DamageType.Lightning;
-
-            if (string.Equals(damageTypeId, ConfigCommon.DamageTypeString.Poison, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(damageTypeId, nameof(ConfigCommon.DamageType.Poison), StringComparison.OrdinalIgnoreCase))
-                return ConfigCommon.DamageType.Poison;
-
-            return ConfigCommon.DamageType.None;
         }
 
         /// <summary>
@@ -304,7 +233,7 @@ namespace GGemCo2DAffect
             /// - BASE_*는 기본 항목 계산 결과(TotalBase*)를 반환합니다.
             /// - BASE_HP_TEMP는 일반 HP와 분리된 보호막/임시 하트 최대치(TotalHpTemp)를 반환합니다.
             /// - STAT_ATK/STAT_DEF/STAT_HP/STAT_MP/STAT_STAMINA는 성장 스탯 계산 결과(TotalStat*)를 반환합니다.
-            /// - 이동속도, 공격속도, 크리티컬, 저항, 기본 속성 데미지는 BASE_* 항목으로만 조회합니다.
+            /// - 이동속도, 공격속도, 크리티컬, 저항, 기본 속성 데미지와 기본 속성 게이지 누적력은 BASE_* 항목으로만 조회합니다.
             /// </remarks>
             public float GetValue(string statId)
             {
@@ -345,6 +274,10 @@ namespace GGemCo2DAffect
                 if (statId == ConfigCommon.BaseStatDamageCold) return _character.TotalDamageCold.Value;
                 if (statId == ConfigCommon.BaseStatDamageLightning) return _character.TotalDamageLightning.Value;
                 if (statId == ConfigCommon.BaseStatDamagePoison) return _character.TotalDamagePoison.Value;
+                if (statId == ConfigCommon.BaseStatElementGaugeFire) return _character.TotalElementGaugeFire.Value;
+                if (statId == ConfigCommon.BaseStatElementGaugeCold) return _character.TotalElementGaugeCold.Value;
+                if (statId == ConfigCommon.BaseStatElementGaugeLightning) return _character.TotalElementGaugeLightning.Value;
+                if (statId == ConfigCommon.BaseStatElementGaugePoison) return _character.TotalElementGaugePoison.Value;
                 return 0f;
             }
 

@@ -111,40 +111,6 @@ namespace GGemCo2DAffect
         public bool showHitEffect = true;
 
         // --------------------------------------------------------------------
-        // Kind = ElementGauge
-        // --------------------------------------------------------------------
-
-        /// <summary>
-        /// 게이지를 누적할 속성 타입 ID입니다.
-        /// </summary>
-        public string elementGaugeTypeId;
-
-        /// <summary>
-        /// 데미지와 분리하여 속성 게이지에 직접 누적할 수치입니다.
-        /// </summary>
-        public float elementGaugeValue;
-
-        /// <summary>
-        /// 게이지를 누적할 대상 선택 정책입니다.
-        /// </summary>
-        public ElementGaugeTargetPolicy elementGaugeTargetPolicy = ElementGaugeTargetPolicy.HitTarget;
-
-        /// <summary>
-        /// 현재 Affect 스택 수를 게이지 누적 수치에 곱할지 여부입니다.
-        /// </summary>
-        public bool elementGaugeUseStackMultiplier = true;
-
-        /// <summary>
-        /// 적용 컨텍스트의 ValueMultiplier를 게이지 누적 수치에 곱할지 여부입니다.
-        /// </summary>
-        public bool elementGaugeUseContextMultiplier = true;
-
-        /// <summary>
-        /// 게이지 누적 대상이 생존 상태일 때만 처리할지 여부입니다.
-        /// </summary>
-        public bool elementGaugeRequireAliveTarget = true;
-
-        // --------------------------------------------------------------------
         // Kind = Heal
         // --------------------------------------------------------------------
 
