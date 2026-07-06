@@ -1,4 +1,5 @@
-﻿using GGemCo2DCore;
+using GGemCo2DCore;
+using GGemCo2DCoreEditor;
 
 namespace GGemCo2DAffectEditor
 {
@@ -53,14 +54,14 @@ namespace GGemCo2DAffectEditor
         /// <summary>
         /// Affect 툴 메뉴의 최상위 경로 접두사입니다.
         /// </summary>
-        private const string NameToolGGemCoAffect = ConfigDefine.NameSDK+"ToolAffect/";
+        private const string NameToolGGemCoAffect = GGemCoToolMenu.Affect;
 
         // 기본 셋팅하기
 
         /// <summary>
         /// 기본 셋팅 메뉴(설정하기)의 경로 접두사입니다.
         /// </summary>
-        private const string NameToolSettings = NameToolGGemCoAffect + "설정하기/";
+        private const string NameToolSettings = NameToolGGemCoAffect + GGemCoToolMenu.Settings;
 
         /// <summary>
         /// "자동 셋팅하기" 메뉴 경로입니다.
@@ -95,7 +96,7 @@ namespace GGemCo2DAffectEditor
         /// <summary>
         /// 개발툴 메뉴의 경로 접두사입니다.
         /// </summary>
-        private const string NameToolDevelopment = NameToolGGemCoAffect + "개발툴/";
+        private const string NameToolDevelopment = NameToolGGemCoAffect + GGemCoToolMenu.Development;
 
         /// <summary>
         /// 테스트툴 메뉴의 경로 접두사입니다.
@@ -103,18 +104,18 @@ namespace GGemCo2DAffectEditor
         /// <remarks>
         /// NOTE: 현재 문자열이 "테스트툴"로 되어 있는데, 의도한 표기가 "테스트툴"이라면 수정이 필요합니다.
         /// </remarks>
-        private const string NameToolTest = NameToolGGemCoAffect + "테스트툴/";
+        private const string NameToolTest = NameToolGGemCoAffect + GGemCoToolMenu.Test;
 
         public const string NameToolUseAffect = NameToolTest + "Affect 사용하기";
         
         // 디버그
-        private const string NameToolDebug = NameToolGGemCoAffect + "디버그툴/";
+        private const string NameToolDebug = NameToolGGemCoAffect + GGemCoToolMenu.Debug;
         public const string NameToolDebugAffectDescription = NameToolDebug + "Affect 설명 체크기";
 
         /// <summary>
         /// 기타 메뉴의 경로 접두사입니다.
         /// </summary>
-        private const string NameToolEtc = NameToolGGemCoAffect + "기타/";
+        private const string NameToolEtc = NameToolGGemCoAffect + GGemCoToolMenu.Etc;
 
         /// <summary>
         /// 패키지 내 Affect 에디터에서 참조하는 기본 경로(패키지 루트)입니다.
