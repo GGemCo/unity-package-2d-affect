@@ -13,6 +13,11 @@ namespace GGemCo2DAffect
     public static class ConfigAddressableTableAffect
     {
         /// <summary>
+        /// Affect 런타임 테이블 pack 식별자입니다.
+        /// </summary>
+        public const string PackageId = "affect";
+
+        /// <summary>
         /// Affect 기본 정의 테이블의 논리적 이름.
         /// </summary>
         public const string Affect = "affect";
@@ -147,6 +152,12 @@ namespace GGemCo2DAffect
         /// </summary>
         public static readonly AddressableAssetInfo TableAffectDeathPresentation =
             ConfigAddressableTable.Make(AffectDeathPresentation);
+
+        /// <summary>
+        /// Affect 패키지 런타임 테이블 pack Addressables 자산 정보입니다.
+        /// </summary>
+        public static readonly AddressableAssetInfo TablePackAffect =
+            ConfigAddressableTablePack.Make(PackageId);
 
         /// <summary>
         /// Affect 도메인에서 사용하는 모든 테이블 Addressables 자산 목록.

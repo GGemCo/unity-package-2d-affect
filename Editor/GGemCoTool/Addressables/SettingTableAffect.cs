@@ -1,4 +1,4 @@
-﻿using GGemCo2DAffect;
+using GGemCo2DAffect;
 using GGemCo2DCore;
 using GGemCo2DCoreEditor;
 using UnityEditor;
@@ -127,9 +127,9 @@ namespace GGemCo2DAffectEditor
         /// <param name="ctx">자동 설정 실행 컨텍스트입니다.</param>
         private void RegisterRuntimeTablePack(AddressableAssetSettings settings, AddressableAssetGroup group, EditorSetupContext ctx)
         {
-            AddressableAssetInfo pack = ConfigAddressableTablePack.Affect;
+            AddressableAssetInfo pack = ConfigAddressableTableAffect.TablePackAffect;
             bool built = RuntimeTablePackBuilder.Build(
-                ConfigAddressableTablePack.PackageAffect,
+                ConfigAddressableTableAffect.PackageId,
                 pack,
                 ConfigAddressableTableAffect.All,
                 ctx);

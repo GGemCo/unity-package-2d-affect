@@ -1,4 +1,4 @@
-﻿using GGemCo2DControl;
+using GGemCo2DControl;
 using GGemCo2DCore;
 using UnityEngine;
 
@@ -80,7 +80,7 @@ namespace GGemCo2DAffect
                 order: 246,
                 localizedKey: LocalizationConstants.Keys.Loading.TextTypeTables(),
                 tableLoader: tableLoader,
-                tablePack: ConfigAddressableTablePack.Affect,
+                tablePack: ConfigAddressableTableAffect.TablePackAffect,
                 fallbackTables: targetTables
             );
             sender.Register(stepTable);

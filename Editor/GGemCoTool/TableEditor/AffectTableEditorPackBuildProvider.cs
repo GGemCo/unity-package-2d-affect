@@ -18,12 +18,12 @@ namespace GGemCo2DAffectEditor
         /// <summary>
         /// Affect 런타임 pack 내부에 기록할 패키지 식별자입니다.
         /// </summary>
-        protected override string PackageId => ConfigAddressableTablePack.PackageAffect;
+        protected override string PackageId => ConfigAddressableTableAffect.PackageId;
 
         /// <summary>
         /// Affect 런타임 테이블 pack의 Addressables 정보입니다.
         /// </summary>
-        protected override AddressableAssetInfo PackInfo => ConfigAddressableTablePack.Affect;
+        protected override AddressableAssetInfo PackInfo => ConfigAddressableTableAffect.TablePackAffect;
 
         /// <summary>
         /// Affect 런타임 pack에 포함할 개별 테이블 목록입니다.
