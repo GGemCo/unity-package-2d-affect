@@ -8,20 +8,20 @@ namespace GGemCo2DAffectEditor
     /// </summary>
     /// <remarks>
     /// UnityEditor.MenuItem의 경로/우선순위(order) 값으로 사용되며,
-    /// SDK 공통 접두사(ConfigDefine.NameSDK)를 기반으로 메뉴 트리를 구성합니다.
+    /// GGemCoToolMenu의 패키지/카테고리 경로를 기반으로 메뉴 트리를 구성합니다.
     /// </remarks>
     public static class ConfigEditorAffect
     {
         /// <summary>
-        /// Unity 메뉴 항목의 정렬 순서(order) 값을 정의합니다.
+        /// Affect 패키지 Unity 메뉴 항목의 정렬 순서(order) 값을 정의합니다.
         /// </summary>
         /// <remarks>
-        /// 값이 작을수록 메뉴 상단에 배치됩니다.
+        /// 공통 메뉴 우선순위 기준값에 Affect 내부 로컬 순서를 더해 메뉴 배치 순서를 결정합니다.
         /// </remarks>
         public enum ToolOrdering
         {
             /// <summary>자동 셋팅 메뉴 섹션의 시작 위치입니다.</summary>
-            AutoSetting = 1,
+            AutoSetting = GGemCoToolMenuPriority.AffectSettings + 1,
 
             /// <summary>기본 셋팅 메뉴 섹션의 시작 위치입니다.</summary>
             DefaultSetting,
@@ -39,16 +39,16 @@ namespace GGemCo2DAffectEditor
             SettingSceneGame,
 
             /// <summary>개발 도구 메뉴 섹션의 시작 위치입니다.</summary>
-            Development = 100,
+            Development = GGemCoToolMenuPriority.AffectDevelopment,
 
             /// <summary>테스트 도구 메뉴 섹션의 시작 위치입니다.</summary>
-            Test = 200,
+            Test = GGemCoToolMenuPriority.AffectTest,
             UseAffect,
-            Debug = 300,
+            Debug = GGemCoToolMenuPriority.AffectDebug,
             DebugAffectDescription,
 
             /// <summary>기타 도구 메뉴 섹션의 시작 위치입니다.</summary>
-            Etc = 900,
+            Etc = GGemCoToolMenuPriority.AffectEtc,
         }
 
         /// <summary>
@@ -101,9 +101,6 @@ namespace GGemCo2DAffectEditor
         /// <summary>
         /// 테스트툴 메뉴의 경로 접두사입니다.
         /// </summary>
-        /// <remarks>
-        /// NOTE: 현재 문자열이 "테스트툴"로 되어 있는데, 의도한 표기가 "테스트툴"이라면 수정이 필요합니다.
-        /// </remarks>
         private const string NameToolTest = NameToolGGemCoAffect + GGemCoToolMenu.Test;
 
         public const string NameToolUseAffect = NameToolTest + "Affect 사용하기";
