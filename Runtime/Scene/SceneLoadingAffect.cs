@@ -94,8 +94,7 @@ namespace GGemCo2DAffect
                 "core.localization.affect",
                 order: 221,
                 localizedKey: LocalizationConstants.Keys.Loading.TextTypeLocalization(),
-                localizationManager: loc,
-                localeCode: PlayerPrefsManager.LoadLocalizationLocaleCode()
+                localizationManager: loc
             );
             sender.Register(stepLocalization);
 
