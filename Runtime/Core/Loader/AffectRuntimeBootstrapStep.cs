@@ -95,6 +95,7 @@ namespace GGemCo2DAffect
                     hasUseTimerUiOverride = row.HasUseTimerUiOverride,
                     useTimerUi = row.UseTimerUi,
                     applyChance = row.ApplyChance,
+                    cancelRunningSkillOnApply = row.CancelRunningSkillOnApply,
 
                     // Visual decorators
                     useOutline = row.UseOutline,

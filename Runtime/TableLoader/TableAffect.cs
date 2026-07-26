@@ -107,6 +107,15 @@ namespace GGemCo2DAffect
         public float ApplyChance;
 
         /// <summary>
+        /// Affect가 실제 적용될 때 대상 캐릭터의 실행 중인 스킬을 취소할지 여부입니다.
+        /// </summary>
+        /// <remarks>
+        /// 동일 UID 재적용이 스택 또는 지속시간 갱신으로 처리되는 경우에도 적용됩니다.
+        /// <see cref="StackPolicy.None"/>으로 재적용이 무시되는 경우에는 스킬을 취소하지 않습니다.
+        /// </remarks>
+        public bool CancelRunningSkillOnApply;
+
+        /// <summary>
         /// 이 어펙트에 대해 타이머 UI 표시를 강제할지 여부입니다.
         /// </summary>
         /// <remarks>
@@ -216,6 +225,7 @@ namespace GGemCo2DAffect
                 SourceLifePolicy = reader.Enum<SourceLifePolicy>("SourceLifePolicy"),
                 Tags = reader.String("Tags"),
                 ApplyChance = reader.Float("ApplyChance"),
+                CancelRunningSkillOnApply = reader.BoolYN("CancelRunningSkillOnApply"),
                 UseTimerUi = useTimerUi,
                 HasUseTimerUiOverride = hasUseTimerUiOverride,
                 UseOutline = reader.BoolYN("UseOutline"),

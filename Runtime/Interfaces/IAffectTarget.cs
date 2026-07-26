@@ -52,4 +52,20 @@ namespace GGemCo2DAffect
         /// </remarks>
         IDamageReceiver Damage { get; }
     }
+
+    /// <summary>
+    /// Affect 적용에 따라 대상의 실행 중인 스킬을 취소할 수 있는 선택적 기능 계약입니다.
+    /// </summary>
+    /// <remarks>
+    /// 모든 <see cref="IAffectTarget"/> 구현체가 스킬 시스템을 보유하는 것은 아니므로
+    /// 기본 대상 계약과 분리하여 필요한 대상만 선택적으로 구현합니다.
+    /// </remarks>
+    public interface IAffectRunningSkillCanceler
+    {
+        /// <summary>
+        /// 현재 실행 중인 스킬의 취소를 요청합니다.
+        /// </summary>
+        /// <returns>취소 요청이 처리되었으면 <see langword="true"/>, 취소할 스킬이나 처리기가 없으면 <see langword="false"/>입니다.</returns>
+        bool RequestCancelRunningSkill();
+    }
 }

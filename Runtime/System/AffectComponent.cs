@@ -541,6 +541,15 @@ namespace GGemCo2DAffect
             if (!def.IsNoneGroup)
                 _groupIndex[def.groupId ?? string.Empty] = runtimeId;
 
+            // 스킬 취소 과정에서 대기 애니메이션으로 복귀할 수 있으므로,
+            // Affect의 OnApply 상태 및 애니메이션보다 먼저 취소하여 최종 연출이 Affect 기준으로 유지되게 합니다.
+            RequestCancelRunningSkillOnApply(def);
+            if (!IsRegisteredInstance(runtimeId, instance))
+            {
+                // 스킬 취소 콜백이 Affect를 제거한 경우 제거된 인스턴스의 OnApply를 실행하지 않습니다.
+                return;
+            }
+
             // 4) OnApply 실행
             ExecutePhase(AffectPhase.OnApply, instance);
             ExecuteAnimationOnApply(instance);
@@ -720,6 +729,9 @@ namespace GGemCo2DAffect
                     return;
 
                 case StackPolicy.Refresh:
+                    RequestCancelRunningSkillOnApply(def);
+                    if (!IsRegisteredInstance(runtimeId, instance))
+                        return;
                     instance.Refresh(duration);
                     if (def.refreshPolicy == RefreshPolicy.ValueAndDuration)
                     {
@@ -738,6 +750,9 @@ namespace GGemCo2DAffect
                     return;
 
                 case StackPolicy.Add:
+                    RequestCancelRunningSkillOnApply(def);
+                    if (!IsRegisteredInstance(runtimeId, instance))
+                        return;
                     instance.AddStack(def.maxStacks);
                     if (def.refreshPolicy != RefreshPolicy.None)
                         instance.Refresh(duration);
@@ -747,12 +762,51 @@ namespace GGemCo2DAffect
                     return;
 
                 default:
+                    RequestCancelRunningSkillOnApply(def);
+                    if (!IsRegisteredInstance(runtimeId, instance))
+                        return;
                     instance.Refresh(duration);
                     MarkChanged();
                     FlushChangedIfNeeded();
                     AffectTimerUiPresenter.TryEnsure(this);
                     return;
             }
+        }
+
+        /// <summary>
+        /// Affect 정의의 정책에 따라 대상 캐릭터의 실행 중인 스킬 취소를 요청합니다.
+        /// </summary>
+        /// <param name="definition">현재 신규 적용 또는 재적용이 인정된 Affect 정의입니다.</param>
+        /// <remarks>
+        /// 스킬 시스템이 없는 일반 Affect 대상도 지원해야 하므로 선택적 기능 계약을 구현한 대상에만 요청합니다.
+        /// 취소 실패는 적용 실패가 아니며 Affect의 OnApply 실행은 그대로 계속됩니다.
+        /// </remarks>
+        private void RequestCancelRunningSkillOnApply(AffectDefinition definition)
+        {
+            if (definition == null || !definition.cancelRunningSkillOnApply)
+                return;
+
+            if (_target is IAffectRunningSkillCanceler skillCanceler)
+            {
+                skillCanceler.RequestCancelRunningSkill();
+            }
+        }
+
+        /// <summary>
+        /// 지정한 Affect 인스턴스가 현재 runtimeId에 계속 등록되어 있는지 확인합니다.
+        /// </summary>
+        /// <param name="runtimeId">확인할 런타임 인스턴스 식별자입니다.</param>
+        /// <param name="instance">등록 상태를 비교할 Affect 인스턴스입니다.</param>
+        /// <returns>동일 인스턴스가 현재 등록되어 있으면 <see langword="true"/>입니다.</returns>
+        /// <remarks>
+        /// 스킬 취소 알림에서 Affect 제거와 같은 외부 콜백이 동기적으로 실행될 수 있으므로
+        /// 재적용 처리를 계속하기 전에 컬렉션 상태를 다시 검증합니다.
+        /// </remarks>
+        private bool IsRegisteredInstance(int runtimeId, AffectInstance instance)
+        {
+            return instance != null &&
+                   _byRuntimeId.TryGetValue(runtimeId, out AffectInstance registeredInstance) &&
+                   ReferenceEquals(registeredInstance, instance);
         }
 
         /// <summary>

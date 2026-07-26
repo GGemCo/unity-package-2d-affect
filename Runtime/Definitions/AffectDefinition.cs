@@ -161,6 +161,14 @@ namespace GGemCo2DAffect
         public float applyChance;
 
         /// <summary>
+        /// Affect가 실제 적용될 때 대상 캐릭터의 실행 중인 스킬을 취소할지 여부입니다.
+        /// </summary>
+        /// <remarks>
+        /// 신규 적용뿐 아니라 스택 또는 지속시간 갱신으로 인정된 재적용에도 사용됩니다.
+        /// </remarks>
+        public bool cancelRunningSkillOnApply;
+
+        /// <summary>
         /// Affect에 연결된 비주얼 액션 목록입니다.
         /// </summary>
         public List<AffectVisualActionDefinition> visualActions = new();

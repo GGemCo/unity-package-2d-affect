@@ -13,9 +13,10 @@ namespace GGemCo2DAffect
     /// - Core는 Affect를 참조하지 않으므로, Core 쪽에서는 Reflection 브리지로 이 컴포넌트를 자동 부착한다.
     /// </remarks>
     [DisallowMultipleComponent]
-    public sealed class CoreAffectTargetAdapter : MonoBehaviour, IAffectTarget
+    public sealed class CoreAffectTargetAdapter : MonoBehaviour, IAffectTarget, IAffectRunningSkillCanceler
     {
         private CharacterBase _character;
+        private ISkillCancelableDriver _skillCancelableDriver;
         private CoreStatMutable _stats;
         private CoreStateMutable _states;
         private CoreDamageReceiver _damage;
@@ -64,6 +65,22 @@ namespace GGemCo2DAffect
             _stats = new CoreStatMutable(_character);
             _states = new CoreStateMutable(_character);
             _damage = new CoreDamageReceiver(_character);
+            _skillCancelableDriver = GetComponent<ISkillCancelableDriver>();
+        }
+
+        /// <summary>
+        /// Core의 스킬 취소 포트를 통해 현재 실행 중인 스킬의 취소를 요청합니다.
+        /// </summary>
+        /// <returns>취소 요청이 처리되었으면 <see langword="true"/>, 취소할 스킬이나 드라이버가 없으면 <see langword="false"/>입니다.</returns>
+        /// <remarks>
+        /// Skill 패키지 타입을 직접 참조하지 않고 Core 공개 포트만 사용하여 패키지 의존성 방향을 유지합니다.
+        /// 드라이버가 Affect 어댑터보다 늦게 부착될 수 있으므로 최초 요청 시 한 번 더 탐색합니다.
+        /// </remarks>
+        public bool RequestCancelRunningSkill()
+        {
+            _skillCancelableDriver ??= GetComponent<ISkillCancelableDriver>();
+            return _skillCancelableDriver != null &&
+                   _skillCancelableDriver.RequestCancelSkill(SkillCancelReason.StateChanged);
         }
 
         /// <summary>
