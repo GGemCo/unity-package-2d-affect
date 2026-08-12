@@ -139,6 +139,7 @@ namespace GGemCo2DAffect
         /// <remarks>
         /// 같은 어펙트 UID가 여러 인스턴스로 존재하더라도 UI에서는 하나의 아이콘으로 표시합니다.
         /// 스택은 합산하고, 남은 시간과 전체 지속 시간은 가장 긴 값을 대표값으로 사용합니다.
+        /// 아이콘 키가 없는 어펙트는 플레이어 버프창 표시 대상에서 제외합니다.
         /// </remarks>
         private void RenderSnapshot()
         {
@@ -152,6 +153,12 @@ namespace GGemCo2DAffect
             {
                 AffectInstance instance = _instancesBuffer[i];
                 if (instance == null || instance.Definition == null)
+                {
+                    continue;
+                }
+
+                // IconKey의 None 토큰은 테이블 파싱 시 빈 문자열로 변환되므로 UI 슬롯을 배정하기 전에 제외합니다.
+                if (!CanDisplayInPlayerBuffWindow(instance.Definition))
                 {
                     continue;
                 }
@@ -205,6 +212,20 @@ namespace GGemCo2DAffect
             }
 
             _view.Render(_itemsBuffer);
+        }
+
+        /// <summary>
+        /// 어펙트 정의가 플레이어 버프창에 표시 가능한 아이콘 키를 가지고 있는지 확인합니다.
+        /// </summary>
+        /// <param name="definition">표시 가능 여부를 확인할 어펙트 정의입니다.</param>
+        /// <returns>유효한 아이콘 키가 있으면 true, 정의가 없거나 아이콘 키가 비어 있으면 false입니다.</returns>
+        /// <remarks>
+        /// 테이블의 <c>IconKey=None</c> 값은 공통 테이블 파서에서 빈 문자열로 정규화됩니다.
+        /// 빈 아이콘을 슬롯에 바인딩하지 않도록 스냅샷 집계 단계에서 표시 대상을 판정합니다.
+        /// </remarks>
+        private static bool CanDisplayInPlayerBuffWindow(AffectDefinition definition)
+        {
+            return definition != null && !string.IsNullOrWhiteSpace(definition.iconKey);
         }
 
         /// <summary>
